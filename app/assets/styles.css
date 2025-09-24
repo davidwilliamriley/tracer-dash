@@ -1,0 +1,78 @@
+/* assets/nodes_table.css - Additional styling for nodes table */
+
+/* Button fixed width for consistency */
+.btn-fixed-width {
+    min-width: 120px;
+}
+
+/* Toolbar styling */
+.nodes-toolbar {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem 0.375rem 0 0;
+    padding: 15px;
+    margin-bottom: -1px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .nodes-toolbar .row {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .nodes-toolbar .col-md-6 {
+        width: 100%;
+    }
+    
+    .btn-fixed-width {
+        min-width: 100px;
+        font-size: 0.875rem;
+    }
+}
+
+/* Button consistency */
+.btn-fixed-width {
+    min-width: 120px;
+}
+
+
+/* Loading spinner container */
+.loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+    flex-direction: column;
+}
+
+/* Modal styling */
+.modal-dialog {
+    max-width: 800px;
+}
+
+/* Alert styling */
+.alert-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1050;
+    min-width: 300px;
+}
+
+/* Print styles */
+@media print {
+    .nodes-toolbar {
+        display: none !important;
+    }
+    
+    .dash-table-pagination {
+        display: none !important;
+    }
+    
+    #nodes-table {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+}
+

@@ -1,4 +1,4 @@
-# mypkg / __init__.py
+# pkg / __init__.py
 
 from .config import BASE_DIR, DATA_DIR, DB_PATH, DATABASE_CONFIG
 

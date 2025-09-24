@@ -1,0 +1,590 @@
+2025-09-24 20:08:58,678 - __main__ - INFO - Initializing Tracer application components...
+2025-09-24 20:08:58,710 - __main__ - INFO - Model initialized successfully
+2025-09-24 20:08:58,710 - __main__ - INFO - View initialized successfully
+2025-09-24 20:08:58,712 - __main__ - INFO - Controller initialized successfully
+2025-09-24 20:08:58,713 - __main__ - INFO - Layout set successfully
+2025-09-24 20:08:58,713 - __main__ - INFO - Application setup complete
+2025-09-24 20:08:58,713 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:08:58,715 - dash.dash - INFO - Dash is running on http://localhost:8050/
+
+2025-09-24 20:09:00,904 - __main__ - INFO - Initializing Tracer application components...
+2025-09-24 20:09:00,933 - __main__ - INFO - Model initialized successfully
+2025-09-24 20:09:00,933 - __main__ - INFO - View initialized successfully
+2025-09-24 20:09:00,934 - __main__ - INFO - Controller initialized successfully
+2025-09-24 20:09:00,936 - __main__ - INFO - Layout set successfully
+2025-09-24 20:09:00,936 - __main__ - INFO - Application setup complete
+2025-09-24 20:09:00,937 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:12:00,017 - __main__ - INFO - Initializing Tracer application components...
+2025-09-24 20:12:00,047 - __main__ - INFO - Model initialized successfully
+2025-09-24 20:12:00,048 - __main__ - INFO - View initialized successfully
+2025-09-24 20:12:00,049 - __main__ - INFO - Controller initialized successfully
+2025-09-24 20:12:00,050 - __main__ - INFO - Layout set successfully
+2025-09-24 20:12:00,051 - __main__ - INFO - Application setup complete
+2025-09-24 20:12:00,051 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:12:00,052 - dash.dash - INFO - Dash is running on http://localhost:8050/
+
+2025-09-24 20:12:02,363 - __main__ - INFO - Initializing Tracer application components...
+2025-09-24 20:12:02,394 - __main__ - INFO - Model initialized successfully
+2025-09-24 20:12:02,394 - __main__ - INFO - View initialized successfully
+2025-09-24 20:12:02,395 - __main__ - INFO - Controller initialized successfully
+2025-09-24 20:12:02,397 - __main__ - INFO - Layout set successfully
+2025-09-24 20:12:02,397 - __main__ - INFO - Application setup complete
+2025-09-24 20:12:02,397 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:12:04,563 - controllers.controller - ERROR - Failed to get edges: (sqlite3.OperationalError) ambiguous column name: nodes.id
+[SQL: SELECT edges.id AS edges_id, edges.source_node_id AS edges_source_node_id, edges.edge_type_id AS edges_edge_type_id, edges.target_node_id AS edges_target_node_id, edges.description AS edges_description 
+FROM edges JOIN nodes ON nodes.id = edges.source_node_id JOIN nodes ON nodes.id = edges.target_node_id JOIN edge_types ON edge_types.id = edges.edge_type_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-09-24 20:12:04,756 - controllers.controller - ERROR - Failed to get edges: (sqlite3.OperationalError) ambiguous column name: nodes.id
+[SQL: SELECT edges.id AS edges_id, edges.source_node_id AS edges_source_node_id, edges.edge_type_id AS edges_edge_type_id, edges.target_node_id AS edges_target_node_id, edges.description AS edges_description 
+FROM edges JOIN nodes ON nodes.id = edges.source_node_id JOIN nodes ON nodes.id = edges.target_node_id JOIN edge_types ON edge_types.id = edges.edge_type_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-09-24 20:12:14,771 - controllers.controller - ERROR - Failed to get edges: (sqlite3.OperationalError) ambiguous column name: nodes.id
+[SQL: SELECT edges.id AS edges_id, edges.source_node_id AS edges_source_node_id, edges.edge_type_id AS edges_edge_type_id, edges.target_node_id AS edges_target_node_id, edges.description AS edges_description 
+FROM edges JOIN nodes ON nodes.id = edges.source_node_id JOIN nodes ON nodes.id = edges.target_node_id JOIN edge_types ON edge_types.id = edges.edge_type_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-09-24 20:12:25,870 - controllers.controller - INFO - Database integrity check passed
+2025-09-24 20:12:29,431 - controllers.controller - ERROR - Failed to get edges: (sqlite3.OperationalError) ambiguous column name: nodes.id
+[SQL: SELECT edges.id AS edges_id, edges.source_node_id AS edges_source_node_id, edges.edge_type_id AS edges_edge_type_id, edges.target_node_id AS edges_target_node_id, edges.description AS edges_description 
+FROM edges JOIN nodes ON nodes.id = edges.source_node_id JOIN nodes ON nodes.id = edges.target_node_id JOIN edge_types ON edge_types.id = edges.edge_type_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-09-24 20:12:42,069 - controllers.controller - ERROR - Failed to get edges: (sqlite3.OperationalError) ambiguous column name: nodes.id
+[SQL: SELECT edges.id AS edges_id, edges.source_node_id AS edges_source_node_id, edges.edge_type_id AS edges_edge_type_id, edges.target_node_id AS edges_target_node_id, edges.description AS edges_description 
+FROM edges JOIN nodes ON nodes.id = edges.source_node_id JOIN nodes ON nodes.id = edges.target_node_id JOIN edge_types ON edge_types.id = edges.edge_type_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-09-24 20:13:28,742 - __main__ - INFO - Initializing Tracer application components...
+2025-09-24 20:13:28,769 - __main__ - INFO - Model initialized successfully
+2025-09-24 20:13:28,769 - __main__ - INFO - View initialized successfully
+2025-09-24 20:13:28,770 - __main__ - INFO - Controller initialized successfully
+2025-09-24 20:13:28,773 - __main__ - INFO - Layout set successfully
+2025-09-24 20:13:28,774 - __main__ - INFO - Application setup complete
+2025-09-24 20:13:28,775 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:13:29,529 - controllers.controller - ERROR - Failed to get edges: (sqlite3.OperationalError) ambiguous column name: nodes.id
+[SQL: SELECT edges.id AS edges_id, edges.source_node_id AS edges_source_node_id, edges.edge_type_id AS edges_edge_type_id, edges.target_node_id AS edges_target_node_id, edges.description AS edges_description 
+FROM edges JOIN nodes ON nodes.id = edges.source_node_id JOIN nodes ON nodes.id = edges.target_node_id JOIN edge_types ON edge_types.id = edges.edge_type_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-09-24 20:13:33,685 - __main__ - INFO - Initializing Tracer application components...
+2025-09-24 20:13:33,709 - __main__ - INFO - Model initialized successfully
+2025-09-24 20:13:33,709 - __main__ - INFO - View initialized successfully
+2025-09-24 20:13:33,712 - __main__ - INFO - Controller initialized successfully
+2025-09-24 20:13:33,713 - __main__ - INFO - Layout set successfully
+2025-09-24 20:13:33,714 - __main__ - INFO - Application setup complete
+2025-09-24 20:13:33,714 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:13:33,786 - controllers.controller - ERROR - Failed to get edges: (sqlite3.OperationalError) ambiguous column name: nodes.id
+[SQL: SELECT edges.id AS edges_id, edges.source_node_id AS edges_source_node_id, edges.edge_type_id AS edges_edge_type_id, edges.target_node_id AS edges_target_node_id, edges.description AS edges_description 
+FROM edges JOIN nodes ON nodes.id = edges.source_node_id JOIN nodes ON nodes.id = edges.target_node_id JOIN edge_types ON edge_types.id = edges.edge_type_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-09-24 20:13:36,899 - controllers.controller - ERROR - Failed to get edges: (sqlite3.OperationalError) ambiguous column name: nodes.id
+[SQL: SELECT edges.id AS edges_id, edges.source_node_id AS edges_source_node_id, edges.edge_type_id AS edges_edge_type_id, edges.target_node_id AS edges_target_node_id, edges.description AS edges_description 
+FROM edges JOIN nodes ON nodes.id = edges.source_node_id JOIN nodes ON nodes.id = edges.target_node_id JOIN edge_types ON edge_types.id = edges.edge_type_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-09-24 20:13:43,795 - __main__ - INFO - Initializing Tracer application components...
+2025-09-24 20:13:43,822 - __main__ - INFO - Model initialized successfully
+2025-09-24 20:13:43,823 - __main__ - INFO - View initialized successfully
+2025-09-24 20:13:43,824 - __main__ - INFO - Controller initialized successfully
+2025-09-24 20:13:43,825 - __main__ - INFO - Layout set successfully
+2025-09-24 20:13:43,826 - __main__ - INFO - Application setup complete
+2025-09-24 20:13:43,826 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:13:44,321 - controllers.controller - ERROR - Failed to get edges: (sqlite3.OperationalError) ambiguous column name: nodes.id
+[SQL: SELECT edges.id AS edges_id, edges.source_node_id AS edges_source_node_id, edges.edge_type_id AS edges_edge_type_id, edges.target_node_id AS edges_target_node_id, edges.description AS edges_description 
+FROM edges JOIN nodes ON nodes.id = edges.source_node_id JOIN nodes ON nodes.id = edges.target_node_id JOIN edge_types ON edge_types.id = edges.edge_type_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-09-24 20:13:45,981 - controllers.controller - ERROR - Failed to get edges: (sqlite3.OperationalError) ambiguous column name: nodes.id
+[SQL: SELECT edges.id AS edges_id, edges.source_node_id AS edges_source_node_id, edges.edge_type_id AS edges_edge_type_id, edges.target_node_id AS edges_target_node_id, edges.description AS edges_description 
+FROM edges JOIN nodes ON nodes.id = edges.source_node_id JOIN nodes ON nodes.id = edges.target_node_id JOIN edge_types ON edge_types.id = edges.edge_type_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-09-24 20:13:45,997 - controllers.controller - ERROR - Failed to get edges: (sqlite3.OperationalError) ambiguous column name: nodes.id
+[SQL: SELECT edges.id AS edges_id, edges.source_node_id AS edges_source_node_id, edges.edge_type_id AS edges_edge_type_id, edges.target_node_id AS edges_target_node_id, edges.description AS edges_description 
+FROM edges JOIN nodes ON nodes.id = edges.source_node_id JOIN nodes ON nodes.id = edges.target_node_id JOIN edge_types ON edge_types.id = edges.edge_type_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-09-24 20:13:52,665 - __main__ - INFO - Initializing Tracer application components...
+2025-09-24 20:13:52,690 - __main__ - INFO - Model initialized successfully
+2025-09-24 20:13:52,690 - __main__ - INFO - View initialized successfully
+2025-09-24 20:13:52,692 - __main__ - INFO - Controller initialized successfully
+2025-09-24 20:13:52,693 - __main__ - INFO - Layout set successfully
+2025-09-24 20:13:52,693 - __main__ - INFO - Application setup complete
+2025-09-24 20:13:52,694 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:13:52,871 - controllers.controller - ERROR - Failed to get edges: (sqlite3.OperationalError) ambiguous column name: nodes.id
+[SQL: SELECT edges.id AS edges_id, edges.source_node_id AS edges_source_node_id, edges.edge_type_id AS edges_edge_type_id, edges.target_node_id AS edges_target_node_id, edges.description AS edges_description 
+FROM edges JOIN nodes ON nodes.id = edges.source_node_id JOIN nodes ON nodes.id = edges.target_node_id JOIN edge_types ON edge_types.id = edges.edge_type_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-09-24 20:13:54,808 - controllers.controller - ERROR - Failed to get edges: (sqlite3.OperationalError) ambiguous column name: nodes.id
+[SQL: SELECT edges.id AS edges_id, edges.source_node_id AS edges_source_node_id, edges.edge_type_id AS edges_edge_type_id, edges.target_node_id AS edges_target_node_id, edges.description AS edges_description 
+FROM edges JOIN nodes ON nodes.id = edges.source_node_id JOIN nodes ON nodes.id = edges.target_node_id JOIN edge_types ON edge_types.id = edges.edge_type_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-09-24 20:13:55,220 - controllers.controller - ERROR - Failed to get edges: (sqlite3.OperationalError) ambiguous column name: nodes.id
+[SQL: SELECT edges.id AS edges_id, edges.source_node_id AS edges_source_node_id, edges.edge_type_id AS edges_edge_type_id, edges.target_node_id AS edges_target_node_id, edges.description AS edges_description 
+FROM edges JOIN nodes ON nodes.id = edges.source_node_id JOIN nodes ON nodes.id = edges.target_node_id JOIN edge_types ON edge_types.id = edges.edge_type_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-09-24 20:14:01,538 - __main__ - INFO - Initializing Tracer application components...
+2025-09-24 20:14:01,563 - __main__ - INFO - Model initialized successfully
+2025-09-24 20:14:01,563 - __main__ - INFO - View initialized successfully
+2025-09-24 20:14:01,564 - __main__ - INFO - Controller initialized successfully
+2025-09-24 20:14:01,565 - __main__ - INFO - Layout set successfully
+2025-09-24 20:14:01,566 - __main__ - INFO - Application setup complete
+2025-09-24 20:14:01,566 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:14:01,793 - controllers.controller - ERROR - Failed to get edges: (sqlite3.OperationalError) ambiguous column name: nodes.id
+[SQL: SELECT edges.id AS edges_id, edges.source_node_id AS edges_source_node_id, edges.edge_type_id AS edges_edge_type_id, edges.target_node_id AS edges_target_node_id, edges.description AS edges_description 
+FROM edges JOIN nodes ON nodes.id = edges.source_node_id JOIN nodes ON nodes.id = edges.target_node_id JOIN edge_types ON edge_types.id = edges.edge_type_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-09-24 20:14:03,694 - controllers.controller - ERROR - Failed to get edges: (sqlite3.OperationalError) ambiguous column name: nodes.id
+[SQL: SELECT edges.id AS edges_id, edges.source_node_id AS edges_source_node_id, edges.edge_type_id AS edges_edge_type_id, edges.target_node_id AS edges_target_node_id, edges.description AS edges_description 
+FROM edges JOIN nodes ON nodes.id = edges.source_node_id JOIN nodes ON nodes.id = edges.target_node_id JOIN edge_types ON edge_types.id = edges.edge_type_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-09-24 20:14:06,317 - __main__ - INFO - Initializing Tracer application components...
+2025-09-24 20:14:06,341 - __main__ - INFO - Model initialized successfully
+2025-09-24 20:14:06,342 - __main__ - INFO - View initialized successfully
+2025-09-24 20:14:06,343 - __main__ - INFO - Controller initialized successfully
+2025-09-24 20:14:06,344 - __main__ - INFO - Layout set successfully
+2025-09-24 20:14:06,345 - __main__ - INFO - Application setup complete
+2025-09-24 20:14:06,345 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:14:06,422 - controllers.controller - ERROR - Failed to get edges: (sqlite3.OperationalError) ambiguous column name: nodes.id
+[SQL: SELECT edges.id AS edges_id, edges.source_node_id AS edges_source_node_id, edges.edge_type_id AS edges_edge_type_id, edges.target_node_id AS edges_target_node_id, edges.description AS edges_description 
+FROM edges JOIN nodes ON nodes.id = edges.source_node_id JOIN nodes ON nodes.id = edges.target_node_id JOIN edge_types ON edge_types.id = edges.edge_type_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-09-24 20:14:06,511 - controllers.controller - ERROR - Failed to get edges: (sqlite3.OperationalError) ambiguous column name: nodes.id
+[SQL: SELECT edges.id AS edges_id, edges.source_node_id AS edges_source_node_id, edges.edge_type_id AS edges_edge_type_id, edges.target_node_id AS edges_target_node_id, edges.description AS edges_description 
+FROM edges JOIN nodes ON nodes.id = edges.source_node_id JOIN nodes ON nodes.id = edges.target_node_id JOIN edge_types ON edge_types.id = edges.edge_type_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-09-24 20:14:08,486 - controllers.controller - ERROR - Failed to get edges: (sqlite3.OperationalError) ambiguous column name: nodes.id
+[SQL: SELECT edges.id AS edges_id, edges.source_node_id AS edges_source_node_id, edges.edge_type_id AS edges_edge_type_id, edges.target_node_id AS edges_target_node_id, edges.description AS edges_description 
+FROM edges JOIN nodes ON nodes.id = edges.source_node_id JOIN nodes ON nodes.id = edges.target_node_id JOIN edge_types ON edge_types.id = edges.edge_type_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-09-24 20:14:15,363 - __main__ - INFO - Initializing Tracer application components...
+2025-09-24 20:14:15,387 - __main__ - INFO - Model initialized successfully
+2025-09-24 20:14:15,388 - __main__ - INFO - View initialized successfully
+2025-09-24 20:14:15,389 - __main__ - INFO - Controller initialized successfully
+2025-09-24 20:14:15,390 - __main__ - INFO - Layout set successfully
+2025-09-24 20:14:15,391 - __main__ - INFO - Application setup complete
+2025-09-24 20:14:15,391 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:14:15,570 - controllers.controller - ERROR - Failed to get edges: (sqlite3.OperationalError) ambiguous column name: nodes.id
+[SQL: SELECT edges.id AS edges_id, edges.source_node_id AS edges_source_node_id, edges.edge_type_id AS edges_edge_type_id, edges.target_node_id AS edges_target_node_id, edges.description AS edges_description 
+FROM edges JOIN nodes ON nodes.id = edges.source_node_id JOIN nodes ON nodes.id = edges.target_node_id JOIN edge_types ON edge_types.id = edges.edge_type_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-09-24 20:14:17,557 - controllers.controller - ERROR - Failed to get edges: (sqlite3.OperationalError) ambiguous column name: nodes.id
+[SQL: SELECT edges.id AS edges_id, edges.source_node_id AS edges_source_node_id, edges.edge_type_id AS edges_edge_type_id, edges.target_node_id AS edges_target_node_id, edges.description AS edges_description 
+FROM edges JOIN nodes ON nodes.id = edges.source_node_id JOIN nodes ON nodes.id = edges.target_node_id JOIN edge_types ON edge_types.id = edges.edge_type_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-09-24 20:14:17,792 - controllers.controller - ERROR - Failed to get edges: (sqlite3.OperationalError) ambiguous column name: nodes.id
+[SQL: SELECT edges.id AS edges_id, edges.source_node_id AS edges_source_node_id, edges.edge_type_id AS edges_edge_type_id, edges.target_node_id AS edges_target_node_id, edges.description AS edges_description 
+FROM edges JOIN nodes ON nodes.id = edges.source_node_id JOIN nodes ON nodes.id = edges.target_node_id JOIN edge_types ON edge_types.id = edges.edge_type_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-09-24 20:14:34,338 - __main__ - INFO - Initializing Tracer application components...
+2025-09-24 20:14:34,361 - __main__ - INFO - Model initialized successfully
+2025-09-24 20:14:34,362 - __main__ - INFO - View initialized successfully
+2025-09-24 20:14:34,363 - __main__ - INFO - Controller initialized successfully
+2025-09-24 20:14:34,364 - __main__ - INFO - Layout set successfully
+2025-09-24 20:14:34,364 - __main__ - INFO - Application setup complete
+2025-09-24 20:14:34,365 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:14:34,522 - controllers.controller - ERROR - Failed to get edges: (sqlite3.OperationalError) ambiguous column name: nodes.id
+[SQL: SELECT edges.id AS edges_id, edges.source_node_id AS edges_source_node_id, edges.edge_type_id AS edges_edge_type_id, edges.target_node_id AS edges_target_node_id, edges.description AS edges_description 
+FROM edges JOIN nodes ON nodes.id = edges.source_node_id JOIN nodes ON nodes.id = edges.target_node_id JOIN edge_types ON edge_types.id = edges.edge_type_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-09-24 20:14:36,486 - controllers.controller - ERROR - Failed to get edges: (sqlite3.OperationalError) ambiguous column name: nodes.id
+[SQL: SELECT edges.id AS edges_id, edges.source_node_id AS edges_source_node_id, edges.edge_type_id AS edges_edge_type_id, edges.target_node_id AS edges_target_node_id, edges.description AS edges_description 
+FROM edges JOIN nodes ON nodes.id = edges.source_node_id JOIN nodes ON nodes.id = edges.target_node_id JOIN edge_types ON edge_types.id = edges.edge_type_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-09-24 20:14:36,521 - controllers.controller - ERROR - Failed to get edges: (sqlite3.OperationalError) ambiguous column name: nodes.id
+[SQL: SELECT edges.id AS edges_id, edges.source_node_id AS edges_source_node_id, edges.edge_type_id AS edges_edge_type_id, edges.target_node_id AS edges_target_node_id, edges.description AS edges_description 
+FROM edges JOIN nodes ON nodes.id = edges.source_node_id JOIN nodes ON nodes.id = edges.target_node_id JOIN edge_types ON edge_types.id = edges.edge_type_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-09-24 20:15:01,570 - __main__ - INFO - Initializing Tracer application components...
+2025-09-24 20:15:01,597 - __main__ - INFO - Model initialized successfully
+2025-09-24 20:15:01,598 - __main__ - INFO - View initialized successfully
+2025-09-24 20:15:01,599 - __main__ - INFO - Controller initialized successfully
+2025-09-24 20:15:01,601 - __main__ - INFO - Layout set successfully
+2025-09-24 20:15:01,602 - __main__ - INFO - Application setup complete
+2025-09-24 20:15:01,603 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:15:03,738 - controllers.controller - ERROR - Failed to get edges: (sqlite3.OperationalError) ambiguous column name: nodes.id
+[SQL: SELECT edges.id AS edges_id, edges.source_node_id AS edges_source_node_id, edges.edge_type_id AS edges_edge_type_id, edges.target_node_id AS edges_target_node_id, edges.description AS edges_description 
+FROM edges JOIN nodes ON nodes.id = edges.source_node_id JOIN nodes ON nodes.id = edges.target_node_id JOIN edge_types ON edge_types.id = edges.edge_type_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-09-24 20:15:03,740 - controllers.controller - ERROR - Failed to get edges: (sqlite3.OperationalError) ambiguous column name: nodes.id
+[SQL: SELECT edges.id AS edges_id, edges.source_node_id AS edges_source_node_id, edges.edge_type_id AS edges_edge_type_id, edges.target_node_id AS edges_target_node_id, edges.description AS edges_description 
+FROM edges JOIN nodes ON nodes.id = edges.source_node_id JOIN nodes ON nodes.id = edges.target_node_id JOIN edge_types ON edge_types.id = edges.edge_type_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-09-24 20:15:03,752 - controllers.controller - ERROR - Failed to get edges: (sqlite3.OperationalError) ambiguous column name: nodes.id
+[SQL: SELECT edges.id AS edges_id, edges.source_node_id AS edges_source_node_id, edges.edge_type_id AS edges_edge_type_id, edges.target_node_id AS edges_target_node_id, edges.description AS edges_description 
+FROM edges JOIN nodes ON nodes.id = edges.source_node_id JOIN nodes ON nodes.id = edges.target_node_id JOIN edge_types ON edge_types.id = edges.edge_type_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-09-24 20:15:38,170 - __main__ - INFO - Initializing Tracer application components...
+2025-09-24 20:15:38,199 - __main__ - INFO - Model initialized successfully
+2025-09-24 20:15:38,199 - __main__ - INFO - View initialized successfully
+2025-09-24 20:15:38,201 - __main__ - INFO - Controller initialized successfully
+2025-09-24 20:15:38,203 - __main__ - INFO - Layout set successfully
+2025-09-24 20:15:38,204 - __main__ - INFO - Application setup complete
+2025-09-24 20:15:38,204 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:15:40,325 - controllers.controller - ERROR - Failed to get edges: (sqlite3.OperationalError) ambiguous column name: nodes.id
+[SQL: SELECT edges.id AS edges_id, edges.source_node_id AS edges_source_node_id, edges.edge_type_id AS edges_edge_type_id, edges.target_node_id AS edges_target_node_id, edges.description AS edges_description 
+FROM edges JOIN nodes ON nodes.id = edges.source_node_id JOIN nodes ON nodes.id = edges.target_node_id JOIN edge_types ON edge_types.id = edges.edge_type_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-09-24 20:15:40,341 - controllers.controller - ERROR - Failed to get edges: (sqlite3.OperationalError) ambiguous column name: nodes.id
+[SQL: SELECT edges.id AS edges_id, edges.source_node_id AS edges_source_node_id, edges.edge_type_id AS edges_edge_type_id, edges.target_node_id AS edges_target_node_id, edges.description AS edges_description 
+FROM edges JOIN nodes ON nodes.id = edges.source_node_id JOIN nodes ON nodes.id = edges.target_node_id JOIN edge_types ON edge_types.id = edges.edge_type_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-09-24 20:15:40,601 - controllers.controller - ERROR - Failed to get edges: (sqlite3.OperationalError) ambiguous column name: nodes.id
+[SQL: SELECT edges.id AS edges_id, edges.source_node_id AS edges_source_node_id, edges.edge_type_id AS edges_edge_type_id, edges.target_node_id AS edges_target_node_id, edges.description AS edges_description 
+FROM edges JOIN nodes ON nodes.id = edges.source_node_id JOIN nodes ON nodes.id = edges.target_node_id JOIN edge_types ON edge_types.id = edges.edge_type_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-09-24 20:16:07,882 - __main__ - INFO - Initializing Tracer application components...
+2025-09-24 20:16:07,910 - __main__ - INFO - Model initialized successfully
+2025-09-24 20:16:07,910 - __main__ - INFO - View initialized successfully
+2025-09-24 20:16:07,911 - __main__ - INFO - Controller initialized successfully
+2025-09-24 20:16:07,912 - __main__ - INFO - Layout set successfully
+2025-09-24 20:16:07,913 - __main__ - INFO - Application setup complete
+2025-09-24 20:16:07,913 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:16:12,962 - __main__ - INFO - Initializing Tracer application components...
+2025-09-24 20:16:12,987 - __main__ - INFO - Model initialized successfully
+2025-09-24 20:16:12,987 - __main__ - INFO - View initialized successfully
+2025-09-24 20:16:12,988 - __main__ - INFO - Controller initialized successfully
+2025-09-24 20:16:12,989 - __main__ - INFO - Layout set successfully
+2025-09-24 20:16:12,990 - __main__ - INFO - Application setup complete
+2025-09-24 20:16:12,990 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:16:12,991 - dash.dash - INFO - Dash is running on http://localhost:8050/
+
+2025-09-24 20:16:15,184 - __main__ - INFO - Initializing Tracer application components...
+2025-09-24 20:16:15,212 - __main__ - INFO - Model initialized successfully
+2025-09-24 20:16:15,212 - __main__ - INFO - View initialized successfully
+2025-09-24 20:16:15,213 - __main__ - INFO - Controller initialized successfully
+2025-09-24 20:16:15,214 - __main__ - INFO - Layout set successfully
+2025-09-24 20:16:15,215 - __main__ - INFO - Application setup complete
+2025-09-24 20:16:15,215 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:16:32,981 - __main__ - INFO - Initializing Tracer application components...
+2025-09-24 20:16:33,033 - __main__ - INFO - Model initialized successfully
+2025-09-24 20:16:33,034 - __main__ - INFO - View initialized successfully
+2025-09-24 20:16:33,036 - __main__ - INFO - Controller initialized successfully
+2025-09-24 20:16:33,038 - __main__ - INFO - Layout set successfully
+2025-09-24 20:16:33,040 - __main__ - INFO - Application setup complete
+2025-09-24 20:16:33,040 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:21:09,651 - __main__ - INFO - Initializing Tracer application components...
+2025-09-24 20:21:09,679 - __main__ - INFO - Model initialized successfully
+2025-09-24 20:21:09,680 - __main__ - INFO - View initialized successfully
+2025-09-24 20:21:09,681 - __main__ - INFO - Controller initialized successfully
+2025-09-24 20:21:09,682 - __main__ - INFO - Layout set successfully
+2025-09-24 20:21:09,683 - __main__ - INFO - Application setup complete
+2025-09-24 20:21:09,683 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:21:09,879 - controllers.controller - ERROR - Failed to get edges: (sqlite3.OperationalError) ambiguous column name: nodes.id
+[SQL: SELECT edges.id AS edges_id, edges.source_node_id AS edges_source_node_id, edges.edge_type_id AS edges_edge_type_id, edges.target_node_id AS edges_target_node_id, edges.description AS edges_description 
+FROM edges JOIN nodes ON nodes.id = edges.source_node_id JOIN nodes ON nodes.id = edges.target_node_id JOIN edge_types ON edge_types.id = edges.edge_type_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-09-24 20:21:25,111 - controllers.controller - INFO - Database integrity check passed
+2025-09-24 20:21:26,359 - controllers.controller - INFO - Settings saved: {'theme': 'light', 'notifications': True, 'auto_save': True}
+2025-09-24 20:21:33,888 - __main__ - INFO - Initializing Tracer application components...
+2025-09-24 20:21:33,917 - __main__ - INFO - Model initialized successfully
+2025-09-24 20:21:33,919 - __main__ - INFO - View initialized successfully
+2025-09-24 20:21:33,921 - __main__ - INFO - Controller initialized successfully
+2025-09-24 20:21:33,925 - __main__ - INFO - Layout set successfully
+2025-09-24 20:21:33,927 - __main__ - INFO - Application setup complete
+2025-09-24 20:21:33,928 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:21:34,083 - controllers.controller - ERROR - Failed to get edges: (sqlite3.OperationalError) ambiguous column name: nodes.id
+[SQL: SELECT edges.id AS edges_id, edges.source_node_id AS edges_source_node_id, edges.edge_type_id AS edges_edge_type_id, edges.target_node_id AS edges_target_node_id, edges.description AS edges_description 
+FROM edges JOIN nodes ON nodes.id = edges.source_node_id JOIN nodes ON nodes.id = edges.target_node_id JOIN edge_types ON edge_types.id = edges.edge_type_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-09-24 20:22:09,819 - __main__ - INFO - Initializing Tracer application components...
+2025-09-24 20:22:09,890 - __main__ - INFO - Model initialized successfully
+2025-09-24 20:22:09,890 - __main__ - INFO - View initialized successfully
+2025-09-24 20:22:09,893 - __main__ - INFO - Controller initialized successfully
+2025-09-24 20:22:09,895 - __main__ - INFO - Layout set successfully
+2025-09-24 20:22:09,897 - __main__ - INFO - Application setup complete
+2025-09-24 20:22:09,898 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:22:10,110 - controllers.controller - ERROR - Failed to get edges: (sqlite3.OperationalError) ambiguous column name: nodes.id
+[SQL: SELECT edges.id AS edges_id, edges.source_node_id AS edges_source_node_id, edges.edge_type_id AS edges_edge_type_id, edges.target_node_id AS edges_target_node_id, edges.description AS edges_description 
+FROM edges JOIN nodes ON nodes.id = edges.source_node_id JOIN nodes ON nodes.id = edges.target_node_id JOIN edge_types ON edge_types.id = edges.edge_type_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-09-24 20:22:16,222 - __main__ - ERROR - Initialization error: unterminated string literal (detected at line 50) (view.py, line 50)
+2025-09-24 20:22:16,223 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:22:23,149 - __main__ - INFO - Initializing Tracer application components...
+2025-09-24 20:22:23,177 - __main__ - INFO - Model initialized successfully
+2025-09-24 20:22:23,177 - __main__ - INFO - View initialized successfully
+2025-09-24 20:22:23,181 - __main__ - INFO - Controller initialized successfully
+2025-09-24 20:22:23,184 - __main__ - INFO - Layout set successfully
+2025-09-24 20:22:23,185 - __main__ - INFO - Application setup complete
+2025-09-24 20:22:23,185 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:22:23,345 - controllers.controller - ERROR - Failed to get edges: (sqlite3.OperationalError) ambiguous column name: nodes.id
+[SQL: SELECT edges.id AS edges_id, edges.source_node_id AS edges_source_node_id, edges.edge_type_id AS edges_edge_type_id, edges.target_node_id AS edges_target_node_id, edges.description AS edges_description 
+FROM edges JOIN nodes ON nodes.id = edges.source_node_id JOIN nodes ON nodes.id = edges.target_node_id JOIN edge_types ON edge_types.id = edges.edge_type_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-09-24 20:22:27,008 - __main__ - INFO - Initializing Tracer application components...
+2025-09-24 20:22:27,033 - __main__ - INFO - Model initialized successfully
+2025-09-24 20:22:27,033 - __main__ - INFO - View initialized successfully
+2025-09-24 20:22:27,034 - __main__ - INFO - Controller initialized successfully
+2025-09-24 20:22:27,035 - __main__ - INFO - Layout set successfully
+2025-09-24 20:22:27,036 - __main__ - INFO - Application setup complete
+2025-09-24 20:22:27,036 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:22:27,204 - controllers.controller - ERROR - Failed to get edges: (sqlite3.OperationalError) ambiguous column name: nodes.id
+[SQL: SELECT edges.id AS edges_id, edges.source_node_id AS edges_source_node_id, edges.edge_type_id AS edges_edge_type_id, edges.target_node_id AS edges_target_node_id, edges.description AS edges_description 
+FROM edges JOIN nodes ON nodes.id = edges.source_node_id JOIN nodes ON nodes.id = edges.target_node_id JOIN edge_types ON edge_types.id = edges.edge_type_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-09-24 20:22:48,512 - __main__ - INFO - Initializing Tracer application components...
+2025-09-24 20:22:48,542 - __main__ - INFO - Model initialized successfully
+2025-09-24 20:22:48,542 - __main__ - INFO - View initialized successfully
+2025-09-24 20:22:48,543 - __main__ - INFO - Controller initialized successfully
+2025-09-24 20:22:48,544 - __main__ - INFO - Layout set successfully
+2025-09-24 20:22:48,545 - __main__ - INFO - Application setup complete
+2025-09-24 20:22:48,545 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:22:48,693 - controllers.controller - ERROR - Failed to get edges: (sqlite3.OperationalError) ambiguous column name: nodes.id
+[SQL: SELECT edges.id AS edges_id, edges.source_node_id AS edges_source_node_id, edges.edge_type_id AS edges_edge_type_id, edges.target_node_id AS edges_target_node_id, edges.description AS edges_description 
+FROM edges JOIN nodes ON nodes.id = edges.source_node_id JOIN nodes ON nodes.id = edges.target_node_id JOIN edge_types ON edge_types.id = edges.edge_type_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-09-24 20:22:53,423 - __main__ - INFO - Initializing Tracer application components...
+2025-09-24 20:22:53,454 - __main__ - INFO - Model initialized successfully
+2025-09-24 20:22:53,455 - __main__ - INFO - View initialized successfully
+2025-09-24 20:22:53,456 - __main__ - INFO - Controller initialized successfully
+2025-09-24 20:22:53,457 - __main__ - INFO - Layout set successfully
+2025-09-24 20:22:53,458 - __main__ - INFO - Application setup complete
+2025-09-24 20:22:53,458 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:22:53,609 - controllers.controller - ERROR - Failed to get edges: (sqlite3.OperationalError) ambiguous column name: nodes.id
+[SQL: SELECT edges.id AS edges_id, edges.source_node_id AS edges_source_node_id, edges.edge_type_id AS edges_edge_type_id, edges.target_node_id AS edges_target_node_id, edges.description AS edges_description 
+FROM edges JOIN nodes ON nodes.id = edges.source_node_id JOIN nodes ON nodes.id = edges.target_node_id JOIN edge_types ON edge_types.id = edges.edge_type_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-09-24 20:23:11,031 - __main__ - INFO - Initializing Tracer application components...
+2025-09-24 20:23:11,057 - __main__ - INFO - Model initialized successfully
+2025-09-24 20:23:11,057 - __main__ - INFO - View initialized successfully
+2025-09-24 20:23:11,059 - __main__ - INFO - Controller initialized successfully
+2025-09-24 20:23:11,061 - __main__ - INFO - Layout set successfully
+2025-09-24 20:23:11,063 - __main__ - INFO - Application setup complete
+2025-09-24 20:23:11,063 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:23:11,210 - controllers.controller - ERROR - Failed to get edges: (sqlite3.OperationalError) ambiguous column name: nodes.id
+[SQL: SELECT edges.id AS edges_id, edges.source_node_id AS edges_source_node_id, edges.edge_type_id AS edges_edge_type_id, edges.target_node_id AS edges_target_node_id, edges.description AS edges_description 
+FROM edges JOIN nodes ON nodes.id = edges.source_node_id JOIN nodes ON nodes.id = edges.target_node_id JOIN edge_types ON edge_types.id = edges.edge_type_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-09-24 20:23:18,848 - __main__ - INFO - Initializing Tracer application components...
+2025-09-24 20:23:18,876 - __main__ - INFO - Model initialized successfully
+2025-09-24 20:23:18,876 - __main__ - INFO - View initialized successfully
+2025-09-24 20:23:18,877 - __main__ - INFO - Controller initialized successfully
+2025-09-24 20:23:18,878 - __main__ - INFO - Layout set successfully
+2025-09-24 20:23:18,879 - __main__ - INFO - Application setup complete
+2025-09-24 20:23:18,879 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:23:19,037 - controllers.controller - ERROR - Failed to get edges: (sqlite3.OperationalError) ambiguous column name: nodes.id
+[SQL: SELECT edges.id AS edges_id, edges.source_node_id AS edges_source_node_id, edges.edge_type_id AS edges_edge_type_id, edges.target_node_id AS edges_target_node_id, edges.description AS edges_description 
+FROM edges JOIN nodes ON nodes.id = edges.source_node_id JOIN nodes ON nodes.id = edges.target_node_id JOIN edge_types ON edge_types.id = edges.edge_type_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-09-24 20:23:25,638 - __main__ - INFO - Initializing Tracer application components...
+2025-09-24 20:23:25,664 - __main__ - INFO - Model initialized successfully
+2025-09-24 20:23:25,665 - __main__ - INFO - View initialized successfully
+2025-09-24 20:23:25,666 - __main__ - INFO - Controller initialized successfully
+2025-09-24 20:23:25,668 - __main__ - INFO - Layout set successfully
+2025-09-24 20:23:25,669 - __main__ - INFO - Application setup complete
+2025-09-24 20:23:25,669 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:23:25,821 - controllers.controller - ERROR - Failed to get edges: (sqlite3.OperationalError) ambiguous column name: nodes.id
+[SQL: SELECT edges.id AS edges_id, edges.source_node_id AS edges_source_node_id, edges.edge_type_id AS edges_edge_type_id, edges.target_node_id AS edges_target_node_id, edges.description AS edges_description 
+FROM edges JOIN nodes ON nodes.id = edges.source_node_id JOIN nodes ON nodes.id = edges.target_node_id JOIN edge_types ON edge_types.id = edges.edge_type_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-09-24 20:23:49,879 - __main__ - INFO - Initializing Tracer application components...
+2025-09-24 20:23:49,907 - __main__ - INFO - Model initialized successfully
+2025-09-24 20:23:49,908 - __main__ - INFO - View initialized successfully
+2025-09-24 20:23:49,909 - __main__ - INFO - Controller initialized successfully
+2025-09-24 20:23:49,911 - __main__ - INFO - Layout set successfully
+2025-09-24 20:23:49,912 - __main__ - INFO - Application setup complete
+2025-09-24 20:23:49,912 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:23:52,313 - controllers.controller - ERROR - Failed to get edges: (sqlite3.OperationalError) ambiguous column name: nodes.id
+[SQL: SELECT edges.id AS edges_id, edges.source_node_id AS edges_source_node_id, edges.edge_type_id AS edges_edge_type_id, edges.target_node_id AS edges_target_node_id, edges.description AS edges_description 
+FROM edges JOIN nodes ON nodes.id = edges.source_node_id JOIN nodes ON nodes.id = edges.target_node_id JOIN edge_types ON edge_types.id = edges.edge_type_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-09-24 20:24:43,586 - __main__ - ERROR - Initialization error: invalid syntax. Perhaps you forgot a comma? (view.py, line 52)
+2025-09-24 20:24:43,587 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:24:48,253 - __main__ - ERROR - Initialization error: invalid syntax. Perhaps you forgot a comma? (view.py, line 52)
+2025-09-24 20:24:48,254 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:24:51,466 - __main__ - ERROR - Initialization error: invalid syntax. Perhaps you forgot a comma? (view.py, line 51)
+2025-09-24 20:24:51,467 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:24:56,632 - __main__ - ERROR - Initialization error: invalid syntax. Perhaps you forgot a comma? (view.py, line 50)
+2025-09-24 20:24:56,632 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:25:01,436 - __main__ - INFO - Initializing Tracer application components...
+2025-09-24 20:25:01,460 - __main__ - INFO - Model initialized successfully
+2025-09-24 20:25:01,460 - __main__ - INFO - View initialized successfully
+2025-09-24 20:25:01,462 - __main__ - INFO - Controller initialized successfully
+2025-09-24 20:25:01,464 - __main__ - INFO - Layout set successfully
+2025-09-24 20:25:01,465 - __main__ - INFO - Application setup complete
+2025-09-24 20:25:01,465 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:25:01,789 - controllers.controller - ERROR - Failed to get edges: (sqlite3.OperationalError) ambiguous column name: nodes.id
+[SQL: SELECT edges.id AS edges_id, edges.source_node_id AS edges_source_node_id, edges.edge_type_id AS edges_edge_type_id, edges.target_node_id AS edges_target_node_id, edges.description AS edges_description 
+FROM edges JOIN nodes ON nodes.id = edges.source_node_id JOIN nodes ON nodes.id = edges.target_node_id JOIN edge_types ON edge_types.id = edges.edge_type_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-09-24 20:25:27,577 - __main__ - INFO - Initializing Tracer application components...
+2025-09-24 20:25:27,604 - __main__ - INFO - Model initialized successfully
+2025-09-24 20:25:27,605 - __main__ - INFO - View initialized successfully
+2025-09-24 20:25:27,606 - __main__ - INFO - Controller initialized successfully
+2025-09-24 20:25:27,607 - __main__ - INFO - Layout set successfully
+2025-09-24 20:25:27,608 - __main__ - INFO - Application setup complete
+2025-09-24 20:25:27,608 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:25:27,743 - controllers.controller - ERROR - Failed to get edges: (sqlite3.OperationalError) ambiguous column name: nodes.id
+[SQL: SELECT edges.id AS edges_id, edges.source_node_id AS edges_source_node_id, edges.edge_type_id AS edges_edge_type_id, edges.target_node_id AS edges_target_node_id, edges.description AS edges_description 
+FROM edges JOIN nodes ON nodes.id = edges.source_node_id JOIN nodes ON nodes.id = edges.target_node_id JOIN edge_types ON edge_types.id = edges.edge_type_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-09-24 20:25:42,578 - __main__ - INFO - Initializing Tracer application components...
+2025-09-24 20:25:42,606 - __main__ - INFO - Model initialized successfully
+2025-09-24 20:25:42,606 - __main__ - INFO - View initialized successfully
+2025-09-24 20:25:42,608 - __main__ - INFO - Controller initialized successfully
+2025-09-24 20:25:42,610 - __main__ - INFO - Layout set successfully
+2025-09-24 20:25:42,611 - __main__ - INFO - Application setup complete
+2025-09-24 20:25:42,612 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:25:42,775 - controllers.controller - ERROR - Failed to get edges: (sqlite3.OperationalError) ambiguous column name: nodes.id
+[SQL: SELECT edges.id AS edges_id, edges.source_node_id AS edges_source_node_id, edges.edge_type_id AS edges_edge_type_id, edges.target_node_id AS edges_target_node_id, edges.description AS edges_description 
+FROM edges JOIN nodes ON nodes.id = edges.source_node_id JOIN nodes ON nodes.id = edges.target_node_id JOIN edge_types ON edge_types.id = edges.edge_type_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-09-24 20:25:53,274 - __main__ - INFO - Initializing Tracer application components...
+2025-09-24 20:25:53,304 - __main__ - INFO - Model initialized successfully
+2025-09-24 20:25:53,304 - __main__ - INFO - View initialized successfully
+2025-09-24 20:25:53,307 - __main__ - INFO - Controller initialized successfully
+2025-09-24 20:25:53,311 - __main__ - INFO - Layout set successfully
+2025-09-24 20:25:53,313 - __main__ - INFO - Application setup complete
+2025-09-24 20:25:53,313 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:25:53,779 - controllers.controller - ERROR - Failed to get edges: (sqlite3.OperationalError) ambiguous column name: nodes.id
+[SQL: SELECT edges.id AS edges_id, edges.source_node_id AS edges_source_node_id, edges.edge_type_id AS edges_edge_type_id, edges.target_node_id AS edges_target_node_id, edges.description AS edges_description 
+FROM edges JOIN nodes ON nodes.id = edges.source_node_id JOIN nodes ON nodes.id = edges.target_node_id JOIN edge_types ON edge_types.id = edges.edge_type_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-09-24 20:26:31,908 - __main__ - INFO - Initializing Tracer application components...
+2025-09-24 20:26:31,933 - __main__ - INFO - Model initialized successfully
+2025-09-24 20:26:31,933 - __main__ - INFO - View initialized successfully
+2025-09-24 20:26:31,934 - __main__ - INFO - Controller initialized successfully
+2025-09-24 20:26:31,935 - __main__ - INFO - Layout set successfully
+2025-09-24 20:26:31,936 - __main__ - INFO - Application setup complete
+2025-09-24 20:26:31,936 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:26:31,937 - dash.dash - INFO - Dash is running on http://localhost:8050/
+
+2025-09-24 20:26:34,133 - __main__ - INFO - Initializing Tracer application components...
+2025-09-24 20:26:34,162 - __main__ - INFO - Model initialized successfully
+2025-09-24 20:26:34,162 - __main__ - INFO - View initialized successfully
+2025-09-24 20:26:34,163 - __main__ - INFO - Controller initialized successfully
+2025-09-24 20:26:34,164 - __main__ - INFO - Layout set successfully
+2025-09-24 20:26:34,165 - __main__ - INFO - Application setup complete
+2025-09-24 20:26:34,165 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:26:52,777 - controllers.controller - ERROR - Failed to get edges: (sqlite3.OperationalError) ambiguous column name: nodes.id
+[SQL: SELECT edges.id AS edges_id, edges.source_node_id AS edges_source_node_id, edges.edge_type_id AS edges_edge_type_id, edges.target_node_id AS edges_target_node_id, edges.description AS edges_description 
+FROM edges JOIN nodes ON nodes.id = edges.source_node_id JOIN nodes ON nodes.id = edges.target_node_id JOIN edge_types ON edge_types.id = edges.edge_type_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-09-24 20:27:23,103 - __main__ - INFO - Initializing Tracer application components...
+2025-09-24 20:27:23,129 - __main__ - INFO - Model initialized successfully
+2025-09-24 20:27:23,129 - __main__ - INFO - View initialized successfully
+2025-09-24 20:27:23,131 - __main__ - INFO - Controller initialized successfully
+2025-09-24 20:27:23,132 - __main__ - INFO - Layout set successfully
+2025-09-24 20:27:23,132 - __main__ - INFO - Application setup complete
+2025-09-24 20:27:23,132 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:27:25,415 - controllers.controller - ERROR - Failed to get edges: (sqlite3.OperationalError) ambiguous column name: nodes.id
+[SQL: SELECT edges.id AS edges_id, edges.source_node_id AS edges_source_node_id, edges.edge_type_id AS edges_edge_type_id, edges.target_node_id AS edges_target_node_id, edges.description AS edges_description 
+FROM edges JOIN nodes ON nodes.id = edges.source_node_id JOIN nodes ON nodes.id = edges.target_node_id JOIN edge_types ON edge_types.id = edges.edge_type_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-09-24 20:27:41,035 - __main__ - INFO - Initializing Tracer application components...
+2025-09-24 20:27:41,059 - __main__ - INFO - Model initialized successfully
+2025-09-24 20:27:41,059 - __main__ - INFO - View initialized successfully
+2025-09-24 20:27:41,060 - __main__ - INFO - Controller initialized successfully
+2025-09-24 20:27:41,061 - __main__ - INFO - Layout set successfully
+2025-09-24 20:27:41,062 - __main__ - INFO - Application setup complete
+2025-09-24 20:27:41,062 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:27:43,178 - controllers.controller - ERROR - Failed to get edges: (sqlite3.OperationalError) ambiguous column name: nodes.id
+[SQL: SELECT edges.id AS edges_id, edges.source_node_id AS edges_source_node_id, edges.edge_type_id AS edges_edge_type_id, edges.target_node_id AS edges_target_node_id, edges.description AS edges_description 
+FROM edges JOIN nodes ON nodes.id = edges.source_node_id JOIN nodes ON nodes.id = edges.target_node_id JOIN edge_types ON edge_types.id = edges.edge_type_id]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-09-24 20:29:19,657 - __main__ - INFO - Initializing Tracer application components...
+2025-09-24 20:29:19,682 - __main__ - INFO - Model initialized successfully
+2025-09-24 20:29:19,683 - __main__ - INFO - View initialized successfully
+2025-09-24 20:29:19,684 - __main__ - INFO - Controller initialized successfully
+2025-09-24 20:29:19,687 - __main__ - INFO - Layout set successfully
+2025-09-24 20:29:19,688 - __main__ - INFO - Application setup complete
+2025-09-24 20:29:19,688 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:29:38,675 - __main__ - INFO - Initializing Tracer application components...
+2025-09-24 20:29:38,701 - __main__ - INFO - Model initialized successfully
+2025-09-24 20:29:38,701 - __main__ - INFO - View initialized successfully
+2025-09-24 20:29:38,702 - __main__ - INFO - Controller initialized successfully
+2025-09-24 20:29:38,705 - __main__ - INFO - Layout set successfully
+2025-09-24 20:29:38,705 - __main__ - INFO - Application setup complete
+2025-09-24 20:29:38,705 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:32:19,818 - __main__ - INFO - Initializing Tracer application components...
+2025-09-24 20:32:19,847 - __main__ - INFO - Model initialized successfully
+2025-09-24 20:32:19,847 - __main__ - INFO - View initialized successfully
+2025-09-24 20:32:19,849 - __main__ - INFO - Controller initialized successfully
+2025-09-24 20:32:19,851 - __main__ - INFO - Layout set successfully
+2025-09-24 20:32:19,852 - __main__ - INFO - Application setup complete
+2025-09-24 20:32:19,852 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:32:52,155 - __main__ - INFO - Initializing Tracer application components...
+2025-09-24 20:32:52,182 - __main__ - INFO - Model initialized successfully
+2025-09-24 20:32:52,183 - __main__ - INFO - View initialized successfully
+2025-09-24 20:32:52,184 - __main__ - INFO - Controller initialized successfully
+2025-09-24 20:32:52,186 - __main__ - INFO - Layout set successfully
+2025-09-24 20:32:52,187 - __main__ - INFO - Application setup complete
+2025-09-24 20:32:52,187 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:35:34,127 - __main__ - INFO - Initializing Tracer application components...
+2025-09-24 20:35:34,152 - __main__ - INFO - Model initialized successfully
+2025-09-24 20:35:34,152 - __main__ - INFO - View initialized successfully
+2025-09-24 20:35:34,153 - __main__ - INFO - Controller initialized successfully
+2025-09-24 20:35:34,155 - __main__ - INFO - Layout set successfully
+2025-09-24 20:35:34,156 - __main__ - INFO - Application setup complete
+2025-09-24 20:35:34,156 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:35:41,080 - __main__ - INFO - Initializing Tracer application components...
+2025-09-24 20:35:41,106 - __main__ - INFO - Model initialized successfully
+2025-09-24 20:35:41,106 - __main__ - INFO - View initialized successfully
+2025-09-24 20:35:41,107 - __main__ - INFO - Controller initialized successfully
+2025-09-24 20:35:41,109 - __main__ - INFO - Layout set successfully
+2025-09-24 20:35:41,109 - __main__ - INFO - Application setup complete
+2025-09-24 20:35:41,110 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:35:45,979 - __main__ - INFO - Initializing Tracer application components...
+2025-09-24 20:35:46,004 - __main__ - INFO - Model initialized successfully
+2025-09-24 20:35:46,004 - __main__ - INFO - View initialized successfully
+2025-09-24 20:35:46,006 - __main__ - INFO - Controller initialized successfully
+2025-09-24 20:35:46,008 - __main__ - INFO - Layout set successfully
+2025-09-24 20:35:46,009 - __main__ - INFO - Application setup complete
+2025-09-24 20:35:46,009 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:35:59,162 - __main__ - INFO - Initializing Tracer application components...
+2025-09-24 20:35:59,194 - __main__ - INFO - Model initialized successfully
+2025-09-24 20:35:59,195 - __main__ - INFO - View initialized successfully
+2025-09-24 20:35:59,196 - __main__ - INFO - Controller initialized successfully
+2025-09-24 20:35:59,198 - __main__ - INFO - Layout set successfully
+2025-09-24 20:35:59,199 - __main__ - INFO - Application setup complete
+2025-09-24 20:35:59,199 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:36:02,800 - __main__ - INFO - Initializing Tracer application components...
+2025-09-24 20:36:02,826 - __main__ - INFO - Model initialized successfully
+2025-09-24 20:36:02,827 - __main__ - INFO - View initialized successfully
+2025-09-24 20:36:02,828 - __main__ - INFO - Controller initialized successfully
+2025-09-24 20:36:02,830 - __main__ - INFO - Layout set successfully
+2025-09-24 20:36:02,831 - __main__ - INFO - Application setup complete
+2025-09-24 20:36:02,831 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:36:14,742 - __main__ - INFO - Initializing Tracer application components...
+2025-09-24 20:36:14,767 - __main__ - INFO - Model initialized successfully
+2025-09-24 20:36:14,767 - __main__ - INFO - View initialized successfully
+2025-09-24 20:36:14,769 - __main__ - INFO - Controller initialized successfully
+2025-09-24 20:36:14,771 - __main__ - INFO - Layout set successfully
+2025-09-24 20:36:14,773 - __main__ - INFO - Application setup complete
+2025-09-24 20:36:14,773 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:36:22,502 - __main__ - INFO - Initializing Tracer application components...
+2025-09-24 20:36:22,527 - __main__ - INFO - Model initialized successfully
+2025-09-24 20:36:22,527 - __main__ - INFO - View initialized successfully
+2025-09-24 20:36:22,528 - __main__ - INFO - Controller initialized successfully
+2025-09-24 20:36:22,530 - __main__ - INFO - Layout set successfully
+2025-09-24 20:36:22,531 - __main__ - INFO - Application setup complete
+2025-09-24 20:36:22,531 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:37:17,631 - __main__ - INFO - Initializing Tracer application components...
+2025-09-24 20:37:17,659 - __main__ - INFO - Model initialized successfully
+2025-09-24 20:37:17,659 - __main__ - INFO - View initialized successfully
+2025-09-24 20:37:17,660 - __main__ - INFO - Controller initialized successfully
+2025-09-24 20:37:17,662 - __main__ - INFO - Layout set successfully
+2025-09-24 20:37:17,664 - __main__ - INFO - Application setup complete
+2025-09-24 20:37:17,664 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:37:17,666 - dash.dash - INFO - Dash is running on http://localhost:8050/
+
+2025-09-24 20:37:19,876 - __main__ - INFO - Initializing Tracer application components...
+2025-09-24 20:37:19,904 - __main__ - INFO - Model initialized successfully
+2025-09-24 20:37:19,904 - __main__ - INFO - View initialized successfully
+2025-09-24 20:37:19,906 - __main__ - INFO - Controller initialized successfully
+2025-09-24 20:37:19,908 - __main__ - INFO - Layout set successfully
+2025-09-24 20:37:19,908 - __main__ - INFO - Application setup complete
+2025-09-24 20:37:19,908 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:37:26,400 - __main__ - INFO - Initializing Tracer application components...
+2025-09-24 20:37:26,425 - __main__ - INFO - Model initialized successfully
+2025-09-24 20:37:26,425 - __main__ - INFO - View initialized successfully
+2025-09-24 20:37:26,426 - __main__ - INFO - Controller initialized successfully
+2025-09-24 20:37:26,428 - __main__ - INFO - Layout set successfully
+2025-09-24 20:37:26,429 - __main__ - INFO - Application setup complete
+2025-09-24 20:37:26,429 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:39:00,861 - __main__ - INFO - Initializing Tracer application components...
+2025-09-24 20:39:00,886 - __main__ - INFO - Model initialized successfully
+2025-09-24 20:39:00,887 - __main__ - INFO - View initialized successfully
+2025-09-24 20:39:00,888 - __main__ - INFO - Controller initialized successfully
+2025-09-24 20:39:00,890 - __main__ - INFO - Layout set successfully
+2025-09-24 20:39:00,891 - __main__ - INFO - Application setup complete
+2025-09-24 20:39:00,891 - __main__ - INFO - Starting Tracer application on localhost:8050
+2025-09-24 20:42:12,487 - __main__ - INFO - Initializing Tracer application components...
+2025-09-24 20:42:12,515 - __main__ - INFO - Model initialized successfully
+2025-09-24 20:42:12,516 - __main__ - INFO - View initialized successfully
+2025-09-24 20:42:12,518 - __main__ - INFO - Controller initialized successfully
+2025-09-24 20:42:12,520 - __main__ - INFO - Layout set successfully
+2025-09-24 20:42:12,521 - __main__ - INFO - Application setup complete
+2025-09-24 20:42:12,521 - __main__ - INFO - Starting Tracer application on localhost:8050
