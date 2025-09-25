@@ -1,80 +1,78 @@
-# pages/nodes.py - Simplified working version
+# pages/nodes.py - Database integrated version
 import dash
-from dash import html, dcc, callback, Input, Output, State, dash_table, no_update
+from dash import html, dcc, callback, Input, Output, State, no_update
 import dash_bootstrap_components as dbc
+import dash_tabulator
 import pandas as pd
 import uuid
 from datetime import datetime
 from typing import Any, Dict, List
 
+# Import model to access database
+from models.model import Model
+
 dash.register_page(__name__, path='/nodes')
 
-# Sample data that matches your screenshot
-initial_data: List[Dict[str, Any]] = [
-    {
-        'ID': '00000cf8-8a34-42a8-b856-b9615ee93927',
-        'Identifier': 'ERG350',
-        'Name': 'Burwood Station Pedestrian Overpass',
-        'Description': 'Location Breakdown Structure (LBS) Element'
-    },
-    {
-        'ID': '00000de-7564-4edc-a2a8-d934d316d41',
-        'Identifier': '',
-        'Name': 'Operate, Maintain, & Sustain (OM)',
-        'Description': 'Work Phase'
-    },
-    {
-        'ID': '0106f8d-bd32-48d6-a831-c40608d7a31d',
-        'Identifier': '',
-        'Name': 'Package Interface Register (PIR)',
-        'Description': 'Root Node for the Interface Register'
-    },
-    {
-        'ID': '0146af44-4954-400a-9c4b-494daec6924',
-        'Identifier': '',
-        'Name': 'Flood Protection System',
-        'Description': 'Integrated Transport Systems'
-    },
-    {
-        'ID': '01643018-1644-4a08-a9f6-60bd668350495',
-        'Identifier': '',
-        'Name': '1 Concept',
-        'Description': 'Lifecycle Phase'
-    },
-    {
-        'ID': '016aa18-9df9-490f-a7d4-32d9bc3aae4e',
-        'Identifier': '',
-        'Name': 'Enterprise Asset Management System',
-        'Description': 'Integrated Control System'
-    },
-    {
-        'ID': '0271042-4fa3-4bd8-bd4a-5765dc4e4a24',
-        'Identifier': 'SRL-WPT-XPK-SPD2-REG-XCP-QWY-NNNNN',
-        'Name': 'Completions Register - Glen Waverley - Separable Portion 2',
-        'Description': ''
-    },
-    {
-        'ID': '03265224-0899-41ef-ac1f-ea274941764',
-        'Identifier': '',
-        'Name': 'Deliverables Register - System Requirements Review - Box...',
-        'Description': ''
-    },
-    {
-        'ID': '03aef8d-bd6c-4514-9f2-02ce60276ee5',
-        'Identifier': '',
-        'Name': 'Operator Integration and Test',
-        'Description': 'Program Lifecycle Stage'
-    },
-    {
-        'ID': '04db090-4f8-489b-8644-79798415d93',
-        'Identifier': '',
-        'Name': 'Utilities',
-        'Description': 'Integrated Transport Systems'
-    }
-]
+# Initialize model for database access
+model = Model()
+
+def get_nodes_from_db() -> List[Dict[str, Any]]:
+    """Get nodes from database"""
+    try:
+        return model.get_nodes_for_dash_table()
+    except Exception as e:
+        print(f"Error getting nodes from database: {e}")
+        return []
+
+def ensure_sample_data():
+    """Ensure there's some sample data in the database"""
+    try:
+        nodes = model.get_nodes_for_dash_table()
+        if len(nodes) == 0:
+            # Add some sample nodes
+            sample_nodes = [
+                {
+                    'id': '00000cf8-8a34-42a8-b856-b9615ee93927',
+                    'identifier': 'ERG350',
+                    'name': 'Burwood Station Pedestrian Overpass',
+                    'description': 'Location Breakdown Structure (LBS) Element'
+                },
+                {
+                    'id': '00000de-7564-4edc-a2a8-d934d316d41',
+                    'identifier': '',
+                    'name': 'Operate, Maintain, & Sustain (OM)',
+                    'description': 'Work Phase'
+                },
+                {
+                    'id': '0106f8d-bd32-48d6-a831-c40608d7a31d',
+                    'identifier': '',
+                    'name': 'Package Interface Register (PIR)',
+                    'description': 'Root Node for the Interface Register'
+                }
+            ]
+            
+            for node_data in sample_nodes:
+                model.create_node(
+                    node_id=node_data['id'],
+                    identifier=node_data['identifier'],
+                    name=node_data['name'],
+                    description=node_data['description']
+                )
+            print(f"Added {len(sample_nodes)} sample nodes to database")
+    except Exception as e:
+        print(f"Error ensuring sample data: {e}")
+
+# Initialize sample data on module load
+ensure_sample_data()
 
 def layout():
+    # Get current nodes from database
+    current_nodes = get_nodes_from_db()
+    
     return html.Div([
+        # Fixed alert container - positioned outside main flow
+        html.Div(id="alert-container", className="alert-container"),
+        
         # Main container
         html.Div([
             # Toolbar
@@ -104,93 +102,35 @@ def layout():
                 ], className="col-md-6"),
             ], className="row justify-content-between mb-3 nodes-toolbar"),
             
-            # Alert area for messages
-            html.Div(id="alert-container"),
-            
-            # Table - static table instead of dynamic
+            # Table - dash-tabulator with simplified configuration
             html.Div([
-                dash_table.DataTable(
+                dash_tabulator.DashTabulator(
                     id='nodes-table',
-                    data=initial_data,
+                    theme='tabulator_bootstrap5', 
+                    data=current_nodes,
                     columns=[
-                        {'name': 'ID', 'id': 'ID', 'type': 'text'},
-                        {'name': 'Identifier', 'id': 'Identifier', 'type': 'text'},
-                        {'name': 'Name', 'id': 'Name', 'type': 'text'},
-                        {'name': 'Description', 'id': 'Description', 'type': 'text'}
+                        {"title": "ID", "field": "ID", "width": 300, "headerFilter": True},
+                        {"title": "Identifier", "field": "Identifier", "width": 200, "headerFilter": True, "editor": "input"},
+                        {"title": "Name", "field": "Name", "width": 300, "headerFilter": True, "editor": "input"},
+                        {"title": "Description", "field": "Description", "headerFilter": True, "editor": "input"}
                     ],
-                    style_table={
-                        'overflowX': 'auto',
-                        'border': '1px solid #dee2e6',
-                        'borderRadius': '0.375rem',
-                        'fontFamily': 'system-ui, -apple-system, sans-serif'
-                    },
-                    style_header={
-                        'backgroundColor': '#f8f9fa',
-                        'fontWeight': '600',
-                        'textAlign': 'left',
-                        'border': '1px solid #dee2e6',
-                        'padding': '12px 8px',
-                        'fontSize': '14px',
-                        'color': '#495057'
-                    },
-                    style_cell={
-                        'textAlign': 'left',
-                        'padding': '8px',
-                        'fontSize': '14px',
-                        'border': '1px solid #dee2e6',
-                        'whiteSpace': 'normal',
-                        'height': 'auto',
-                        'overflow': 'hidden',
-                        'textOverflow': 'ellipsis'
-                    },
-                    style_cell_conditional=[
-                        {
-                            'if': {'column_id': 'ID'},
-                            'width': '25%',
-                            'fontFamily': 'Monaco, Consolas, monospace',
-                            'fontSize': '12px',
-                            'color': '#6c757d'
-                        },
-                        {
-                            'if': {'column_id': 'Identifier'},
-                            'width': '15%',
-                            'fontFamily': 'Monaco, Consolas, monospace', 
-                            'fontSize': '12px'
-                        },
-                        {
-                            'if': {'column_id': 'Name'},
-                            'width': '30%',
-                            'fontWeight': '500'
-                        },
-                        {
-                            'if': {'column_id': 'Description'},
-                            'width': '30%',
-                            'color': '#6c757d'
-                        }
-                    ],
-                    style_data={
-                        'backgroundColor': 'white',
-                        'color': 'black'
-                    },
-                    style_data_conditional=[
-                        {
-                            'if': {'row_index': 'odd'},
-                            'backgroundColor': '#f8f9fa'
-                        },
-                        {
-                            'if': {'state': 'selected'},
-                            'backgroundColor': '#0d6efd',
-                            'color': 'white'
-                        }
-                    ],
-                    row_selectable='multi',
-                    selected_rows=[],
-                    sort_action='native',
-                    sort_mode='multi',
-                    filter_action='native',
-                    page_action='native',
-                    page_current=0,
-                    page_size=10,
+                    options={
+                        "selectable": "highlight",  # Enable row selection with highlighting
+                        "selectableRangeMode": "click",  # Allow multi-selection with click
+                        "pagination": "local",
+                        "paginationSize": 10,
+                        "paginationSizeSelector": [5, 10, 20, 50],
+                        "paginationButtonCount": 5,
+                        "paginationCounter": "rows",
+                        "movableColumns": True,
+                        "resizableColumns": True,
+                        "layout": "fitColumns",
+                        "responsiveLayout": "hide",
+                        "tooltips": True,
+                        "clipboard": True,
+                        "printAsHtml": True,
+                        "printHeader": "Nodes Table",
+                    }
                 )
             ]),
             
@@ -252,14 +192,130 @@ def layout():
         dcc.Download(id="download-nodes-csv")
     ])
 
+# Handle table data changes (including cell edits)
+@callback(
+    [Output('nodes-table', 'data', allow_duplicate=True),
+     Output('alert-container', 'children', allow_duplicate=True)],
+    Input('nodes-table', 'dataChanged'),
+    State('nodes-table', 'data'),
+    prevent_initial_call=True
+)
+def handle_data_change(changed_data, current_data):
+    """Handle table data changes including cell edits"""
+    if not changed_data:
+        return no_update, no_update
+    
+    print(f"DEBUG: Data changed event fired with: {changed_data}")
+    
+    try:
+        # Try to identify what changed by comparing with current data
+        # For now, let's just save all the data and show a success message
+        errors = []
+        updated_count = 0
+        
+        for row in changed_data:
+            if 'ID' in row:
+                node_id = row['ID']
+                
+                # Update each field that might have changed
+                updates = {}
+                if 'Identifier' in row:
+                    updates['identifier'] = row['Identifier'] or ''
+                if 'Name' in row:
+                    updates['name'] = row['Name']
+                if 'Description' in row:
+                    updates['description'] = row['Description'] or ''
+                
+                # Update the node with all fields
+                result = model.update_node(node_id, **updates)
+                if result['success']:
+                    updated_count += 1
+                else:
+                    errors.append(f"Failed to update node {node_id}: {result['message']}")
+        
+        # Get fresh data from database
+        updated_data = get_nodes_from_db()
+        
+        if errors:
+            alert = dbc.Alert([
+                html.I(className="bi bi-exclamation-triangle-fill me-2"),
+                f"Updated {updated_count} nodes. Errors: {'; '.join(errors[:2])}" + 
+                (f" and {len(errors)-2} more..." if len(errors) > 2 else "")
+            ], color="warning", dismissable=True, duration=5000)
+        else:
+            alert = dbc.Alert([
+                html.I(className="bi bi-check-circle-fill me-2"),
+                f"Successfully saved changes to {updated_count} node(s)"
+            ], color="success", dismissable=True, duration=3000)
+        
+        return updated_data, alert
+            
+    except Exception as e:
+        print(f"Error handling data change: {e}")
+        alert = dbc.Alert([
+            html.I(className="bi bi-x-circle-fill me-2"),
+            f"Error saving changes: {str(e)}"
+        ], color="danger", dismissable=True, duration=4000)
+        return no_update, alert
+
+# Test callback to debug tabulator events
+@callback(
+    Output('alert-container', 'children', allow_duplicate=True),
+    [Input('nodes-table', 'cellEdited'),
+     Input('nodes-table', 'rowClicked'),
+     Input('nodes-table', 'dataChanged'),
+     Input('nodes-table', 'dataEdited')],
+    prevent_initial_call=True
+)
+def debug_tabulator_events(cell_edited, row_clicked, data_changed, data_edited):
+    """Debug callback to see which events are firing"""
+    ctx = dash.callback_context
+    if not ctx.triggered:
+        return no_update
+    
+    trigger = ctx.triggered[0]
+    prop_id = trigger['prop_id']
+    value = trigger['value']
+    
+    print(f"DEBUG: Tabulator event fired - Property: {prop_id}, Value: {value}")
+    
+    # Don't show alerts for dataChanged since we handle that elsewhere
+    if 'dataChanged' in prop_id:
+        return no_update
+    
+    if 'cellEdited' in prop_id:
+        print(f"DEBUG: Cell edited data: {cell_edited}")
+        return dbc.Alert([
+            html.I(className="bi bi-info-circle-fill me-2"),
+            f"Cell edited event detected: {cell_edited}"
+        ], color="info", dismissable=True, duration=3000)
+    
+    elif 'dataEdited' in prop_id:
+        print(f"DEBUG: Data edited: {data_edited}")
+        return dbc.Alert([
+            html.I(className="bi bi-info-circle-fill me-2"),
+            f"Data edited event detected: {data_edited}"
+        ], color="success", dismissable=True, duration=3000)
+    
+    elif 'rowClicked' in prop_id:
+        return dbc.Alert([
+            html.I(className="bi bi-info-circle-fill me-2"),
+            f"Row clicked: {row_clicked}"
+        ], color="info", dismissable=True, duration=2000)
+    
+    return no_update
+
 # Enable/disable delete button based on selection
 @callback(
     Output('delete-node-btn', 'disabled'),
-    Input('nodes-table', 'selected_rows')
+    Input('nodes-table', 'multiRowsClicked')
 )
 def toggle_delete_button(selected_rows):
     """Enable/disable delete button based on selection"""
-    return len(selected_rows) == 0 if selected_rows else True
+    print(f"DEBUG: toggle_delete_button called with selected_rows: {selected_rows}")
+    if selected_rows is None:
+        return True
+    return len(selected_rows) == 0
 
 # Toggle create modal
 @callback(
@@ -283,7 +339,7 @@ def toggle_create_modal(create_clicks, confirm_clicks, cancel_clicks, is_open):
      Input('confirm-delete-node', 'n_clicks'),
      Input('cancel-delete-node', 'n_clicks')],
     [State('delete-node-modal', 'is_open'),
-     State('nodes-table', 'selected_rows'),
+     State('nodes-table', 'multiRowsClicked'),
      State('nodes-table', 'data')]
 )
 def toggle_delete_modal(delete_clicks, confirm_clicks, cancel_clicks, is_open, selected_rows, data):
@@ -296,7 +352,7 @@ def toggle_delete_modal(delete_clicks, confirm_clicks, cancel_clicks, is_open, s
     button_id = ctx.triggered[0]['prop_id'].split('.')[0]
     
     if button_id == 'delete-node-btn' and selected_rows:
-        selected_nodes = [data[i]['Name'] for i in selected_rows]
+        selected_nodes = [row['Name'] for row in selected_rows]
         body = html.Div([
             html.P(f"Are you sure you want to delete the following {len(selected_rows)} node(s)?"),
             html.Ul([html.Li(name) for name in selected_nodes]),
@@ -321,7 +377,7 @@ def toggle_delete_modal(delete_clicks, confirm_clicks, cancel_clicks, is_open, s
      State('new-node-name', 'value'),
      State('new-node-description', 'value'),
      State('nodes-table', 'data'),
-     State('nodes-table', 'selected_rows')]
+     State('nodes-table', 'multiRowsClicked')]
 )
 def manage_nodes(create_clicks, delete_clicks, identifier, name, description, data, selected_rows):
     """Handle create and delete operations"""
@@ -334,29 +390,57 @@ def manage_nodes(create_clicks, delete_clicks, identifier, name, description, da
     
     # Create new node
     if button_id == 'confirm-create-node' and name:
-        new_node = {
-            'ID': str(uuid.uuid4()),
-            'Identifier': identifier or '',
-            'Name': name,
-            'Description': description or ''
-        }
-        updated_data = data + [new_node]
+        # Use database to create node
+        new_node_id = str(uuid.uuid4())
+        result = model.create_node(
+            node_id=new_node_id,
+            identifier=identifier or '',
+            name=name,
+            description=description or ''
+        )
         
-        alert = dbc.Alert([
-            html.I(className="bi bi-check-circle-fill me-2"),
-            f"Successfully created node: {name}"
-        ], color="success", dismissable=True, duration=4000)
-        
-        return updated_data, alert, '', '', ''
+        if result['success']:
+            # Get updated data from database
+            updated_data = get_nodes_from_db()
+            alert = dbc.Alert([
+                html.I(className="bi bi-check-circle-fill me-2"),
+                f"Successfully created node: {name}"
+            ], color="success", dismissable=True, duration=4000)
+            return updated_data, alert, '', '', ''
+        else:
+            alert = dbc.Alert([
+                html.I(className="bi bi-x-circle-fill me-2"),
+                f"Failed to create node: {result['message']}"
+            ], color="danger", dismissable=True, duration=4000)
+            return data, alert, no_update, no_update, no_update
     
     # Delete selected nodes
     elif button_id == 'confirm-delete-node' and selected_rows:
-        updated_data = [node for i, node in enumerate(data) if i not in selected_rows]
+        deleted_count = 0
+        errors = []
         
-        alert = dbc.Alert([
-            html.I(className="bi bi-trash-fill me-2"),
-            f"Successfully deleted {len(selected_rows)} node(s)"
-        ], color="warning", dismissable=True, duration=4000)
+        for row in selected_rows:
+            node_id = row['ID']
+            success, message = model.delete_node(node_id)
+            if success:
+                deleted_count += 1
+            else:
+                errors.append(f"Failed to delete {row['Name']}: {message}")
+        
+        # Get updated data from database
+        updated_data = get_nodes_from_db()
+        
+        if errors:
+            alert = dbc.Alert([
+                html.I(className="bi bi-exclamation-triangle-fill me-2"),
+                f"Deleted {deleted_count} nodes. Errors: {'; '.join(errors[:3])}" + 
+                (f" and {len(errors)-3} more..." if len(errors) > 3 else "")
+            ], color="warning", dismissable=True, duration=6000)
+        else:
+            alert = dbc.Alert([
+                html.I(className="bi bi-trash-fill me-2"),
+                f"Successfully deleted {deleted_count} node(s)"
+            ], color="success", dismissable=True, duration=4000)
         
         return updated_data, alert, no_update, no_update, no_update
     
@@ -395,18 +479,27 @@ def print_table(n_clicks):
         return alert
     return no_update
 
-# Refresh functionality
+# Refresh functionality - now reloads from database
 @callback(
-    Output('alert-container', 'children', allow_duplicate=True),
+    [Output('nodes-table', 'data', allow_duplicate=True),
+     Output('alert-container', 'children', allow_duplicate=True)],
     Input('refresh-nodes-btn', 'n_clicks'),
     prevent_initial_call=True
 )
 def refresh_table(n_clicks):
-    """Handle refresh functionality"""
+    """Handle refresh functionality - reload from database"""
     if n_clicks:
-        alert = dbc.Alert([
-            html.I(className="bi bi-arrow-clockwise me-2"),
-            "Table refreshed successfully"
-        ], color="info", dismissable=True, duration=2000)
-        return alert
-    return no_update
+        try:
+            refreshed_data = get_nodes_from_db()
+            alert = dbc.Alert([
+                html.I(className="bi bi-arrow-clockwise me-2"),
+                f"Table refreshed successfully - loaded {len(refreshed_data)} nodes"
+            ], color="info", dismissable=True, duration=2000)
+            return refreshed_data, alert
+        except Exception as e:
+            alert = dbc.Alert([
+                html.I(className="bi bi-exclamation-triangle-fill me-2"),
+                f"Error refreshing data: {str(e)}"
+            ], color="danger", dismissable=True, duration=4000)
+            return no_update, alert
+    return no_update, no_update

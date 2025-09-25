@@ -1,19 +1,24 @@
 # app.py
 
-# imports
+# Imports
 import dash
 from dash import html, dcc
 import dash_bootstrap_components as dbc
 
-# External stylesheets
+# External Scripts - Let dash-tabulator handle its own scripts
+external_scripts = []
+
+# External Stylesheets  
 external_stylesheets = [
     dbc.themes.BOOTSTRAP,
     "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css",
+    "https://unpkg.com/tabulator-tables@6.3.1/dist/css/tabulator_bootstrap5.min.css"
 ]
 
 app = dash.Dash(
     __name__, 
     use_pages=True,
+    external_scripts=external_scripts,
     external_stylesheets=external_stylesheets,
     suppress_callback_exceptions=True,
     title="Tracer"
