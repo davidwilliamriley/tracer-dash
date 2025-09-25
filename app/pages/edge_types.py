@@ -1,4 +1,4 @@
-# pages/nodes.py - Database integrated version
+# pages/edge_types.py
 import dash
 from dash import html, dcc, callback, Input, Output, State, no_update
 import dash_bootstrap_components as dbc
@@ -11,54 +11,54 @@ from typing import Any, Dict, List
 # Import model to access database
 from models.model import Model
 
-dash.register_page(__name__, path='/nodes')
+dash.register_page(__name__, path='/edge-types')
 
 # Initialize model for database access
 model = Model()
 
-def get_nodes_from_db() -> List[Dict[str, Any]]:
-    """Get nodes from database"""
+def get_edge_types_from_db() -> List[Dict[str, Any]]:
+    """Get edge types from database"""
     try:
-        return model.get_nodes_for_dash_table()
+        return model.get_edge_types_for_dash_table()
     except Exception as e:
-        print(f"Error getting nodes from database: {e}")
+        print(f"Error getting edge types from database: {e}")
         return []
 
 def ensure_sample_data():
     """Ensure there's some sample data in the database"""
     try:
-        nodes = model.get_nodes_for_dash_table()
-        if len(nodes) == 0:
-            # Add some sample nodes
-            sample_nodes = [
+        edge_types = model.get_edge_types_for_dash_table()
+        if len(edge_types) == 0:
+            # Add some sample edge types
+            sample_edge_types = [
                 {
-                    'id': '00000cf8-8a34-42a8-b856-b9615ee93927',
-                    'identifier': 'ERG350',
-                    'name': 'Burwood Station Pedestrian Overpass',
-                    'description': 'Location Breakdown Structure (LBS) Element'
+                    'id': '11111cf8-8a34-42a8-b856-b9615ee93927',
+                    'identifier': 'REL001',
+                    'name': 'Dependency',
+                    'description': 'Represents a dependency relationship between nodes'
                 },
                 {
-                    'id': '00000de-7564-4edc-a2a8-d934d316d41',
-                    'identifier': '',
-                    'name': 'Operate, Maintain, & Sustain (OM)',
-                    'description': 'Work Phase'
+                    'id': '22222de-7564-4edc-a2a8-d934d316d41',
+                    'identifier': 'REL002',
+                    'name': 'Containment',
+                    'description': 'Represents a parent-child containment relationship'
                 },
                 {
-                    'id': '0106f8d-bd32-48d6-a831-c40608d7a31d',
-                    'identifier': '',
-                    'name': 'Package Interface Register (PIR)',
-                    'description': 'Root Node for the Interface Register'
+                    'id': '3333f8d-bd32-48d6-a831-c40608d7a31d',
+                    'identifier': 'REL003',
+                    'name': 'Interface',
+                    'description': 'Represents an interface connection between components'
                 }
             ]
             
-            for node_data in sample_nodes:
-                model.create_node(
-                    node_id=node_data['id'],
-                    identifier=node_data['identifier'],
-                    name=node_data['name'],
-                    description=node_data['description']
+            for edge_type_data in sample_edge_types:
+                model.create_edge_type(
+                    edge_type_id=edge_type_data['id'],
+                    identifier=edge_type_data['identifier'],
+                    name=edge_type_data['name'],
+                    description=edge_type_data['description']
                 )
-            print(f"Added {len(sample_nodes)} sample nodes to database")
+            print(f"Added {len(sample_edge_types)} sample edge types to database")
     except Exception as e:
         print(f"Error ensuring sample data: {e}")
 
@@ -66,8 +66,8 @@ def ensure_sample_data():
 ensure_sample_data()
 
 def layout():
-    # Get current nodes from database
-    current_nodes = get_nodes_from_db()
+    # Get current edge types from database
+    current_edge_types = get_edge_types_from_db()
     
     return html.Div([
         # Toast notification component
@@ -87,34 +87,34 @@ def layout():
                 html.Div([
                     html.Div([
                         dbc.Button([html.I(className="bi bi-plus-lg me-2"), "Create"], 
-                                 id="create-node-btn", color="primary", className="me-2", 
-                                 title="Create a new Node"),
+                                 id="create-edge-type-btn", color="primary", className="me-2", 
+                                 title="Create a new Edge Type"),
                         dbc.Button([html.I(className="bi bi-arrow-clockwise me-2"), "Refresh"], 
-                                 id="refresh-nodes-btn", color="primary", className="me-2", 
-                                 title="Refresh the Nodes Table"),
+                                 id="refresh-edge-types-btn", color="primary", className="me-2", 
+                                 title="Refresh the Edge Types Table"),
                         dbc.Button([html.I(className="bi bi-trash me-2"), "Delete"], 
-                                 id="delete-node-btn", color="warning", 
-                                 title="Delete a selected Node", disabled=True),
+                                 id="delete-edge-type-btn", color="warning", 
+                                 title="Delete a selected Edge Type", disabled=True),
                     ], className="d-flex justify-content-start"),
                 ], className="col-md-6"),
                 html.Div([
                     html.Div([
                         dbc.Button([html.I(className="bi bi-printer me-2"), "Print"], 
-                                 id="print-nodes-btn", color="primary", className="me-2", 
+                                 id="print-edge-types-btn", color="primary", className="me-2", 
                                  title="Print the Table to PDF"),
                         dbc.Button([html.I(className="bi bi-download me-2"), "Download"], 
-                                 id="download-nodes-btn", color="primary", 
+                                 id="download-edge-types-btn", color="primary", 
                                  title="Download the Table as CSV"),
                     ], className="d-flex justify-content-end"),
                 ], className="col-md-6"),
-            ], className="row justify-content-between mb-3 nodes-toolbar"),
+            ], className="row justify-content-between mb-3 edge-types-toolbar"),
             
             # Table - dash-tabulator with simplified configuration
             html.Div([
                 dash_tabulator.DashTabulator(
-                    id='nodes-table',
+                    id='edge-types-table',
                     theme='tabulator', 
-                    data=current_nodes,
+                    data=current_edge_types,
                     columns=[
                         {"title": "ID", "field": "ID", "width": 300, "headerFilter": True},
                         {"title": "Identifier", "field": "Identifier", "width": 200, "headerFilter": True, "editor": "input"},
@@ -136,22 +136,22 @@ def layout():
                         "tooltips": True,
                         "clipboard": True,
                         "printAsHtml": True,
-                        "printHeader": "Nodes Table",
+                        "printHeader": "Edge Types Table",
                     }
                 )
             ]),
             
         ], className="container-fluid px-4 py-5"),
         
-        # Create Node Modal
+        # Create Edge Type Modal
         dbc.Modal([
-            dbc.ModalHeader(dbc.ModalTitle("Create New Node")),
+            dbc.ModalHeader(dbc.ModalTitle("Create New Edge Type")),
             dbc.ModalBody([
                 dbc.Row([
                     dbc.Col([
                         dbc.Label("Identifier:", className="fw-bold"),
                         dbc.Input(
-                            id="new-node-identifier", 
+                            id="new-edge-type-identifier", 
                             type="text", 
                             placeholder="Enter unique identifier (optional)"
                         )
@@ -161,9 +161,9 @@ def layout():
                     dbc.Col([
                         dbc.Label("Name:", className="fw-bold"),
                         dbc.Input(
-                            id="new-node-name", 
+                            id="new-edge-type-name", 
                             type="text", 
-                            placeholder="Enter node name*",
+                            placeholder="Enter edge type name*",
                             required=True
                         )
                     ], width=12, className="mb-3"),
@@ -172,7 +172,7 @@ def layout():
                     dbc.Col([
                         dbc.Label("Description:", className="fw-bold"),
                         dbc.Textarea(
-                            id="new-node-description", 
+                            id="new-edge-type-description", 
                             placeholder="Enter description (optional)",
                             rows=3
                         )
@@ -180,35 +180,35 @@ def layout():
                 ])
             ]),
             dbc.ModalFooter([
-                dbc.Button("Create Node", id="confirm-create-node", color="primary", className="me-2"),
-                dbc.Button("Cancel", id="cancel-create-node", color="secondary")
+                dbc.Button("Create Edge Type", id="confirm-create-edge-type", color="primary", className="me-2"),
+                dbc.Button("Cancel", id="cancel-create-edge-type", color="secondary")
             ])
-        ], id="create-node-modal", is_open=False, backdrop="static"),
+        ], id="create-edge-type-modal", is_open=False, backdrop="static"),
         
         # Delete Confirmation Modal
         dbc.Modal([
             dbc.ModalHeader(dbc.ModalTitle("Confirm Delete")),
             dbc.ModalBody(html.Div(id="delete-modal-body")),
             dbc.ModalFooter([
-                dbc.Button("Delete", id="confirm-delete-node", color="danger", className="me-2"),
-                dbc.Button("Cancel", id="cancel-delete-node", color="secondary")
+                dbc.Button("Delete", id="confirm-delete-edge-type", color="danger", className="me-2"),
+                dbc.Button("Cancel", id="cancel-delete-edge-type", color="secondary")
             ])
-        ], id="delete-node-modal", is_open=False, backdrop="static"),
+        ], id="delete-edge-type-modal", is_open=False, backdrop="static"),
         
         # Hidden download component
-        dcc.Download(id="download-nodes-csv")
+        dcc.Download(id="download-edge-types-csv")
     ])
 
 # Handle table data changes (including cell edits)
 @callback(
     [
-        Output('nodes-table', 'data', allow_duplicate=True),
+        Output('edge-types-table', 'data', allow_duplicate=True),
         Output('toast-message', 'is_open', allow_duplicate=True),
         Output('toast-message', 'children', allow_duplicate=True),
         Output('toast-message', 'icon', allow_duplicate=True)
     ],
-    Input('nodes-table', 'dataChanged'),
-    State('nodes-table', 'data'),
+    Input('edge-types-table', 'dataChanged'),
+    State('edge-types-table', 'data'),
     prevent_initial_call=True
 )
 def handle_data_change(changed_data, current_data):
@@ -226,7 +226,7 @@ def handle_data_change(changed_data, current_data):
         
         for row in changed_data:
             if 'ID' in row:
-                node_id = row['ID']
+                edge_type_id = row['ID']
                 
                 # Update each field that might have changed
                 updates = {}
@@ -237,22 +237,22 @@ def handle_data_change(changed_data, current_data):
                 if 'Description' in row:
                     updates['description'] = row['Description'] or ''
                 
-                # Update the node with all fields
-                result = model.update_node(node_id, **updates)
+                # Update the edge type with all fields
+                result = model.update_edge_type(edge_type_id, **updates)
                 if isinstance(result, dict) and result.get('success'):
                     updated_count += 1
                 else:
                     error_msg = result.get('message', 'Unknown error') if isinstance(result, dict) else 'Update failed'
-                    errors.append(f"Failed to update node {node_id}: {error_msg}")
+                    errors.append(f"Failed to update edge type {edge_type_id}: {error_msg}")
         
         # Get fresh data from database
-        updated_data = get_nodes_from_db()
+        updated_data = get_edge_types_from_db()
         
         if errors:
-            message = f"Updated {updated_count} nodes. Errors: {'; '.join(errors[:2])}" + (f" and {len(errors)-2} more..." if len(errors) > 2 else "")
+            message = f"Updated {updated_count} edge types. Errors: {'; '.join(errors[:2])}" + (f" and {len(errors)-2} more..." if len(errors) > 2 else "")
             return updated_data, True, message, "warning"
         else:
-            message = f"Successfully saved changes to {updated_count} node(s)"
+            message = f"Successfully saved changes to {updated_count} edge type(s)"
             return updated_data, True, message, "success"
             
     except Exception as e:
@@ -267,10 +267,10 @@ def handle_data_change(changed_data, current_data):
         Output('toast-message', 'children', allow_duplicate=True),
         Output('toast-message', 'icon', allow_duplicate=True)
     ],
-    [Input('nodes-table', 'cellEdited'),
-     Input('nodes-table', 'rowClicked'),
-     Input('nodes-table', 'dataChanged'),
-     Input('nodes-table', 'dataEdited')],
+    [Input('edge-types-table', 'cellEdited'),
+     Input('edge-types-table', 'rowClicked'),
+     Input('edge-types-table', 'dataChanged'),
+     Input('edge-types-table', 'dataEdited')],
     prevent_initial_call=True
 )
 def debug_tabulator_events(cell_edited, row_clicked, data_changed, data_edited):
@@ -304,8 +304,8 @@ def debug_tabulator_events(cell_edited, row_clicked, data_changed, data_edited):
 
 # Enable/disable delete button based on selection
 @callback(
-    Output('delete-node-btn', 'disabled'),
-    Input('nodes-table', 'multiRowsClicked')
+    Output('delete-edge-type-btn', 'disabled'),
+    Input('edge-types-table', 'multiRowsClicked')
 )
 def toggle_delete_button(selected_rows):
     """Enable/disable delete button based on selection"""
@@ -316,29 +316,28 @@ def toggle_delete_button(selected_rows):
 
 # Toggle create modal
 @callback(
-    Output('create-node-modal', 'is_open'),
-    [Input('create-node-btn', 'n_clicks'),
-     Input('confirm-create-node', 'n_clicks'),
-     Input('cancel-create-node', 'n_clicks')],
-    State('create-node-modal', 'is_open')
+    Output('create-edge-type-modal', 'is_open'),
+    [Input('create-edge-type-btn', 'n_clicks'),
+     Input('confirm-create-edge-type', 'n_clicks'),
+     Input('cancel-create-edge-type', 'n_clicks')],
+    State('create-edge-type-modal', 'is_open')
 )
 def toggle_create_modal(create_clicks, confirm_clicks, cancel_clicks, is_open):
-    """Toggle create node modal"""
+    """Toggle create edge type modal"""
     if create_clicks or confirm_clicks or cancel_clicks:
         return not is_open
     return is_open
 
 # Toggle delete modal
 @callback(
-    Output('delete-node-modal', 'is_open'),
-    Output('delete-modal-body', 'children', allow_duplicate=True),
-    [Input('delete-node-btn', 'n_clicks'),
-     Input('confirm-delete-node', 'n_clicks'),
-     Input('cancel-delete-node', 'n_clicks')],
-    [State('delete-node-modal', 'is_open'),
-     State('nodes-table', 'multiRowsClicked'),
-     State('nodes-table', 'data')],
-    prevent_initial_call=True
+    Output('delete-edge-type-modal', 'is_open'),
+    Output('delete-modal-body', 'children'),
+    [Input('delete-edge-type-btn', 'n_clicks'),
+     Input('confirm-delete-edge-type', 'n_clicks'),
+     Input('cancel-delete-edge-type', 'n_clicks')],
+    [State('delete-edge-type-modal', 'is_open'),
+     State('edge-types-table', 'multiRowsClicked'),
+     State('edge-types-table', 'data')]
 )
 def toggle_delete_modal(delete_clicks, confirm_clicks, cancel_clicks, is_open, selected_rows, data):
     """Toggle delete confirmation modal"""
@@ -349,38 +348,38 @@ def toggle_delete_modal(delete_clicks, confirm_clicks, cancel_clicks, is_open, s
     
     button_id = ctx.triggered[0]['prop_id'].split('.')[0]
     
-    if button_id == 'delete-node-btn' and selected_rows:
-        selected_nodes = [row['Name'] for row in selected_rows]
+    if button_id == 'delete-edge-type-btn' and selected_rows:
+        selected_edge_types = [row['Name'] for row in selected_rows]
         body = html.Div([
-            html.P(f"Are you sure you want to delete the following {len(selected_rows)} node(s)?"),
-            html.Ul([html.Li(name) for name in selected_nodes]),
+            html.P(f"Are you sure you want to delete the following {len(selected_rows)} edge type(s)?"),
+            html.Ul([html.Li(name) for name in selected_edge_types]),
             html.P("This action cannot be undone.", className="text-danger fw-bold")
         ])
         return True, body
-    elif button_id in ['confirm-delete-node', 'cancel-delete-node']:
+    elif button_id in ['confirm-delete-edge-type', 'cancel-delete-edge-type']:
         return False, ""
     
     return is_open, ""
 
 # Handle CRUD operations
 @callback(
-    [Output('nodes-table', 'data'),
+    [Output('edge-types-table', 'data'),
      Output('toast-message', 'is_open', allow_duplicate=True),
      Output('toast-message', 'children', allow_duplicate=True),
      Output('toast-message', 'icon', allow_duplicate=True),
-     Output('new-node-identifier', 'value'),
-     Output('new-node-name', 'value'),
-     Output('new-node-description', 'value')],
-    [Input('confirm-create-node', 'n_clicks'),
-     Input('confirm-delete-node', 'n_clicks')],
-    [State('new-node-identifier', 'value'),
-     State('new-node-name', 'value'),
-     State('new-node-description', 'value'),
-     State('nodes-table', 'data'),
-     State('nodes-table', 'multiRowsClicked')],
+     Output('new-edge-type-identifier', 'value'),
+     Output('new-edge-type-name', 'value'),
+     Output('new-edge-type-description', 'value')],
+    [Input('confirm-create-edge-type', 'n_clicks'),
+     Input('confirm-delete-edge-type', 'n_clicks')],
+    [State('new-edge-type-identifier', 'value'),
+     State('new-edge-type-name', 'value'),
+     State('new-edge-type-description', 'value'),
+     State('edge-types-table', 'data'),
+     State('edge-types-table', 'multiRowsClicked')],
     prevent_initial_call=True
 )
-def manage_nodes(create_clicks, delete_clicks, identifier, name, description, data, selected_rows):
+def manage_edge_types(create_clicks, delete_clicks, identifier, name, description, data, selected_rows):
     """Handle create and delete operations"""
     ctx = dash.callback_context
     
@@ -389,12 +388,12 @@ def manage_nodes(create_clicks, delete_clicks, identifier, name, description, da
     
     button_id = ctx.triggered[0]['prop_id'].split('.')[0]
     
-    # Create new node
-    if button_id == 'confirm-create-node' and name:
-        # Use database to create node
-        new_node_id = str(uuid.uuid4())
-        result = model.create_node(
-            node_id=new_node_id,
+    # Create new edge type
+    if button_id == 'confirm-create-edge-type' and name:
+        # Use database to create edge type
+        new_edge_type_id = str(uuid.uuid4())
+        result = model.create_edge_type(
+            edge_type_id=new_edge_type_id,
             identifier=identifier or '',
             name=name,
             description=description or ''
@@ -402,54 +401,54 @@ def manage_nodes(create_clicks, delete_clicks, identifier, name, description, da
         
         if isinstance(result, dict) and result.get('success'):
             # Get updated data from database
-            updated_data = get_nodes_from_db()
-            message = f"Successfully created node: {name}"
+            updated_data = get_edge_types_from_db()
+            message = f"Successfully created edge type: {name}"
             return updated_data, True, message, "success", '', '', ''
         else:
             error_msg = result.get('message', 'Unknown error') if isinstance(result, dict) else 'Create failed'
-            message = f"Failed to create node: {error_msg}"
+            message = f"Failed to create edge type: {error_msg}"
             return data, True, message, "danger", no_update, no_update, no_update
     
-    # Delete selected nodes
-    elif button_id == 'confirm-delete-node' and selected_rows:
+    # Delete selected edge types
+    elif button_id == 'confirm-delete-edge-type' and selected_rows:
         deleted_count = 0
         errors = []
         
         for row in selected_rows:
-            node_id = row['ID']
-            success, message = model.delete_node(node_id)
+            edge_type_id = row['ID']
+            success, message = model.delete_edge_type(edge_type_id)
             if success:
                 deleted_count += 1
             else:
                 errors.append(f"Failed to delete {row['Name']}: {message}")
         
         # Get updated data from database
-        updated_data = get_nodes_from_db()
+        updated_data = get_edge_types_from_db()
         
         if errors:
-            message = f"Deleted {deleted_count} nodes. Errors: {'; '.join(errors[:3])}" + (f" and {len(errors)-3} more..." if len(errors) > 3 else "")
+            message = f"Deleted {deleted_count} edge types. Errors: {'; '.join(errors[:3])}" + (f" and {len(errors)-3} more..." if len(errors) > 3 else "")
             return updated_data, True, message, "warning", no_update, no_update, no_update
         else:
-            message = f"Successfully deleted {deleted_count} node(s)"
+            message = f"Successfully deleted {deleted_count} edge type(s)"
             return updated_data, True, message, "success", no_update, no_update, no_update
     
     return no_update, no_update, no_update, no_update, no_update, no_update, no_update
 
 # Download CSV
 @callback(
-    Output('download-nodes-csv', 'data'),
-    Input('download-nodes-btn', 'n_clicks'),
-    State('nodes-table', 'data'),
+    Output('download-edge-types-csv', 'data'),
+    Input('download-edge-types-btn', 'n_clicks'),
+    State('edge-types-table', 'data'),
     prevent_initial_call=True
 )
 def download_csv(n_clicks, data):
-    """Download nodes data as CSV"""
+    """Download edge types data as CSV"""
     if n_clicks and data:
         df = pd.DataFrame(data)
         csv_string = df.to_csv(index=False)
         return dict(
             content=csv_string,
-            filename=f"nodes_export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+            filename=f"edge_types_export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
         )
 
 # Print functionality
@@ -459,7 +458,7 @@ def download_csv(n_clicks, data):
         Output('toast-message', 'children', allow_duplicate=True),
         Output('toast-message', 'icon', allow_duplicate=True)
     ],
-    Input('print-nodes-btn', 'n_clicks'),
+    Input('print-edge-types-btn', 'n_clicks'),
     prevent_initial_call=True
 )
 def print_table(n_clicks):
@@ -472,20 +471,20 @@ def print_table(n_clicks):
 # Refresh functionality - now reloads from database
 @callback(
     [
-        Output('nodes-table', 'data', allow_duplicate=True),
+        Output('edge-types-table', 'data', allow_duplicate=True),
         Output('toast-message', 'is_open', allow_duplicate=True),
         Output('toast-message', 'children', allow_duplicate=True),
         Output('toast-message', 'icon', allow_duplicate=True)
     ],
-    Input('refresh-nodes-btn', 'n_clicks'),
+    Input('refresh-edge-types-btn', 'n_clicks'),
     prevent_initial_call=True
 )
 def refresh_table(n_clicks):
     """Handle refresh functionality - reload from database"""
     if n_clicks:
         try:
-            refreshed_data = get_nodes_from_db()
-            message = f"Table refreshed successfully - loaded {len(refreshed_data)} nodes"
+            refreshed_data = get_edge_types_from_db()
+            message = f"Table refreshed successfully - loaded {len(refreshed_data)} edge types"
             return refreshed_data, True, message, "info"
         except Exception as e:
             message = f"Error refreshing data: {str(e)}"
