@@ -164,69 +164,8 @@ class Model:
         finally:
             session.close()
 
-    def _get_session_with_relationships(self):
-        """Get session for relationship queries (Dash compatible)"""
+    def _get_session(self):
         return self.SessionLocal()
-
-    # ==================== Dash Data Formatting Methods ====================
-
-    def get_nodes_for_dash_table(self) -> List[Dict[str, Any]]:
-        """Get nodes formatted for Dash DataTable component"""
-        session = self._get_session_with_relationships()
-        try:
-            nodes = session.query(Node).all()
-            return [node.to_dict() for node in nodes]
-        finally:
-            session.close()
-
-    def get_edges_for_dash_table(self) -> List[Dict[str, Any]]:
-        """Get edges formatted for Dash DataTable component"""
-        session = self._get_session_with_relationships()
-        try:
-            edges = session.query(Edge).all()
-            return [edge.to_dict() for edge in edges]
-        finally:
-            session.close()
-
-    def get_edge_types_for_dash_table(self) -> List[Dict[str, Any]]:
-        """Get edge types formatted for Dash DataTable component"""
-        session = self.SessionLocal()
-        try:
-            edge_types = session.query(EdgeType).all()
-            return [edge_type.to_dict() for edge_type in edge_types]
-        finally:
-            session.close()
-
-    def get_network_data_for_plotly(self) -> Dict[str, Any]:
-        """Get network data formatted for Plotly/Dash network visualization"""
-        session = self._get_session_with_relationships()
-        try:
-            nodes = session.query(Node).all()
-            edges = session.query(Edge).all()
-            
-            node_data = []
-            for node in nodes:
-                node_data.append({
-                    'id': node.id,
-                    'label': node.name,
-                    'title': f"{node.name} ({node.identifier or 'No ID'})"
-                })
-            
-            edge_data = []
-            for edge in edges:
-                edge_data.append({
-                    'from': edge.source_node_id,
-                    'to': edge.target_node_id,
-                    'label': edge.edge_type.name if edge.edge_type else 'Unknown',
-                    'title': edge.description
-                })
-            
-            return {
-                'nodes': node_data,
-                'edges': edge_data
-            }
-        finally:
-            session.close()
 
     # ==================== CREATE OPERATIONS ====================
 
@@ -350,71 +289,135 @@ class Model:
     # ==================== READ OPERATIONS ======================
 
     def get_edges(self):
-
-        session = self._get_session_with_relationships()
-
+        session = self._get_session()
         try:
-            edges = session.query(Edge).all()
-            session.expunge_all()
-            return edges
+            return session.query(Edge).all()
         finally:
             session.close()
 
     def get_edge_by_id(self, edge_id: str):
-
-        session = self._get_session_with_relationships()
-
+        session = self._get_session()
         try:
-            edge = session.query(Edge).filter(Edge.id == edge_id).first()
-            if edge:
-                session.expunge(edge)
-            return edge
+            return session.query(Edge).filter(Edge.id == edge_id).first()
         finally:
             session.close()
     
     def get_nodes(self):
-
-        session = self._get_session_with_relationships()
-
+        session = self._get_session()
         try:
-            nodes = session.query(Node).all()
-            session.expunge_all()
-            return nodes
+            return session.query(Node).all()
         finally:
             session.close()
 
     def get_node_by_id(self, node_id: str):
-
-        session = self.SessionLocal()
-
+        session = self._get_session()
         try:
-            node = session.query(Node).filter(Node.id == node_id).first()
-            if node:
-                session.expunge(node)
-            return node
+            return session.query(Node).filter(Node.id == node_id).first()
         finally:
             session.close()
 
     def get_edge_types(self):
-
-        session = self.SessionLocal()
-
+        session = self._get_session()
         try:
-            edge_types = session.query(EdgeType).all()
-            session.expunge_all()
-            return edge_types
+            return session.query(EdgeType).all()
         finally:
             session.close()
 
     def get_edge_type_by_id(self, edge_type_id: str):
-
-        session = self.SessionLocal()
-
+        session = self._get_session()
         try:
-            edge_type = session.query(EdgeType).filter(EdgeType.id == edge_type_id).first()
-            if edge_type:
-                session.expunge(edge_type)
-            return edge_type
+            return session.query(EdgeType).filter(EdgeType.id == edge_type_id).first()
+        finally:
+            session.close()
+
+    # ==================== Data Formatting Methods ====================
+
+    def get_nodes_for_table(self) -> List[Dict[str, Any]]:
+        """Get nodes formatted for Table Component"""
+        session = self._get_session()
+        try:
+            nodes = session.query(Node).all()
+            result = []
+            for node in nodes:
+                result.append({
+                    'ID': str(node.id),
+                    'Identifier': node.identifier or '',
+                    'Name': node.name,
+                    'Description': node.description
+                })
+            return result
+        finally:
+            session.close() 
+
+    def get_edges_for_table(self) -> List[Dict[str, Any]]:
+        """Get edges formatted for Table Component"""
+        session = self._get_session()
+        try:
+            edges = session.query(Edge).all()
+            result = []
+            for edge in edges:
+                # Get readable names instead of IDs
+                source_name = edge.source_node.name if edge.source_node else 'Unknown'
+                target_name = edge.target_node.name if edge.target_node else 'Unknown'
+                edge_type_name = edge.edge_type.name if edge.edge_type else 'Unknown'
+                
+                result.append({
+                    'ID': str(edge.id),
+                    'Identifier': edge.identifier,
+                    'Source': source_name,
+                    'Target': target_name,
+                    'Edge Type': edge_type_name,
+                    'Description': edge.description
+                })
+            return result
+        finally:
+            session.close()
+
+    def get_edge_types_for_table(self) -> List[Dict[str, Any]]:
+        """Get edge types formatted for Dash DataTable component"""
+        session = self.SessionLocal()
+        try:
+            edge_types = session.query(EdgeType).all()
+            result = []
+            for et in edge_types:
+                result.append({
+                    'ID': str(et.id),
+                    'Identifier': et.identifier or '',
+                    'Name': et.name,
+                    'Description': et.description
+                })
+            return result
+        finally:
+            session.close()
+
+    def get_network_data_for_plotly(self) -> Dict[str, Any]:
+        """Get network data formatted for Plotly/Dash network visualization"""
+        session = self._get_session()
+        try:
+            nodes = session.query(Node).all()
+            edges = session.query(Edge).all()
+            
+            node_data = []
+            for node in nodes:
+                node_data.append({
+                    'id': node.id,
+                    'label': node.name,
+                    'title': f"{node.name} ({node.identifier or 'No ID'})"
+                })
+            
+            edge_data = []
+            for edge in edges:
+                edge_data.append({
+                    'from': edge.source_node_id,
+                    'to': edge.target_node_id,
+                    'label': edge.edge_type.name if edge.edge_type else 'Unknown',
+                    'title': edge.description
+                })
+            
+            return {
+                'nodes': node_data,
+                'edges': edge_data
+            }
         finally:
             session.close()
 

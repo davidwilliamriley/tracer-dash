@@ -19,7 +19,7 @@ model = Model()
 def get_nodes_from_db() -> List[Dict[str, Any]]:
     """Get nodes from database"""
     try:
-        return model.get_nodes_for_dash_table()
+        return model.get_nodes_for_table()
     except Exception as e:
         print(f"Error getting nodes from database: {e}")
         return []
@@ -27,7 +27,7 @@ def get_nodes_from_db() -> List[Dict[str, Any]]:
 def ensure_sample_data():
     """Ensure there's some sample data in the database"""
     try:
-        nodes = model.get_nodes_for_dash_table()
+        nodes = model.get_nodes_for_table()
         if len(nodes) == 0:
             # Add some sample nodes
             sample_nodes = [
@@ -116,7 +116,7 @@ def layout():
                     theme='tabulator', 
                     data=current_nodes,
                     columns=[
-                        {"title": "ID", "field": "ID", "width": 300, "headerFilter": True},
+                        {"title": "ID", "field": "ID", "width": 300, "headerFilter": False, "editor": False, "visible": False},
                         {"title": "Identifier", "field": "Identifier", "width": 200, "headerFilter": True, "editor": "input"},
                         {"title": "Name", "field": "Name", "width": 300, "headerFilter": True, "editor": "input"},
                         {"title": "Description", "field": "Description", "headerFilter": True, "editor": "input"}
@@ -131,7 +131,7 @@ def layout():
                         "paginationCounter": "rows",
                         "movableColumns": True,
                         "resizableColumns": True,
-                        "layout": "fitColumns",
+                        "layout": "fitDataStretch",
                         "responsiveLayout": "hide",
                         "tooltips": True,
                         "clipboard": True,

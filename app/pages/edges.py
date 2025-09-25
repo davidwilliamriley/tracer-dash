@@ -1,105 +1,117 @@
 # pages/edges.py
+
+# imports
 import dash
-from dash import html, dcc, callback, Input, Output, State, no_update
+from dash import html, dcc, callback, Input, Output, no_update, State
 import dash_bootstrap_components as dbc
 import dash_tabulator
+import json
+import logging
 import pandas as pd
 import uuid
 from datetime import datetime
 from typing import Any, Dict, List
 
-# Import model to access database
+logging.basicConfig(level=logging.INFO)
+
+# Import the model to access the Database
 from models.model import Model
 
 dash.register_page(__name__, path='/edges')
 
-# Initialize model for database access
+# Initialize the model to access the Database
 model = Model()
 
 def get_edges_from_db() -> List[Dict[str, Any]]:
-    """Get edges from database"""
+    """Get Edges from the Database"""
+
+    # To-Do : Sort Edges by Source, then Target Identifier and Name
+    
     try:
-        return model.get_edges_for_dash_table()
+        return model.get_edges_for_table()
     except Exception as e:
         print(f"Error getting edges from database: {e}")
         return []
 
 def get_nodes_for_dropdown() -> List[Dict[str, str]]:
-    """Get nodes for dropdown selection"""
+    """Get Nodes for the Dropdowns"""
     try:
         nodes = model.get_nodes()
         result = []
         for node in nodes:
-            identifier_str = str(node.identifier) if node.identifier is not None else 'No ID'
-            label = f"{str(node.name)} ({identifier_str})"
+            if node.identifier is not None and str(node.identifier).strip() != '':
+                label = f"{str(node.identifier)} - {str(node.name)}"
+            else:
+                label = f"{str(node.name)}"      
             result.append({'label': label, 'value': str(node.id)})
+        result.sort(key=lambda item: item['label'].lower())
         return result
     except Exception as e:
-        print(f"Error getting nodes for dropdown: {e}")
+        print(f"Unable to get Nodes for dropdown: {e}")
         return []
 
 def get_edge_types_for_dropdown() -> List[Dict[str, str]]:
-    """Get edge types for dropdown selection"""
+    """Get Edge Types for Dropdowns"""
     try:
         edge_types = model.get_edge_types()
-        return [{'label': str(edge_type.name), 'value': str(edge_type.id)} for edge_type in edge_types]
+        result = []
+        for edge_type in edge_types:
+            if edge_type.identifier is not None and str(edge_type.identifier).strip() != '':
+                label = f"{str(edge_type.identifier)} - {str(edge_type.name)}"
+            else:
+                label = f"{str(edge_type.name)}"
+            result.append({'label': label, 'value': str(edge_type.id)})
+
+        result.sort(key=lambda item: item['label'].lower())
+        return result
     except Exception as e:
-        print(f"Error getting edge types for dropdown: {e}")
+        print(f"Unable to get Edge Types for Dropdowns: {e}")
         return []
 
-def ensure_sample_data():
-    """Ensure there's some sample data in the database"""
-    try:
-        edges = model.get_edges_for_dash_table()
-        nodes = model.get_nodes()
-        edge_types = model.get_edge_types()
-        
-        # Only create sample edges if we have nodes and edge types but no edges
-        if len(edges) == 0 and len(nodes) >= 2 and len(edge_types) >= 1:
-            sample_edges = [
-                {
-                    'id': '44444cf8-8a34-42a8-b856-b9615ee93927',
-                    'identifier': 'EDGE001',
-                    'source_node_id': nodes[0].id,
-                    'target_node_id': nodes[1].id,
-                    'edge_type_id': edge_types[0].id,
-                    'description': 'Sample connection between first two nodes'
-                }
-            ]
-            
-            if len(nodes) >= 3:
-                sample_edges.append({
-                    'id': '55555de-7564-4edc-a2a8-d934d316d41',
-                    'identifier': 'EDGE002',
-                    'source_node_id': nodes[1].id,
-                    'target_node_id': nodes[2].id,
-                    'edge_type_id': edge_types[0].id,
-                    'description': 'Sample connection between second and third nodes'
-                })
-            
-            for edge_data in sample_edges:
-                success, message = model.create_edge(
-                    edge_id=edge_data['id'],
-                    identifier=edge_data['identifier'],
-                    source_node_id=edge_data['source_node_id'],
-                    target_node_id=edge_data['target_node_id'],
-                    edge_type_id=edge_data['edge_type_id'],
-                    description=edge_data['description']
-                )
-                if success:
-                    print(f"Added sample edge: {edge_data['identifier']}")
-    except Exception as e:
-        print(f"Error ensuring sample data: {e}")
-
-# Initialize sample data on module load
-ensure_sample_data()
-
 def layout():
-    # Get current edges from database
     current_edges = get_edges_from_db()
+
+
+    nodes_for_dropdown = get_nodes_for_dropdown()
+    logging.info(f"Nodes for dropdown: {nodes_for_dropdown}")
+
+    nodes_data = model.get_nodes_for_table()  # Get dictionaries
+    node_values = {}
+    for node in nodes_for_dropdown:
+        # Find matching node data using dictionary access
+        node_data = next((n for n in nodes_data if str(n['ID']) == node['value']), None)
+        if node_data:
+            displayed_name = str(node_data['Name'])  # Dictionary access
+            dropdown_label = node['label']  
+            node_values[displayed_name] = dropdown_label
+
+    logging.info(f"Node Values for dropdown: {node_values}")
+
+    edge_types_for_dropdown = get_edge_types_for_dropdown()
+    logging.info(f"Edge Types for dropdown: {edge_types_for_dropdown}")
+
+    # Same fix for edge types
+    edge_types_data = model.get_edge_types_for_table()  # Get dictionaries
+    edge_type_values = {}
+    for et in edge_types_for_dropdown:
+        # Find matching edge type data using dictionary access
+        et_data = next((e for e in edge_types_data if str(e['ID']) == et['value']), None)
+        if et_data:
+            displayed_name = str(et_data['Name'])  # Dictionary access
+            dropdown_label = et['label']       
+            edge_type_values[displayed_name] = dropdown_label
+
+    logging.info(f"Edge Type values for dropdown: {edge_type_values}")
     
+    node_editor_values = {str(node['value']): str(node['label']) for node in nodes_for_dropdown}
+    edge_type_editor_values = {str(et['value']): str(et['label']) for et in edge_types_for_dropdown}
+
+    print("DEBUG - Node editor values (display -> UUID):")
+    for k, v in list(node_editor_values.items())[:3]:
+        print(f"  '{k}': '{v}'")
+
     return html.Div([
-        # Toast notification component
+        # Toast Notifications
         dbc.Toast(
             id="toast-message",
             header="Notification",
@@ -138,44 +150,42 @@ def layout():
                 ], className="col-md-6"),
             ], className="row justify-content-between mb-3 edges-toolbar"),
             
-            # Table - dash-tabulator with dropdown editors for relationships
             html.Div([
                 dash_tabulator.DashTabulator(
                     id='edges-table',
                     theme='tabulator', 
                     data=current_edges,
                     columns=[
-                        {"title": "ID", "field": "ID", "width": 300, "headerFilter": True},
-                        {"title": "Identifier", "field": "Identifier", "width": 150, "headerFilter": True, "editor": "input"},
+                        {"title": "ID", "field": "ID", "headerFilter": False, "visible": False},
+                        {"title": "Identifier", "field": "Identifier", "headerFilter": True, "editor": "input"},
                         {
                             "title": "Source", 
                             "field": "Source", 
-                            "width": 200, 
                             "headerFilter": True,
-                            "editor": "list",
-                            "editorParams": {"values": {node['value']: node['label'] for node in get_nodes_for_dropdown()}}
-                        },
-                        {
-                            "title": "Target", 
-                            "field": "Target", 
-                            "width": 200, 
-                            "headerFilter": True,
-                            "editor": "list",
-                            "editorParams": {"values": {node['value']: node['label'] for node in get_nodes_for_dropdown()}}
+                            "editor": "select",
+                            "editorParams": {"values": node_editor_values},
+                            "formatterParams": {"labels": node_editor_values}
                         },
                         {
                             "title": "Edge Type", 
                             "field": "Edge Type", 
-                            "width": 150, 
                             "headerFilter": True,
-                            "editor": "list",
-                            "editorParams": {"values": {et['value']: et['label'] for et in get_edge_types_for_dropdown()}}
+                            "editor": "select",
+                            "editorParams": {"values": edge_type_editor_values},
+                        },
+                        {
+                            "title": "Target", 
+                            "field": "Target", 
+                            "headerFilter": True,
+                            "editor": "select",
+                            "editorParams": {"values": node_editor_values},
                         },
                         {"title": "Description", "field": "Description", "headerFilter": True, "editor": "input"}
                     ],
                     options={
                         "selectable": True,
                         "selectableRangeMode": "click",
+                        "editTriggerEvent": "click", 
                         "pagination": "local",
                         "paginationSize": 10,
                         "paginationSizeSelector": [5, 10, 20, 50],
@@ -183,7 +193,7 @@ def layout():
                         "paginationCounter": "rows",
                         "movableColumns": True,
                         "resizableColumns": True,
-                        "layout": "fitColumns",
+                        "layout": "fitDataStretch",
                         "responsiveLayout": "hide",
                         "tooltips": True,
                         "clipboard": True,
@@ -295,76 +305,32 @@ def populate_dropdown_options(is_open):
     State('edges-table', 'data'),
     prevent_initial_call=True
 )
+
 def handle_data_change(changed_data, current_data):
-    """Handle table data changes including cell edits with dropdown selections"""
+    """Handle table data changes - now much simpler with UUIDs"""
     if not changed_data:
         return no_update, no_update, no_update, no_update
     
-    print(f"DEBUG: Data changed event fired with: {changed_data}")
-    
     try:
-        # Get lookup dictionaries for mapping display names to IDs
-        nodes = model.get_nodes()
-        edge_types = model.get_edge_types()
-        
-        # Create mapping dictionaries
-        node_name_to_id = {}
-        for node in nodes:
-            # Handle the display format: "Name (Identifier)" or "Name (No ID)"
-            identifier_str = str(node.identifier) if node.identifier is not None else 'No ID'
-            display_name = f"{str(node.name)} ({identifier_str})"
-            node_name_to_id[display_name] = str(node.id)
-            # Also map just the node name in case dropdown returns simplified value
-            node_name_to_id[str(node.name)] = str(node.id)
-        
-        edge_type_name_to_id = {}
-        for et in edge_types:
-            edge_type_name_to_id[str(et.name)] = str(et.id)
-        
         errors = []
         updated_count = 0
         
         for row in changed_data:
             if 'ID' in row:
                 edge_id = row['ID']
-                
-                # Build update dictionary
                 updates = {}
                 
                 if 'Identifier' in row:
                     updates['identifier'] = row['Identifier'] or ''
-                
                 if 'Source' in row:
-                    source_display = row['Source']
-                    source_node_id = node_name_to_id.get(source_display)
-                    if source_node_id:
-                        updates['source_node_id'] = source_node_id
-                    else:
-                        errors.append(f"Could not find source node: {source_display}")
-                        continue
-                
+                    updates['source_node_id'] = row['Source']      # Already a UUID
                 if 'Target' in row:
-                    target_display = row['Target']
-                    target_node_id = node_name_to_id.get(target_display)
-                    if target_node_id:
-                        updates['target_node_id'] = target_node_id
-                    else:
-                        errors.append(f"Could not find target node: {target_display}")
-                        continue
-                
+                    updates['target_node_id'] = row['Target']      # Already a UUID
                 if 'Edge Type' in row:
-                    edge_type_display = row['Edge Type']
-                    edge_type_id = edge_type_name_to_id.get(edge_type_display)
-                    if edge_type_id:
-                        updates['edge_type_id'] = edge_type_id
-                    else:
-                        errors.append(f"Could not find edge type: {edge_type_display}")
-                        continue
-                
+                    updates['edge_type_id'] = row['Edge Type']     # Already a UUID
                 if 'Description' in row:
                     updates['description'] = row['Description'] or ''
                 
-                # Update the edge with all changed fields
                 if updates:
                     success, message = model.update_edge(edge_id, **updates)
                     if success:
@@ -376,58 +342,300 @@ def handle_data_change(changed_data, current_data):
         updated_data = get_edges_from_db()
         
         if errors:
-            message = f"Updated {updated_count} edges. Errors: {'; '.join(errors[:2])}" + (f" and {len(errors)-2} more..." if len(errors) > 2 else "")
+            message = f"Updated {updated_count} edges. Errors: {'; '.join(errors[:2])}"
             return updated_data, True, message, "warning"
         else:
             message = f"Successfully saved changes to {updated_count} edge(s)"
             return updated_data, True, message, "success"
             
     except Exception as e:
-        print(f"Error handling data change: {e}")
         message = f"Error saving changes: {str(e)}"
         return no_update, True, message, "danger"
 
-# Test callback to debug tabulator events
-@callback(
-    [
-        Output('toast-message', 'is_open', allow_duplicate=True),
-        Output('toast-message', 'children', allow_duplicate=True),
-        Output('toast-message', 'icon', allow_duplicate=True)
-    ],
-    [Input('edges-table', 'cellEdited'),
-     Input('edges-table', 'rowClicked'),
-     Input('edges-table', 'dataChanged'),
-     Input('edges-table', 'dataEdited')],
-    prevent_initial_call=True
-)
-def debug_tabulator_events(cell_edited, row_clicked, data_changed, data_edited):
-    """Debug callback to see which events are firing"""
-    ctx = dash.callback_context
-    if not ctx.triggered:
-        return no_update, no_update, no_update
+# def handle_data_change(changed_data, current_data):
+#     """Handle table data changes including cell edits with dropdown selections"""
+#     if not changed_data:
+#         return no_update, no_update, no_update, no_update
     
-    trigger = ctx.triggered[0]
-    prop_id = trigger['prop_id']
-    value = trigger['value']
+#     print(f"DEBUG: Data changed event fired with: {changed_data}")
     
-    print(f"DEBUG: Tabulator event fired - Property: {prop_id}, Value: {value}")
+#     try:
+#         # Get lookup dictionaries for mapping display names to IDs
+#         nodes = model.get_nodes()
+#         edge_types = model.get_edge_types()
+        
+#         # Create mapping dictionaries
+#         node_name_to_id = {}
+#         for node in nodes:
+#             # Handle new format: "Identifier - Name" or just "Name"
+#             if node.identifier is not None and str(node.identifier).strip() != '':
+#                 display_name = f"{str(node.identifier)} - {str(node.name)}"
+#             else:
+#                 display_name = str(node.name)
+#             node_name_to_id[display_name] = str(node.id)
+        
+#         edge_type_name_to_id = {}
+#         for et in edge_types:
+#             if et.identifier is not None and str(et.identifier).strip() != '':
+#                 display_name = f"{str(et.identifier)} - {str(et.name)}"
+#             else:
+#                 display_name = str(et.name)
+#             edge_type_name_to_id[display_name] = str(et.id)
+        
+#         errors = []
+#         updated_count = 0
+        
+#         for row in changed_data:
+#             if 'ID' in row:
+#                 edge_id = row['ID']
+                
+#                 # Build update dictionary
+#                 updates = {}
+                
+#                 if 'Identifier' in row:
+#                     updates['identifier'] = row['Identifier'] or ''
+                
+#                 if 'Source' in row:
+#                     source_display = row['Source']
+#                     source_node_id = node_name_to_id.get(source_display)
+#                     if source_node_id:
+#                         updates['source_node_id'] = source_node_id
+#                     else:
+#                         errors.append(f"Could not find source node: {source_display}")
+#                         continue
+                
+#                 if 'Target' in row:
+#                     target_display = row['Target']
+#                     target_node_id = node_name_to_id.get(target_display)
+#                     if target_node_id:
+#                         updates['target_node_id'] = target_node_id
+#                     else:
+#                         errors.append(f"Could not find target node: {target_display}")
+#                         continue
+                
+#                 if 'Edge Type' in row:
+#                     edge_type_display = row['Edge Type']
+#                     edge_type_id = edge_type_name_to_id.get(edge_type_display)
+#                     if edge_type_id:
+#                         updates['edge_type_id'] = edge_type_id
+#                     else:
+#                         errors.append(f"Could not find edge type: {edge_type_display}")
+#                         continue
+                
+#                 if 'Description' in row:
+#                     updates['description'] = row['Description'] or ''
+                
+#                 # Update the edge with all changed fields
+#                 if updates:
+#                     success, message = model.update_edge(edge_id, **updates)
+#                     if success:
+#                         updated_count += 1
+#                     else:
+#                         errors.append(f"Failed to update edge {edge_id}: {message}")
+        
+#         # Get fresh data from database
+#         updated_data = get_edges_from_db()
+        
+#         if errors:
+#             message = f"Updated {updated_count} edges. Errors: {'; '.join(errors[:2])}" + (f" and {len(errors)-2} more..." if len(errors) > 2 else "")
+#             return updated_data, True, message, "warning"
+#         else:
+#             message = f"Successfully saved changes to {updated_count} edge(s)"
+#             return updated_data, True, message, "success"
+            
+#     except Exception as e:
+#         print(f"Error handling data change: {e}")
+#         message = f"Error saving changes: {str(e)}"
+#         return no_update, True, message, "danger"
+
+# Test callback to debug tabulator events and update columns
+# @callback(
+#     [
+#         Output('edges-table', 'columns'),
+#         Output('toast-message', 'is_open', allow_duplicate=True),
+#         Output('toast-message', 'children', allow_duplicate=True),
+#         Output('toast-message', 'icon', allow_duplicate=True)
+#     ],
+#     [
+#         Input('edges-table', 'data'),
+#         Input('edges-table', 'columns'),
+#         Input('refresh-edges-btn', 'n_clicks'),
+#         Input('edges-table', 'cellEdited'),
+#         Input('edges-table', 'rowClicked'),
+#         Input('edges-table', 'dataChanged'),
+#         Input('edges-table', 'dataEdited')
+#     ],
+#     prevent_initial_call=True
+# )
+
+# # def debug_tabulator_events(data, columns, refresh_clicks, cell_edited, row_clicked, data_changed, data_edited):
+# #     """Debug callback to see which events are firing"""
+# #     ctx = dash.callback_context
+# #     if not ctx.triggered:
+# #         return no_update, no_update, no_update
     
-    # Don't show toasts for dataChanged since we handle that elsewhere
-    if 'dataChanged' in prop_id:
-        return no_update, no_update, no_update
+# #     trigger = ctx.triggered[0]
+# #     prop_id = trigger['prop_id']
+# #     value = trigger['value']
     
-    if 'cellEdited' in prop_id:
-        print(f"DEBUG: Cell edited data: {cell_edited}")
-        return True, f"Cell edited event detected: {cell_edited}", "info"
+# #     print(f"DEBUG: Tabulator event fired - Property: {prop_id}, Value: {value}")
     
-    elif 'dataEdited' in prop_id:
-        print(f"DEBUG: Data edited: {data_edited}")
-        return True, f"Data edited event detected: {data_edited}", "success"
+# #     # Don't show toasts for dataChanged since we handle that elsewhere
+# #     if 'dataChanged' in prop_id:
+# #         return no_update, no_update, no_update
     
-    elif 'rowClicked' in prop_id:
-        return True, f"Row clicked: {row_clicked}", "info"
+# #     if 'cellEdited' in prop_id:
+# #         print(f"DEBUG: Cell edited data: {cell_edited}")
+# #         return True, f"Cell edited event detected: {cell_edited}", "info"
     
-    return no_update, no_update, no_update
+# #     elif 'dataEdited' in prop_id:
+# #         print(f"DEBUG: Data edited: {data_edited}")
+# #         return True, f"Data edited event detected: {data_edited}", "success"
+    
+# #     elif 'rowClicked' in prop_id:
+# #         return True, f"Row clicked: {row_clicked}", "info"
+    
+# #     elif 'refresh-edges-btn' in prop_id:
+# #         return True, "Refresh button clicked", "info"
+    
+# #     elif 'edges-table.data' in prop_id:
+# #         return True, f"Table data updated - {len(data) if data else 0} rows", "info"
+        
+# #     elif 'edges-table.columns' in prop_id:
+# #         return True, f"Table columns updated - {len(columns) if columns else 0} columns", "info"
+    
+# #     return no_update, no_update, no_update
+
+# def update_table_columns(data, columns, refresh_clicks, cell_edited, row_clicked, data_changed, data_edited):
+#     """Update table columns with fresh dropdown options and debug tabulator events"""
+    
+#     # Get fresh dropdown data
+#     nodes = get_nodes_for_dropdown()
+#     edge_types = get_edge_types_for_dropdown()
+    
+#     node_values = {node['value']: node['label'] for node in nodes}
+#     edge_type_values = {et['value']: et['label'] for et in edge_types}
+    
+#     columns = [
+#         {"title": "ID", "field": "ID", "headerFilter": False, "visible": False},
+#         {"title": "Identifier", "field": "Identifier", "headerFilter": True, "editor": "input"},
+#         {
+#             "title": "Source", 
+#             "field": "Source", 
+#             "headerFilter": True,
+#             "editor": "list",
+#             "editorParams": {"values": node_values}
+#         },
+#         {
+#             "title": "Edge Type", 
+#             "field": "Edge Type", 
+#             "headerFilter": True,
+#             "editor": "list",
+#             "editorParams": {"values": edge_type_values}
+#         },
+#         {
+#             "title": "Target", 
+#             "field": "Target", 
+#             "headerFilter": True,
+#             "editor": "list",
+#             "editorParams": {"values": node_values}
+#         },
+#         {"title": "Description", "field": "Description", "headerFilter": True, "editor": "input"}
+#     ]
+    
+#     # Debug logic
+#     ctx = dash.callback_context
+#     if ctx.triggered:
+#         trigger = ctx.triggered[0]
+#         prop_id = trigger['prop_id']
+#         value = trigger['value']
+        
+#         print(f"DEBUG: Tabulator event fired - Property: {prop_id}, Value: {value}")
+        
+#         # Don't show toasts for dataChanged since it's handled elsewhere
+#         if 'dataChanged' in prop_id:
+#             return columns, no_update, no_update, no_update
+        
+#         if 'cellEdited' in prop_id:
+#             print(f"DEBUG: Cell edited data: {cell_edited}")
+#             return columns, True, f"Cell edited event detected: {cell_edited}", "info"
+        
+#         elif 'dataEdited' in prop_id:
+#             print(f"DEBUG: Data edited: {data_edited}")
+#             return columns, True, f"Data edited event detected: {data_edited}", "success"
+        
+#         elif 'rowClicked' in prop_id:
+#             return columns, True, f"Row clicked: {row_clicked}", "info"
+        
+#         elif 'refresh-edges-btn' in prop_id:
+#             return columns, True, f"Table columns refreshed with {len(nodes)} nodes", "info"
+
+# def debug_tabulator_events(cell_edited, row_clicked, data_changed, data_edited):
+#     """Debug callback to see which events are firing"""
+#     ctx = dash.callback_context
+#     if not ctx.triggered:
+#         return no_update, no_update, no_update
+    
+#     trigger = ctx.triggered[0]
+#     prop_id = trigger['prop_id']
+#     value = trigger['value']
+    
+#     print(f"DEBUG: Tabulator event fired - Property: {prop_id}, Value: {value}")
+    
+#     # Don't show toasts for dataChanged since we handle that elsewhere
+#     if 'dataChanged' in prop_id:
+#         return no_update, no_update, no_update
+    
+#     if 'cellEdited' in prop_id:
+#         print(f"DEBUG: Cell edited data: {cell_edited}")
+#         return True, f"Cell edited event detected: {cell_edited}", "info"
+    
+#     elif 'dataEdited' in prop_id:
+#         print(f"DEBUG: Data edited: {data_edited}")
+#         return True, f"Data edited event detected: {data_edited}", "success"
+    
+#     elif 'rowClicked' in prop_id:
+#         return True, f"Row clicked: {row_clicked}", "info"
+    
+#     return no_update, no_update, no_update
+
+# def debug_tabulator_events(data, columns, refresh_clicks, cell_edited, row_clicked, data_changed, data_edited):
+#     """Debug callback to see which events are firing"""
+#     ctx = dash.callback_context
+#     if not ctx.triggered:
+#         return no_update, no_update, no_update
+    
+#     trigger = ctx.triggered[0]
+#     prop_id = trigger['prop_id']
+#     value = trigger['value']
+    
+#     print(f"DEBUG: Tabulator event fired - Property: {prop_id}, Value: {value}")
+    
+#     # Don't show toasts for dataChanged since we handle that elsewhere
+#     if 'dataChanged' in prop_id:
+#         return no_update, no_update, no_update
+    
+#     if 'cellEdited' in prop_id:
+#         print(f"DEBUG: Cell edited data: {cell_edited}")
+#         return True, f"Cell edited event detected: {cell_edited}", "info"
+    
+#     elif 'dataEdited' in prop_id:
+#         print(f"DEBUG: Data edited: {data_edited}")
+#         return True, f"Data edited event detected: {data_edited}", "success"
+    
+#     elif 'rowClicked' in prop_id:
+#         return True, f"Row clicked: {row_clicked}", "info"
+    
+#     elif 'refresh-edges-btn' in prop_id:
+#         return True, "Refresh button clicked", "info"
+    
+#     elif 'edges-table.data' in prop_id:
+#         return True, f"Table data updated - {len(data) if data else 0} rows", "info"
+        
+#     elif 'edges-table.columns' in prop_id:
+#         return True, f"Table columns updated - {len(columns) if columns else 0} columns", "info"
+    
+#     return no_update, no_update, no_update
 
 # Enable/disable delete button based on selection
 @callback(

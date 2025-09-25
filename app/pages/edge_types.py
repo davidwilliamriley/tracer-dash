@@ -19,7 +19,7 @@ model = Model()
 def get_edge_types_from_db() -> List[Dict[str, Any]]:
     """Get edge types from database"""
     try:
-        return model.get_edge_types_for_dash_table()
+        return model.get_edge_types_for_table()
     except Exception as e:
         print(f"Error getting edge types from database: {e}")
         return []
@@ -27,7 +27,7 @@ def get_edge_types_from_db() -> List[Dict[str, Any]]:
 def ensure_sample_data():
     """Ensure there's some sample data in the database"""
     try:
-        edge_types = model.get_edge_types_for_dash_table()
+        edge_types = model.get_edge_types_for_table()
         if len(edge_types) == 0:
             # Add some sample edge types
             sample_edge_types = [
@@ -116,7 +116,7 @@ def layout():
                     theme='tabulator', 
                     data=current_edge_types,
                     columns=[
-                        {"title": "ID", "field": "ID", "width": 300, "headerFilter": True},
+                        {"title": "ID", "field": "ID", "width": 300, "headerFilter": True, "editor": False, "visible": False},
                         {"title": "Identifier", "field": "Identifier", "width": 200, "headerFilter": True, "editor": "input"},
                         {"title": "Name", "field": "Name", "width": 300, "headerFilter": True, "editor": "input"},
                         {"title": "Description", "field": "Description", "headerFilter": True, "editor": "input"}
@@ -131,7 +131,7 @@ def layout():
                         "paginationCounter": "rows",
                         "movableColumns": True,
                         "resizableColumns": True,
-                        "layout": "fitColumns",
+                        "layout": "fitDataStretch",
                         "responsiveLayout": "hide",
                         "tooltips": True,
                         "clipboard": True,

@@ -2,6 +2,8 @@
 :: Tracer.bat - Dash App Launcher for Tracer-Dash Application
 :: This batch file starts the Dash delivery manager application
 
+:: To-Do - Add support for Virtual Environments
+
 echo.
 echo ========================================
 echo   TRACER-DASH APPLICATION LAUNCHER
