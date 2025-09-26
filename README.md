@@ -1,9 +1,9 @@
-*Tracer*
+#Tracer#
 
-A Dash-based Data Editing Application
+**A Plotly Dash-based Network Data Visualisation and Editing Application**
 
 
-<To-Do>
+<details>To-Do</details>details>
 <summary>List of To-Do Items:</summary>
 
 1. [ ] Data Models
