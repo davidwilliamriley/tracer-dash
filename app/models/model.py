@@ -27,10 +27,6 @@ Base = declarative_base()
 # ==================== SQLAlchemy Models ====================
 
 class Edge(Base):
-    """
-    Edge model representing connections between nodes in the Dash application.
-    Used for network visualization and data tables.
-    """
     __tablename__ = 'edges'
     
     id = Column(String, primary_key=True)
@@ -46,16 +42,13 @@ class Edge(Base):
     
     @property
     def source(self) -> str:
-        """Property for Dash DataTable display"""
         return self.source_node.name if self.source_node else 'Unknown'
     
     @property
     def target(self) -> str:
-        """Property for Dash DataTable display"""
         return self.target_node.name if self.target_node else 'Unknown'
     
     def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary for Dash components"""
         return {
             'ID': self.id,
             'Identifier': self.identifier,
@@ -66,10 +59,6 @@ class Edge(Base):
         }
 
 class Node(Base):
-    """
-    Node model representing entities in the Dash application.
-    Used for network visualization and data management.
-    """
     __tablename__ = 'nodes'
     
     id = Column(String, primary_key=True)
@@ -81,7 +70,6 @@ class Node(Base):
     target_edges = relationship("Edge", foreign_keys="[Edge.target_node_id]", back_populates="target_node") # type: ignore
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary for Dash components"""
         return {
             'ID': self.id,
             'Identifier': self.identifier or '',
@@ -90,10 +78,6 @@ class Node(Base):
         }
 
 class EdgeType(Base):
-    """
-    EdgeType model for categorizing edges in the Dash application.
-    Used for filtering and visualization purposes.
-    """
     __tablename__ = 'edge_types'
     
     id = Column(String, primary_key=True)
@@ -104,7 +88,6 @@ class EdgeType(Base):
     edges = relationship("Edge", back_populates="edge_type")
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary for Dash components"""
         return {
             'ID': self.id,
             'Identifier': self.identifier or '',
@@ -115,25 +98,13 @@ class EdgeType(Base):
 # ==================== Main Model Class ====================
 
 class Model:
-    """
-    Main Model class for Dash application data management.
-    Handles all database operations and provides data for Dash components.
-    """
-    
     def __init__(self, db_path: Optional[str] = None):
-        """
-        Initialize the Model with database connection.
-        
-        Args:
-            db_path: Optional path to database file
-        """
         self.db_path = db_path if db_path is not None else DEFAULT_DB_PATH
         logger.info(f"Initializing Model with database: {self.db_path}")
         self._initialize_database()
         self._ensure_default_data()
 
     def _initialize_database(self):
-        """Initialize SQLAlchemy database engine and session factory"""
         try:
             self.engine = create_engine(f'sqlite:///{self.db_path}', echo=False)
             self.SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
@@ -144,43 +115,39 @@ class Model:
             raise
     
     def _ensure_default_data(self):
-        """Ensure the database has some default edge types for Dash application"""
-        session = self.SessionLocal()
-        try:
-            edge_type_count = session.query(EdgeType).count()
-            if edge_type_count == 0:
-                default_edge_types = [
-                    EdgeType(id="et_001", identifier="CONN", name="connects", description="Basic connection between nodes"),
-                    EdgeType(id="et_002", identifier="DEP", name="depends_on", description="Dependency relationship"),
-                    EdgeType(id="et_003", identifier="COMM", name="communicates_with", description="Communication relationship")
-                ]
-                for et in default_edge_types:
-                    session.add(et)
-                session.commit()
-                logger.info("Created default edge types for Dash application")
-        except Exception as e:
-            session.rollback()
-            logger.error(f"Error creating default data: {e}")
-        finally:
-            session.close()
+    #     session = self.SessionLocal()
+    #     try:
+    #         edge_type_count = session.query(EdgeType).count()
+    #         if edge_type_count == 0:
+    #             default_edge_types = [
+    #                 EdgeType(id="et_001", identifier="CONN", name="connects", description="Basic connection between nodes"),
+    #                 EdgeType(id="et_002", identifier="DEP", name="depends_on", description="Dependency relationship"),
+    #                 EdgeType(id="et_003", identifier="COMM", name="communicates_with", description="Communication relationship")
+    #             ]
+    #             for et in default_edge_types:
+    #                 session.add(et)
+    #             session.commit()
+    #             logger.info("Created default edge types for Dash application")
+    #     except Exception as e:
+    #         session.rollback()
+    #         logger.error(f"Error creating default data: {e}")
+    #     finally:
+    #         session.close()
+        pass
 
     def _get_session(self):
         return self.SessionLocal()
 
-    # ==================== CREATE OPERATIONS ====================
+    # ==================== CREATE EDGE, NODE & EDGE_TYPE OPERATIONS ====================
 
     def create_node(self, 
                     node_id: str, 
                     identifier: str, 
                     name: str, 
                     description: str = 'None') -> Dict[str, Any]:
-        """
-        Create a new node - Dash compatible return format
-        
-        Returns:
-            Dict with 'success' (bool), 'message' (str), and optionally 'data'
-        """
-        session = self.SessionLocal()
+
+        session = self._get_session()
+
         try:
             existing_node = session.query(Node).filter(Node.id == node_id).first()
             if existing_node:
@@ -216,7 +183,8 @@ class Model:
                     edge_type_id: str, 
                     description: str = 'None') -> tuple:
         
-        session = self.SessionLocal()
+        session = self._get_session()
+
         try:
             existing_edge = session.query(Edge).filter(Edge.id == edge_id).first()
             if existing_edge:
@@ -265,16 +233,12 @@ class Model:
                          name: str, 
                          description: str = 'None') -> tuple:
         
-        session = self.SessionLocal()
+        session = self._get_session()
 
         try:
             existing_edge_type = session.query(EdgeType).filter(EdgeType.id == edge_type_id).first()
             if existing_edge_type:
                 return False, f"Found existing Edge Type with ID '{edge_type_id}'."
-
-            # existing_name = session.query(EdgeType).filter(EdgeType.name == name).first()
-            # if existing_name:
-            #     return False, f"Found existing Edge Type with name '{name}'."
 
             new_edge_type = EdgeType(id=edge_type_id, identifier=identifier, name=name, description=description)
             session.add(new_edge_type)
@@ -286,9 +250,10 @@ class Model:
         finally:
             session.close()
 
-    # ==================== READ OPERATIONS ======================
+    # ==================== READ EDGES, NODES & EDGE TYPE OPERATIONS ======================
 
     def get_edges(self):
+        """Get all Edges from the Database"""
         session = self._get_session()
         try:
             return session.query(Edge).all()
@@ -296,6 +261,7 @@ class Model:
             session.close()
 
     def get_edge_by_id(self, edge_id: str):
+        """Get a specific Edge by ID"""
         session = self._get_session()
         try:
             return session.query(Edge).filter(Edge.id == edge_id).first()
@@ -332,8 +298,8 @@ class Model:
 
     # ==================== Data Formatting Methods ====================
 
-    def get_nodes_for_table(self) -> List[Dict[str, Any]]:
-        """Get nodes formatted for Table Component"""
+    def get_nodes_for_editor(self) -> List[Dict[str, Any]]:
+        """Get Nodes for the Editor"""
         session = self._get_session()
         try:
             nodes = session.query(Node).all()
@@ -349,32 +315,27 @@ class Model:
         finally:
             session.close() 
 
-    def get_edges_for_table(self) -> List[Dict[str, Any]]:
-        """Get edges formatted for Table Component"""
+    def get_edges_for_editor(self) -> List[Dict[str, Any]]:
+        """Get Edges for the Editor"""
         session = self._get_session()
         try:
             edges = session.query(Edge).all()
             result = []
             for edge in edges:
-                # Get readable names instead of IDs
-                source_name = edge.source_node.name if edge.source_node else 'Unknown'
-                target_name = edge.target_node.name if edge.target_node else 'Unknown'
-                edge_type_name = edge.edge_type.name if edge.edge_type else 'Unknown'
-                
                 result.append({
                     'ID': str(edge.id),
                     'Identifier': edge.identifier,
-                    'Source': source_name,
-                    'Target': target_name,
-                    'Edge Type': edge_type_name,
+                    'Source': str(edge.source_node.id),
+                    'Target': str(edge.target_node.id),
+                    'Edge Type': str(edge.edge_type.id),
                     'Description': edge.description
                 })
             return result
         finally:
             session.close()
 
-    def get_edge_types_for_table(self) -> List[Dict[str, Any]]:
-        """Get edge types formatted for Dash DataTable component"""
+    def get_edge_types_for_editor(self) -> List[Dict[str, Any]]:
+        """Get Edge Types for the Editor"""
         session = self.SessionLocal()
         try:
             edge_types = session.query(EdgeType).all()
@@ -387,37 +348,6 @@ class Model:
                     'Description': et.description
                 })
             return result
-        finally:
-            session.close()
-
-    def get_network_data_for_plotly(self) -> Dict[str, Any]:
-        """Get network data formatted for Plotly/Dash network visualization"""
-        session = self._get_session()
-        try:
-            nodes = session.query(Node).all()
-            edges = session.query(Edge).all()
-            
-            node_data = []
-            for node in nodes:
-                node_data.append({
-                    'id': node.id,
-                    'label': node.name,
-                    'title': f"{node.name} ({node.identifier or 'No ID'})"
-                })
-            
-            edge_data = []
-            for edge in edges:
-                edge_data.append({
-                    'from': edge.source_node_id,
-                    'to': edge.target_node_id,
-                    'label': edge.edge_type.name if edge.edge_type else 'Unknown',
-                    'title': edge.description
-                })
-            
-            return {
-                'nodes': node_data,
-                'edges': edge_data
-            }
         finally:
             session.close()
 

@@ -1,5 +1,25 @@
 /* styles/nodes.css - Supporting styles for nodes page */
 
+/* Make the main app Container a Flex */
+#_dash-app-content {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Make the main content Area grow to fill the Page */
+.content {
+    flex: 1;
+}
+
+/* Ensure the Footer stays at Bottom of the Page */
+.footer {
+    position: sticky;
+    bottom: 0;
+    /* background-color: blueviolet; */
+    border-top: 1px solid gainsboro;
+}
+
 /* Alert container positioning */
 .alert-container {
     position: fixed;

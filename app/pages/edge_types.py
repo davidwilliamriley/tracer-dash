@@ -19,7 +19,7 @@ model = Model()
 def get_edge_types_from_db() -> List[Dict[str, Any]]:
     """Get edge types from database"""
     try:
-        return model.get_edge_types_for_table()
+        return model.get_edge_types_for_editor()
     except Exception as e:
         print(f"Error getting edge types from database: {e}")
         return []
@@ -27,7 +27,7 @@ def get_edge_types_from_db() -> List[Dict[str, Any]]:
 def ensure_sample_data():
     """Ensure there's some sample data in the database"""
     try:
-        edge_types = model.get_edge_types_for_table()
+        edge_types = model.get_edge_types_for_editor()
         if len(edge_types) == 0:
             # Add some sample edge types
             sample_edge_types = [
@@ -63,7 +63,7 @@ def ensure_sample_data():
         print(f"Error ensuring sample data: {e}")
 
 # Initialize sample data on module load
-ensure_sample_data()
+# ensure_sample_data()
 
 def layout():
     # Get current edge types from database

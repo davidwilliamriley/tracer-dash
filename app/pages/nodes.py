@@ -19,7 +19,7 @@ model = Model()
 def get_nodes_from_db() -> List[Dict[str, Any]]:
     """Get nodes from database"""
     try:
-        return model.get_nodes_for_table()
+        return model.get_nodes_for_editor()
     except Exception as e:
         print(f"Error getting nodes from database: {e}")
         return []
@@ -27,7 +27,7 @@ def get_nodes_from_db() -> List[Dict[str, Any]]:
 def ensure_sample_data():
     """Ensure there's some sample data in the database"""
     try:
-        nodes = model.get_nodes_for_table()
+        nodes = model.get_nodes_for_editor()
         if len(nodes) == 0:
             # Add some sample nodes
             sample_nodes = [
