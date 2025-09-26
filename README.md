@@ -6,8 +6,11 @@
 <details>
 <summary>To-Do List:</summary>
 
-1. [ ] Add Date Editors for Edges, Nodes and Edge Types
-2. [ ] Add Network Analysis Page
-3. 
+[ ] Add Date Editors for Edges, Nodes and Edge Types
+[ ] Add Network Analysis Page
+[ ]
+[ ]
+[ ]
+[ ]
 
 </details>
