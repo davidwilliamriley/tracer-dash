@@ -1,10 +1,13 @@
-#Tracer#
+# Tracer
 
 **A Plotly Dash-based Network Data Visualisation and Editing Application**
 
 
-<details>To-Do</details>details>
-<summary>List of To-Do Items:</summary>
+<details>
+<summary>To-Do List:</summary>
 
-1. [ ] Data Models
-2. [ ] Stuff
+1. [ ] Add Date Editors for Edges, Nodes and Edge Types
+2. [ ] Add Network Analysis Page
+3. 
+
+</details>
