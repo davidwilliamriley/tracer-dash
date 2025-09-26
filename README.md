@@ -3,6 +3,15 @@
 **A Plotly Dash-based Network Data Visualisation and Editing Application**
 
 
+
+## Installation Instructions
+Clone this Respository 
+
+## Usage Examples
+[Placehoilder]
+## Contributing Guidelines
+## License Information
+
 <details>
 <summary>To-Do List:</summary>
 
