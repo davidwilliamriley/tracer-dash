@@ -26,8 +26,14 @@ Clone this Respository
 
 ## Usage Examples
 
-Nodes > Edges 
-Edge Types > Edges
+### Edges
+[Placeholder]
+
+### Nodes 
+[Placeholder]
+
+### Edge Types
+[Placeholder]
 
 ## Contributing Guidelines
 Email the Owner
