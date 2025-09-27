@@ -9,8 +9,8 @@
 - [ ] Add Network Analysis Page
 - [ ] Item
 - [ ] Item
-- [ ] Item
-- [ ] Item
+- [ ] Format Toasts for enhanced Readability
+- [ ] Stickey Footer to the Bottom of the Pages
 
 </details>
 

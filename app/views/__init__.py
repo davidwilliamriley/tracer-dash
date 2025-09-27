@@ -1,5 +1,5 @@
 # views/__init__.py
 
-from .view import View
+from .app_view import View
 
 __all__ = ["View"]

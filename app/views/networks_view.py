@@ -5,26 +5,38 @@ import dash_bootstrap_components as dbc
 import dash_tabulator
 from typing import List, Dict, Any
 
+
 class NetworksView:
     """View layer for networks page - handles UI layout and components"""
-    
+
     @staticmethod
-    def create_layout(networks_data: Dict[str, Any]) -> html.Div:
+    def create_layout(networks_data: Dict[str, Any]) -> dbc.Container:
         """Create the main layout for the networks page"""
-        return html.Div([
-            # Toast notification component
-            NetworksView._create_toast(),
-            
-            # Data store for network data
-            dcc.Store(id='network-data-store', data=networks_data),
-            
-            # Main container
-            html.Div([
+        return dbc.Container(
+            [
+                # Toast notification component
+                NetworksView._create_toast(),
+                # Data stores for network caching
+                dcc.Store(id="network-data-store", data=networks_data),
+                dcc.Store(
+                    id="graph-cache-store", storage_type="session"
+                ),  # Cache NetworkX graph data
+                dcc.Store(
+                    id="graph-metadata-store", storage_type="session"
+                ),  # Cache metadata like node/edge counts
+                dcc.Store(
+                    id="cache-timestamp-store", storage_type="session"
+                ),  # Track when cache was last updated
+                dcc.Store(
+                    id="cache-invalidation-store", storage_type="session"
+                ),  # Track cache invalidation signals
+                # Main content section
                 NetworksView._create_visualization_section(),
-            ], className="container-fluid px-4 py-5"),
-            
-        ])
-    
+            ],
+            fluid=True,  # Use fluid=True for full-width, or remove for fixed-width
+            className="py-4",  # Simplified padding - let Bootstrap handle margins
+        )
+
     @staticmethod
     def _create_toast() -> dbc.Toast:
         """Create toast notification component"""
@@ -33,49 +45,233 @@ class NetworksView:
             header="Notification",
             is_open=False,
             dismissable=True,
-            duration=4000, 
-            style={"position": "fixed", "bottom": 20, "left": 20, "width": 350, "z-index": 9999}
+            duration=4000,
+            style={
+                "position": "fixed",
+                "bottom": 20,
+                "left": 20,
+                "width": 350,
+                "z-index": 9999,
+            },
+        )
+
+    @staticmethod
+    def _create_visualization_section() -> html.Div:
+        """Create the enhanced network visualization section with multiple filters"""
+        return html.Div(
+            [
+                # Header
+                dbc.Row(
+                    dbc.Col(
+                        html.H1("Network Visualization", className="mb-4"),
+                        width=12
+                    )
+                ),
+                
+                # Filter Controls Card for better organization
+                dbc.Card(
+                    [
+                        dbc.CardHeader(
+                            html.H5("Filters", className="mb-0")
+                        ),
+                        dbc.CardBody(
+                            [
+                                # First row: Filter by Root
+                                dbc.Row(
+                                    [
+                                        dbc.Col(
+                                            html.Label(
+                                                "Filter by Root:",
+                                                className="form-label fw-bold",
+                                            ),
+                                            width=12,
+                                            md=2,
+                                            className="d-flex align-items-center mb-2 mb-md-0",
+                                        ),
+                                        dbc.Col(
+                                            dbc.Select(
+                                                id="filter-graph-select",
+                                                options=[
+                                                    {
+                                                        "label": "All Roots",
+                                                        "value": "all",
+                                                    },
+                                                    {
+                                                        "label": "Root 1",
+                                                        "value": "root1",
+                                                    },
+                                                    {
+                                                        "label": "Root 2",
+                                                        "value": "root2",
+                                                    },
+                                                    {
+                                                        "label": "Root 3",
+                                                        "value": "root3",
+                                                    },
+                                                ],
+                                                placeholder="Select a Graph Root Node...",
+                                                value="all",
+                                                disabled=True
+                                            ),
+                                            width=12,
+                                            md=9,
+                                            className="mb-2 mb-md-0",
+                                        ),
+                                        dbc.Col(
+                                            dbc.Button(
+                                                "Reset",
+                                                id="reset-graph-btn",
+                                                color="primary",
+                                                size="me",
+                                                className="w-100",
+                                            ),
+                                            width=12,
+                                            md=1,
+                                        ),
+                                    ],
+                                    className="mb-3 align-items-center",
+                                ),
+                                
+                                # Second Row: Advanced Filters
+                                dbc.Row(
+                                    [
+                                        dbc.Col(
+                                            html.Label(
+                                                "Filter by Element:",
+                                                className="form-label fw-bold",
+                                            ),
+                                            width=12,
+                                            lg=2,
+                                            className="d-flex align-items-center mb-2 mb-lg-0",
+                                        ),
+                                        dbc.Col(
+                                            dbc.Select(
+                                                id="filter-element-select",
+                                                options=[
+                                                    {
+                                                        "label": "All Elements",
+                                                        "value": "all",
+                                                    },
+                                                    {
+                                                        "label": "Edges",
+                                                        "value": "edges",
+                                                    },
+                                                    {
+                                                        "label": "Nodes",
+                                                        "value": "nodes",
+                                                    },
+                                                ],
+                                                value="all",
+                                                disabled=True,
+                                            ),
+                                            width=12,
+                                            lg=2,
+                                            className="mb-2 mb-lg-0",
+                                        ),
+                                        dbc.Col(
+                                            html.Label(
+                                                "Filter by Property:",
+                                                className="form-label fw-bold",
+                                            ),
+                                            width=12,
+                                            lg=2,
+                                            className="d-flex align-items-center mb-2 mb-lg-0",
+                                        ),
+                                        dbc.Col(
+                                            dbc.Select(
+                                                id="filter-property-select",
+                                                options=[
+                                                    {
+                                                        "label": "All Properties",
+                                                        "value": "all",
+                                                    }
+                                                ],
+                                                value="all",
+                                                disabled=True,
+                                            ),
+                                            width=12,
+                                            lg=2,
+                                            className="mb-2 mb-lg-0",
+                                        ),
+                                        dbc.Col(
+                                            html.Label(
+                                                "Filter by Value:",
+                                                className="form-label fw-bold",
+                                            ),
+                                            width=12,
+                                            lg=1,
+                                            className="d-flex align-items-center mb-2 mb-lg-0",
+                                        ),
+                                        dbc.Col(
+                                            dbc.Input(
+                                                id="filter-value-input",
+                                                placeholder="Enter value...",
+                                            ),
+                                            width=12,
+                                            lg=2,
+                                            className="mb-2 mb-lg-0",
+                                        ),
+                                        dbc.Col(
+                                            dbc.Button(
+                                                "Reset",
+                                                id="reset-element-btn",
+                                                color="primary",
+                                                size="me",
+                                                className="w-100",
+                                            ),
+                                            width=12,
+                                            lg=1,
+                                        ),
+                                    ],
+                                    className="align-items-center",
+                                ),
+                            ]
+                        ),
+                    ],
+                    className="mb-4",
+                ),
+                
+                # Network visualization container
+                NetworksView._create_cytoscape_container(),
+            ]
+        )
+
+    @staticmethod
+    def _create_cytoscape_container() -> dbc.Card:
+        """Create the visualization container for Cytoscape with improved robustness"""
+        return dbc.Card(
+            [
+                dbc.CardHeader(
+                    html.H5("Network Graph", className="mb-0")
+                ),
+                dbc.CardBody(
+                    [
+                        dbc.Spinner(
+                            html.Div(
+                                id="cytoscape-container",
+                                style={
+                                    "width": "100%",
+                                    "height": "70vh",
+                                    "border-radius": "0.375rem",
+                                    "background-color": "#f8f9fa",
+                                    "position": "relative"
+                                },
+                            ),
+                            id="cytoscape-spinner",
+                            color="primary"
+                        ),
+                        # Hidden div to trigger updates
+                        html.Div(id="cytoscape-trigger", style={"display": "none"})
+                    ],
+                    className="p-0",  # Remove padding to let graph use full space
+                ),
+            ],
+            className="mb-4",
         )
     
     @staticmethod
-    def _create_visualization_section() -> html.Div:
-        """Create the network visualization section"""
-        return html.Div([
-            html.H4("Network Visualization", className="mb-3"),
-            
-            # Filter input
-            html.Div([
-                dbc.Input(
-                    id="filter-value-input",
-                    placeholder="Filter nodes by name or identifier...",
-                    type="text",
-                    className="mb-3"
-                )
-            ]),
-            
-            NetworksView._create_cytoscape_container(),
-            
-        ], className="mb-5")
-    
-    @staticmethod
-    def _create_cytoscape_container() -> html.Div:
-        """Create the cytoscape visualization container"""
-        return html.Div([
-            html.Div(
-                id="cytoscape-container",
-                style={
-                    "width": "100%", 
-                    "height": "60vh",
-                    "border": "2px solid #dee2e6",
-                    "border-radius": "0.375rem",
-                    "background-color": "#f8f9fa"
-                }
-            )
-        ], className="mb-4")
-        
-    @staticmethod
     def get_cytoscape_client_callback() -> str:
-        """Return the JavaScript code for Cytoscape client-side callback"""
+        """Return the JavaScript code for Cytoscape client-side callback with Bootstrap blue theme"""
         return """
         function(networkData, filteredValue) {
             if (!networkData || !networkData.elements) {
@@ -93,12 +289,15 @@ class NetworksView:
                 window.cy.destroy();
             }
             
-            // Filter elements if filter value is provided
+            // Keep all elements but identify filtered ones for highlighting
             let elements = networkData.elements;
+            let filteredElementIds = new Set();
+            
             if (filteredValue && filteredValue.trim()) {
                 const filterValue = filteredValue.toLowerCase();
-                // Get filtered nodes
-                const filteredNodes = networkData.elements.filter(ele => {
+                
+                // Find matching nodes
+                const matchingNodes = networkData.elements.filter(ele => {
                     if (ele.group === 'nodes') {
                         return (ele.data.label && ele.data.label.toLowerCase().includes(filterValue)) ||
                                (ele.data.name && ele.data.name.toLowerCase().includes(filterValue)) ||
@@ -107,21 +306,22 @@ class NetworksView:
                     return false;
                 });
                 
-                // Get the IDs of filtered nodes
-                const nodeIds = new Set(filteredNodes.map(node => node.data.id));
-                
-                // Include edges that connect filtered nodes
-                const filteredEdges = networkData.elements.filter(ele => {
+                // Find matching edges
+                const matchingEdges = networkData.elements.filter(ele => {
                     if (ele.group === 'edges') {
-                        return nodeIds.has(ele.data.source) && nodeIds.has(ele.data.target);
+                        return (ele.data.label && ele.data.label.toLowerCase().includes(filterValue)) ||
+                               (ele.data.name && ele.data.name.toLowerCase().includes(filterValue)) ||
+                               (ele.data.type && ele.data.type.toLowerCase().includes(filterValue));
                     }
                     return false;
                 });
                 
-                elements = [...filteredNodes, ...filteredEdges];
+                // Collect IDs of all matching elements
+                matchingNodes.forEach(node => filteredElementIds.add(node.data.id));
+                matchingEdges.forEach(edge => filteredElementIds.add(edge.data.id));
             }
             
-            // Initialize Cytoscape
+            // Initialize Cytoscape with Bootstrap blue theme
             window.cy = cytoscape({
                 container: container,
                 elements: elements,
@@ -129,32 +329,40 @@ class NetworksView:
                     {
                         selector: 'node',
                         style: {
-                            'background-color': '#cbe2e1',
-                            'border-color': '#00ada9',
+                            'background-color': '#e3f2fd',  // Light blue background
+                            'border-color': '#0d6efd',      // Bootstrap primary blue
                             'border-width': '3px',
                             'height': '40px',
                             'width': '40px',
                             'label': 'data(label)',
-                            'text-valign': 'center',
-                            'text-halign': 'center',
+                            'text-valign': 'top',
+                            'text-halign': 'right',
                             'font-size': '12px',
-                            'color': 'gray'
+                            'color': '#6c757d'              // Bootstrap secondary gray
                         }
                     },
                     {
                         selector: ':selected',
                         style: {
-                            'background-color': '#00ada9',
-                            'border-color': '#00ada9',
+                            'background-color': '#0d6efd',  // Bootstrap primary blue
+                            'border-color': '#0b5ed7',      // Darker blue for border
                             'border-width': '4px'
+                        }
+                    },
+                    {
+                        selector: '.connected',
+                        style: {
+                            'background-color': '#b3d9ff',  // Lighter blue for connected nodes
+                            'border-color': '#0d6efd',      // Bootstrap primary blue
+                            'border-width': '3px'
                         }
                     },
                     {
                         selector: 'edge',
                         style: {
                             'curve-style': 'bezier',
-                            'line-color': '#00ada9',
-                            'target-arrow-color': '#00ada9',
+                            'line-color': '#0d6efd',        // Bootstrap primary blue
+                            'target-arrow-color': '#0d6efd',
                             'target-arrow-shape': 'triangle',
                             'width': '3px'
                         }
@@ -162,24 +370,456 @@ class NetworksView:
                     {
                         selector: 'edge[label]',
                         style: {
-                            'color': 'gray',
+                            'color': '#6c757d',             // Bootstrap secondary gray
                             'font-size': '10px',
                             'label': 'data(label)',
                             'text-rotation': 'autorotate',
                             'text-background-color': 'white',
                             'text-background-opacity': 0.8
                         }
+                    },
+                    {
+                        selector: 'edge:selected',
+                        style: {
+                            'line-color': '#0b5ed7',        // Darker blue for selected edges
+                            'target-arrow-color': '#0b5ed7',
+                            'width': '4px'
+                        }
+                    },
+                    {
+                        selector: 'edge.connected',
+                        style: {
+                            'line-color': '#4da6ff',        // Medium blue for connected edges
+                            'target-arrow-color': '#4da6ff',
+                            'width': '3px'
+                        }
+                    },
+                    {
+                        selector: '.edge-creation-source',
+                        style: {
+                            'border-width': 3,
+                            'border-color': '#dc3545'      // Bootstrap danger red for edge creation
+                        }
+                    },
+                    {
+                        selector: '.edge-creation-preview',
+                        style: {
+                            'line-color': '#dc3545',       // Bootstrap danger red
+                            'target-arrow-color': '#dc3545',
+                            'curve-style': 'bezier',
+                            'target-arrow-shape': 'triangle',
+                            'width': 3,
+                            'line-style': 'dashed'
+                        }
+                    },
+                    {
+                        selector: '.faded',
+                        style: {
+                            'opacity': 0.2,
+                            'text-opacity': 0.2
+                        }
                     }
                 ],
                 layout: {
-                    name: 'cose',
+                    name: 'fcose',
                     animate: true,
                     padding: 30,
+                    randomize: true,
                     nodeRepulsion: 400000,
                     idealEdgeLength: 100,
-                    avoidOverlap: true
+                    avoidOverlap: true,
+                    gravity: 80
                 }
             });
+            
+            // Apply filter highlighting if filter value was provided
+            if (filteredValue && filteredValue.trim() && filteredElementIds.size > 0) {
+                // Clear any existing selection highlighting first
+                window.cy.elements().removeClass('connected faded');
+                
+                // Apply filter highlighting
+                const filteredElements = window.cy.elements().filter(ele => {
+                    return filteredElementIds.has(ele.id());
+                });
+                
+                if (filteredElements.length > 0) {
+                    // Get neighborhood of all filtered elements
+                    const neighborhood = filteredElements.neighborhood();
+                    const allConnectedElements = filteredElements.union(neighborhood);
+                    
+                    // Add connected class to filtered elements and their neighbors
+                    filteredElements.addClass('connected');
+                    neighborhood.addClass('connected');
+                    
+                    // Fade everything else
+                    window.cy.elements().difference(allConnectedElements).addClass('faded');
+                    
+                    // Select the filtered elements to show they are the focus
+                    filteredElements.select();
+                }
+            }
+            
+            // Add selection highlighting functionality
+            window.cy.on('select', 'node', function(event) {
+                const selectedNode = event.target;
+                
+                // Only apply selection highlighting if no filter is active
+                if (!filteredValue || !filteredValue.trim()) {
+                    // Clear previous classes
+                    window.cy.elements().removeClass('connected faded');
+                    
+                    // Get connected elements (neighbors + connecting edges)
+                    const neighborhood = selectedNode.neighborhood();
+                    const connectedElements = neighborhood.union(selectedNode);
+                    
+                    // Add connected class to neighbors and connecting edges
+                    neighborhood.addClass('connected');
+                    
+                    // Fade all other elements
+                    window.cy.elements().difference(connectedElements).addClass('faded');
+                }
+            });
+            
+            window.cy.on('select', 'edge', function(event) {
+                const selectedEdge = event.target;
+                
+                // Only apply selection highlighting if no filter is active
+                if (!filteredValue || !filteredValue.trim()) {
+                    // Clear previous classes
+                    window.cy.elements().removeClass('connected faded');
+                    
+                    // Get source and target nodes
+                    const sourceNode = selectedEdge.source();
+                    const targetNode = selectedEdge.target();
+                    const connectedNodes = sourceNode.union(targetNode);
+                    
+                    // Add connected class to source and target nodes
+                    connectedNodes.addClass('connected');
+                    
+                    // Fade all other elements except selected edge and connected nodes
+                    const connectedElements = connectedNodes.union(selectedEdge);
+                    window.cy.elements().difference(connectedElements).addClass('faded');
+                }
+            });
+            
+            // Clear highlighting when nothing is selected (only if no filter is active)
+            window.cy.on('unselect', function(event) {
+                // Check if anything is still selected and no filter is active
+                if (window.cy.$(':selected').length === 0 && (!filteredValue || !filteredValue.trim())) {
+                    window.cy.elements().removeClass('connected faded');
+                }
+            });
+            
+            // Background tap behavior
+            window.cy.on('tap', function(event) {
+                if (event.target === window.cy) {
+                    if (filteredValue && filteredValue.trim()) {
+                        // If filter is active, just unselect but keep filter highlighting
+                        window.cy.elements().unselect();
+                    } else {
+                        // If no filter, clear everything
+                        window.cy.elements().unselect();
+                        window.cy.elements().removeClass('connected faded');
+                    }
+                }
+            });
+            
+            // Add context menu functionality
+            window.cy.on('cxttap', 'node', function(event) {
+                event.preventDefault();
+                const node = event.target;
+                const renderedPosition = event.renderedPosition || event.cyRenderedPosition;
+                
+                // Show context menu for nodes
+                showContextMenu(renderedPosition.x, renderedPosition.y, [
+                    {
+                        label: 'Show ID',
+                        action: () => {
+                            showModal(
+                                'Node ID',
+                                `<p class="mb-0">ID: <strong>${node.data('id')}</strong></p>`
+                            );
+                        }
+                    },
+                    {
+                        label: 'Show Label',
+                        action: () => {
+                            showModal(
+                                'Node Label',
+                                `<p class="mb-0">Label: <strong>${node.data('label') || 'No label'}</strong></p>`
+                            );
+                        }
+                    },
+                    {
+                        label: 'Show Properties',
+                        action: () => {
+                            const nodeData = node.data();
+                            const formattedData = Object.entries(nodeData).map(([key, value]) => {
+                                return `<tr>
+                                    <td class="fw-bold">${key}</td>
+                                    <td>${typeof value === 'object' ? JSON.stringify(value) : value}</td>
+                                </tr>`;
+                            }).join('');
+                            
+                            showModal(
+                                'Node Properties',
+                                `<div class="table-responsive">
+                                    <table class="table table-striped table-hover">
+                                        <thead class="table-primary">
+                                            <tr>
+                                                <th>Property</th>
+                                                <th>Value</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${formattedData}
+                                        </tbody>
+                                    </table>
+                                </div>`,
+                                'modal-lg'
+                            );
+                        }
+                    },
+                    {
+                        label: 'Delete Node',
+                        action: () => {
+                            node.remove();
+                            console.log('Node deleted');
+                        }
+                    }
+                ]);
+                
+                return false;
+            });
+            
+            // Edge context menu
+            window.cy.on('cxttap', 'edge', function(event) {
+                event.preventDefault();
+                const edge = event.target;
+                const renderedPosition = event.renderedPosition || event.cyRenderedPosition;
+                
+                showContextMenu(renderedPosition.x, renderedPosition.y, [
+                    {
+                        label: 'Show Edge Info',
+                        action: () => {
+                            const source = edge.source().data('label') || edge.source().data('id');
+                            const target = edge.target().data('label') || edge.target().data('id');
+                            const edgeData = edge.data();
+                            
+                            let edgeInfoContent = `
+                                <div class="d-flex justify-content-center mb-3">
+                                    <div class="text-center p-3 border rounded bg-light">
+                                        <div class="fw-bold text-primary">${source}</div>
+                                        <i class="bi bi-arrow-down text-primary fs-3"></i>
+                                        <div class="fw-bold text-primary">${target}</div>
+                                    </div>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead class="table-primary">
+                                            <tr>
+                                                <th>Property</th>
+                                                <th>Value</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>`;
+                            
+                            for (const [key, value] of Object.entries(edgeData)) {
+                                if (key !== 'source' && key !== 'target') {
+                                    edgeInfoContent += `
+                                        <tr>
+                                            <td class="fw-bold">${key}</td>
+                                            <td>${typeof value === 'object' ? JSON.stringify(value) : value}</td>
+                                        </tr>`;
+                                }
+                            }
+                            
+                            edgeInfoContent += `
+                                        </tbody>
+                                    </table>
+                                </div>`;
+                            
+                            showModal('Edge Information', edgeInfoContent, 'modal-lg');
+                        }
+                    },
+                    {
+                        label: 'Delete Edge',
+                        action: () => {
+                            edge.remove();
+                            console.log('Edge deleted');
+                        }
+                    }
+                ]);
+                
+                return false;
+            });
+            
+            // Background context menu
+            window.cy.on('cxttap', function(event) {
+                if (event.target === window.cy) {
+                    event.preventDefault();
+                    const renderedPosition = event.renderedPosition || event.cyRenderedPosition;
+                    
+                    showContextMenu(renderedPosition.x, renderedPosition.y, [
+                        {
+                            label: 'Add Node',
+                            action: () => {
+                                const id = 'node-' + Date.now();
+                                window.cy.add({
+                                    group: 'nodes',
+                                    data: { id, label: 'New Node' },
+                                    position: event.position
+                                });
+                                console.log('Node added');
+                            }
+                        },
+                        {
+                            label: 'Reset View',
+                            action: () => {
+                                window.cy.fit();
+                                console.log('View reset');
+                            }
+                        },
+                        {
+                            label: 'Show Network Info',
+                            action: () => {
+                                const nodes = window.cy.nodes().length;
+                                const edges = window.cy.edges().length;
+                                
+                                const statsContent = `
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="card border-primary">
+                                                <div class="card-body">
+                                                    <h5 class="card-title text-primary">Network Statistics</h5>
+                                                    <ul class="list-group list-group-flush">
+                                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                            Nodes
+                                                            <span class="badge bg-primary rounded-pill">${nodes}</span>
+                                                        </li>
+                                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                            Edges
+                                                            <span class="badge bg-primary rounded-pill">${edges}</span>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="card border-info">
+                                                <div class="card-body">
+                                                    <h5 class="card-title text-info">Network Overview</h5>
+                                                    <p>This network visualization displays the relationships between different entities.</p>
+                                                    <div class="alert alert-info">
+                                                        <i class="bi bi-info-circle-fill me-2"></i>
+                                                        Right-click on nodes or edges to see more options.
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>`;
+                                
+                                showModal('Network Information', statsContent, 'modal-lg');
+                            }
+                        }
+                    ]);
+                    
+                    return false;
+                }
+            });
+            
+            // Override browser's context menu
+            container.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                return false;
+            });
+            
+            // Helper functions for context menu and modals
+            function showContextMenu(x, y, items) {
+                hideContextMenu();
+                
+                const menu = document.createElement('div');
+                menu.id = 'cytoscape-context-menu';
+                menu.classList.add('dropdown-menu', 'show');
+                menu.style.position = 'fixed';
+                menu.style.left = `${x}px`;
+                menu.style.top = `${y}px`;
+                menu.style.zIndex = '10000';
+                
+                items.forEach(item => {
+                    const menuItem = document.createElement('a');
+                    menuItem.classList.add('dropdown-item');
+                    menuItem.href = '#';
+                    menuItem.textContent = item.label;
+                    
+                    menuItem.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        hideContextMenu();
+                        item.action();
+                    });
+                    
+                    menu.appendChild(menuItem);
+                });
+                
+                document.body.appendChild(menu);
+                
+                // Position adjustment
+                const rect = menu.getBoundingClientRect();
+                if (rect.right > window.innerWidth) {
+                    menu.style.left = `${x - rect.width}px`;
+                }
+                if (rect.bottom > window.innerHeight) {
+                    menu.style.top = `${y - rect.height}px`;
+                }
+            }
+            
+            function hideContextMenu() {
+                const menu = document.getElementById('cytoscape-context-menu');
+                if (menu) {
+                    menu.remove();
+                }
+            }
+            
+            function showModal(title, content, size = '') {
+                const existingModal = document.getElementById('network-info-modal');
+                if (existingModal) {
+                    existingModal.remove();
+                }
+                
+                const modalDiv = document.createElement('div');
+                modalDiv.id = 'network-info-modal';
+                modalDiv.classList.add('modal', 'fade');
+                modalDiv.setAttribute('tabindex', '-1');
+                
+                modalDiv.innerHTML = `
+                    <div class="modal-dialog ${size}">
+                        <div class="modal-content">
+                            <div class="modal-header bg-primary text-white">
+                                <h5 class="modal-title">${title}</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                ${content}
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.appendChild(modalDiv);
+                
+                // Initialize and show the modal (assuming Bootstrap 5)
+                if (typeof bootstrap !== 'undefined') {
+                    const modal = new bootstrap.Modal(modalDiv);
+                    modal.show();
+                }
+            }
+            
+            // Click anywhere to hide context menu
+            document.addEventListener('click', hideContextMenu);
             
             return '';
         }

@@ -1,5 +1,5 @@
 # controllers/__init__.py
 
-from .controller import Controller
+from .app_controller import Controller
 
 __all_ = ["Controller"]

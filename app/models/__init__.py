@@ -1,5 +1,5 @@
-#models/__init__.py
- 
+# models/__init__.py
+
 from .model import Model
 
-__all__ = ['Model']
+__all__ = ["Model"]
