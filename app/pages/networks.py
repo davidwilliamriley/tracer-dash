@@ -74,23 +74,6 @@ def manage_graph_cache(network_data, cached_graph, cached_metadata, cached_times
         print(f"Error in graph cache management: {e}")
         return no_update, no_update, no_update
 
-# Callback to provide cached graph data when needed
-@callback(
-    Output('network-data-store', 'data'),
-    [Input('graph-cache-store', 'data')],
-    [State('network-data-store', 'data')],
-    prevent_initial_call=True
-)
-def use_cached_graph_data(cached_graph_data, current_network_data):
-    """
-    Use cached graph data if available and valid, otherwise use current data.
-    """
-    try:
-        # If we have valid cached data, we could reconstruct network data from it
-        # For now, we'll let the current data flow through
-        # This callback could be expanded to use cached data for performance
-        return no_update
-        
-    except Exception as e:
-        print(f"Error using cached graph data: {e}")
-        return no_update
+# Note: Removed the circular dependency callback that was causing:
+# "Dependency Cycle Found: network-data-store.data -> graph-cache-store.data -> network-data-store.data"
+# The callback was not functional (only returned no_update) and created a circular reference.

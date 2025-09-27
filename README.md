@@ -5,13 +5,19 @@
 <details>
 <summary>To-Do List:</summary>
 
-- [x] Add Data Editors for Edges, Nodes and Edge Types
-- [ ] Add Network Analysis Page
-- [ ] Item
-- [ ] Item
-- [ ] Modify colors for the Tables to match Bootstrap
+- [x] Created Data Editors for Edges, Nodes and Edge Types
+- [x] Created the Network Page
+- [ ] Update the Breakdowns Page 
+- [ ] Update the Headers on the Edges Page
+- [ ] Update the Headers on the Nodes Page
+- [ ] Update the Headers on the Edge Types Page
+- [ ] Add the Graph Filters
+- [ ] Add Network Analysis
+- [ ] Create the Controller for the Breakdowns Page
+- [ ] Debounce the Networks Page
+- [ ] Modify table colors to match Bootstrap
 - [ ] Format Toasts for enhanced Readability
-- [ ] Stickey Footer to the Bottom of the Pages
+- [ ] Sticky Footer to the Bottom of the Pages
 
 </details>
 
@@ -19,7 +25,9 @@
 Clone this Respository 
 
 ## Usage Examples
-[Placehoilder]
+
+Nodes > Edges 
+Edge Types > Edges
 
 ## Contributing Guidelines
 Email the Owner
