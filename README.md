@@ -1,11 +1,11 @@
 # Tracer
 
-## Project Description
-
 **A Plotly Dash-based Network Graph Visualisation and Data Editing Application**
 
-## Outstanding Items 
+## Project Description
+[Placeholder]
 
+## Outstanding Items 
 <details>
 <summary>To-Do List:</summary>
 
