@@ -16,44 +16,50 @@ class ReportController:
         return f"/assets/pdfjs/pdfjs-4.8.69-dist/web/viewer.html?file=/assets/pdf/{selected_report}"
     
     def get_available_reports(self) -> List[Dict[str, Any]]:
-        """
-        Get list of available reports
-        
-        Returns:
-            List of report options for dropdown
-        """
         return [
+            # {
+            #     "label": "Select a Report...",
+            #     "value": "",
+            #     "disabled": True
+            # },
             {
-                "label": "Select a Report Option...",
-                "value": "",
+                "label": "System Requirements Specification",
+                "value": "Report_00.pdf",
+                "disabled": False
+            },
+            {
+                "label": "System Definition",
+                "value": "Report_01.pdf",
+                "disabled": True
+            },
+            {
+                "label": "System Breakdown Structure",
+                "value": "Report_02.pdf",
+                "disabled": True
+            },
+            {
+                "label": "Interface Register",
+                "value": "Report_03.pdf",
                 "disabled": True
             },
             {
                 "label": "Project Scope Allocation Matrix",
                 "value": "Report_00.pdf",
-            },
-            {
-                "label": "System Breakdown Structure",
-                "value": "Report_02.pdf",
-            },
-            {
-                "label": "Interface Register",
-                "value": "Report_03.pdf",
-            },
-            {
-                "label": "System Definition",
-                "value": "Report_01.pdf",
+                "disabled": False
             },
             {
                 "label": "Assurance Case",
                 "value": "Report_04.pdf",
+                "disabled": True
             },
             {
                 "label": "Safety Case",
                 "value": "Report_05.pdf",
+                "disabled": True
             },
             {
                 "label": "Completions Checklist",
                 "value": "Report_06.pdf",
+                "disabled": True
             },
         ]

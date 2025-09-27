@@ -23,7 +23,18 @@ report_view = ReportView(controller=report_controller)
 # Create the Layout
 layout = report_view.create_layout()
 
-# Callback for PDF viewer updates
+# Callback to reset the Dropdown
+@callback(
+    Output("report-select", "value"),
+    Input("report-reset-btn", "n_clicks"),
+    prevent_initial_call=True
+)
+def reset_dropdown(n_clicks):
+    if n_clicks:
+        return ""
+    return dash.no_update
+
+# Callback to update the PDF Viewer
 @callback(
     Output("pdf-iframe", "src"),
     [Input("report-select", "value")]

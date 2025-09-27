@@ -5,10 +5,11 @@
 <details>
 <summary>To-Do List:</summary>
 
-- [ ] Add Date Editors for Edges, Nodes and Edge Types
+- [x] Add Data Editors for Edges, Nodes and Edge Types
 - [ ] Add Network Analysis Page
 - [ ] Item
 - [ ] Item
+- [ ] Modify colors for the Tables to match Bootstrap
 - [ ] Format Toasts for enhanced Readability
 - [ ] Stickey Footer to the Bottom of the Pages
 

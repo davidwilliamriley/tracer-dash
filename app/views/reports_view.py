@@ -83,17 +83,42 @@ class ReportView:
                     [
                         # dbc.CardHeader(html.H5("Select Report", className="mb-0")),
                         dbc.CardBody(
-                            dcc.Dropdown(
-                                id="report-select",
-                                options=self._get_report_options(),  # type: ignore
-                                value="",  # No Default
-                                placeholder="Select a Report...",
-                                className="mb-3",
-                                style={"width": "100%"},
-                            )
+                            dbc.Row(
+                                [
+                                    dbc.Col(
+                                        dcc.Dropdown(
+                                            id="report-select",
+                                            options=self._get_report_options(),  # type: ignore
+                                            value="",  # No Default
+                                            placeholder="Select a Report to View...",
+                                            className="mb-0",
+                                            style={"width": "100%"},
+                                        ),
+                                        width=11,
+                                    ),
+                                    dbc.Col(
+                                        dbc.Button(
+                                            [
+                                                html.I(
+                                                    className="bi bi-arrow-clockwise me-1"
+                                                ),
+                                                "Reset",
+                                            ],
+                                            id="report-reset-btn",
+                                            color="primary",
+                                            size="md",
+                                            className="mb-0",
+                                            style={"width": "100%"},
+                                        ),
+                                        width=1,
+                                    ),
+                                ],
+                                className="g-2",
+                            ),
+                            style={"padding": "0"},
                         ),
                     ],
-                    style={"border": "none"}
+                    style={"border": "none"},
                 ),
             ],
             className="mb-4",
