@@ -16,7 +16,17 @@ register_page(
     title="Tracer - Reports"
 )
 
+# Initialize MVC components
 report_controller = ReportController(model=None)
-report_view = ReportView()
+report_view = ReportView(controller=report_controller)
 
+# Create the Layout
 layout = report_view.create_layout()
+
+# Callback for PDF viewer updates
+@callback(
+    Output("pdf-iframe", "src"),
+    [Input("report-select", "value")]
+)
+def update_pdf_viewer(selected_report):
+    return report_controller.get_pdf_viewer_url(selected_report)

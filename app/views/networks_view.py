@@ -11,7 +11,7 @@ class NetworksView:
 
     @staticmethod
     def create_layout(networks_data: Dict[str, Any]) -> dbc.Container:
-        """Create the main layout for the networks page"""
+        """Create the main layout for the Networks Page"""
         return dbc.Container(
             [
                 # Toast notification component
@@ -63,7 +63,7 @@ class NetworksView:
                 # Header
                 dbc.Row(
                     dbc.Col(
-                        html.H1("Network Visualization", className="mb-4"),
+                        html.H1("Network Visualisation", className="mb-4"),
                         width=12
                     )
                 ),

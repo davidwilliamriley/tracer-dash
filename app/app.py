@@ -4,6 +4,8 @@
 import dash
 from dash import html, dcc
 import dash_bootstrap_components as dbc
+from flask import Flask
+from matplotlib.style import use
 
 # External Scripts - Let dash-tabulator handle its own scripts
 external_scripts = [
@@ -17,14 +19,18 @@ external_stylesheets = [
     "https://unpkg.com/tabulator-tables@6.3.1/dist/css/tabulator_bootstrap5.min.css"
 ]
 
+server = Flask(__name__)
 app = dash.Dash(
     __name__, 
+    server=server,
     use_pages=True,
     external_scripts=external_scripts,
     external_stylesheets=external_stylesheets,
     suppress_callback_exceptions=True,
     title="Tracer"
 )
+
+server.static_folder = 'assets'
 
 def get_header():
     return html.Header([
@@ -41,7 +47,7 @@ def get_header():
                         html.Li(html.A([html.I(className="bi bi-arrow-repeat"), " Edges"], href="/edges", className="nav-link text-white")),
                         html.Li(html.A([html.I(className="bi bi-plus-circle"), " Nodes"], href="/nodes", className="nav-link text-white")),
                         html.Li(html.A([html.I(className="bi bi-link-45deg"), " Edge Types"], href="/edge-types", className="nav-link text-white")),
-                        html.Li(html.A([html.I(className="bi bi-gear"), " Settings"], href="/settings", className="nav-link text-white")),
+                        # html.Li(html.A([html.I(className="bi bi-gear"), " Settings"], href="/settings", className="nav-link text-white")),
                         html.Li(html.A([html.I(className="bi bi-question-circle"), " Help"], href="/help", className="nav-link text-white")),
                     ], className="nav col-12 col-lg-auto justify-content-center my-md-0 text-small", role="navigation")
                 ], className="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start")

@@ -1,15 +1,22 @@
 /* styles/nodes.css - Supporting styles for nodes page */
 
+/* Ensure white background for the entire app */
+body {
+    background-color: white !important;
+}
+
 /* Make the main app Container a Flex */
 #_dash-app-content {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    background-color: white;
 }
 
 /* Make the main content Area grow to fill the Page */
 .content {
     flex: 1;
+    background-color: white;
 }
 
 /* Ensure the Footer stays at Bottom of the Page */
