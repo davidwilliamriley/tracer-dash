@@ -7,6 +7,7 @@ from typing import Dict, Any
 
 
 class DashboardView:
+    """View layer for Dashboards page - handles UI Layout and Components"""
     def __init__(self):
         pass    
 
