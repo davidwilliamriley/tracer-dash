@@ -7,7 +7,7 @@ import dash_bootstrap_components as dbc
 from flask import Flask
 from matplotlib.style import use
 
-# External Scripts - Let dash-tabulator handle its own scripts
+# External Scripts
 external_scripts = [
     {"src": "https://unpkg.com/cytoscape@3.26.0/dist/cytoscape.min.js"}
 ]
@@ -39,7 +39,7 @@ def get_header():
                 html.Div([
                     html.H2("Tracer", className="d-flex align-items-center my-lg-0 me-lg-auto text-white text-decoration-none fw-light"),
                     html.Ul([
-                        html.Li(html.A([html.I(className="bi bi-house-door-fill"), " Home"], href="/", className="nav-link text-secondary")),
+                        html.Li(html.A([html.I(className="bi bi-house-door-fill"), " Home"], href="/", className="nav-link text-white")),
                         html.Li(html.A([html.I(className="bi bi-speedometer"), " Dashboards"], href="/dashboards", className="nav-link text-white")),
                         html.Li(html.A([html.I(className="bi bi-file-earmark-richtext"), " Reports"], href="/reports", className="nav-link text-white")),
                         html.Li(html.A([html.I(className="bi bi-bezier2"), " Networks"], href="/networks", className="nav-link text-white")),

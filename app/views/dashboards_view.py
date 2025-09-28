@@ -8,68 +8,185 @@ from typing import Dict, Any
 
 class DashboardView:
     """View layer for Dashboards page - handles UI Layout and Components"""
+
     def __init__(self):
-        pass    
+        pass
 
     def create_layout(self):
         return dbc.Container(
             [
                 html.H1("Dashboards", className="my-4"),
                 html.P("This is a Placeholder for the Dashboards.", className="mb-4"),
-                dbc.Row([
-                    dbc.Col([
-                        dbc.Card([
-                            dbc.CardHeader("Panel 1"),
-                            dbc.CardBody([
-                                html.P("This is a blank panel for a Metric.", className="card-text")
-                            ])
-                        ], className="pt-2 h-100")  # Added h-100 for full height cards
-                    ], width=4),
-                    dbc.Col([
-                        dbc.Card([
-                            dbc.CardHeader("Panel 2"),
-                            dbc.CardBody([
-                                html.P("This is a blank panel for a Metric.", className="card-text")
-                            ])
-                        ], className="pt-2 h-100")
-                    ], width=4),
-                    dbc.Col([
-                        dbc.Card([
-                            dbc.CardHeader("Panel 3"),
-                            dbc.CardBody([
-                                html.P("This is a blank panel for a Metric.", className="card-text")
-                            ])
-                        ], className="pt-2 h-100")
-                    ], width=4)
-                ], className="mb-4 flex-fill"),  # Added flex-fill
-                dbc.Row([
-                    dbc.Col([
-                        dbc.Card([
-                            dbc.CardHeader("Panel 4"),
-                            dbc.CardBody([
-                                html.P("This is a blank panel for a Metric.", className="card-text")
-                            ])
-                        ], className="pt-2 h-100")
-                    ], width=4),
-                    dbc.Col([
-                        dbc.Card([
-                            dbc.CardHeader("Panel 5"),
-                            dbc.CardBody([
-                                html.P("This is a blank panel for a Metric.", className="card-text")
-                            ])
-                        ], className="pt-2 h-100")
-                    ], width=4),
-                    dbc.Col([
-                        dbc.Card([
-                            dbc.CardHeader("Panel 6"),
-                            dbc.CardBody([
-                                html.P("This is a blank panel for a Metric.", className="card-text")
-                            ])
-                        ], className="pt-2 h-100")
-                    ], width=4)
-                ], className="mb-4 flex-fill")  # Added flex-fill
+                dbc.Row(
+                    [
+                        dbc.Col(
+                            [
+                                dbc.Card(
+                                    [
+                                        dbc.CardHeader("Network Metrics"),
+                                        dbc.CardBody(
+                                            [
+                                                dbc.Row(
+                                                    [
+                                                        dbc.Col(
+                                                            html.P(
+                                                                "Edge Count:",
+                                                                className="card-text",
+                                                            )
+                                                        ),
+                                                        dbc.Col(
+                                                            html.P(
+                                                                "42",
+                                                                className="card-text",
+                                                            )
+                                                        ),
+                                                    ]
+                                                ),
+                                                dbc.Row(
+                                                    [
+                                                        dbc.Col(
+                                                            html.P(
+                                                                "Node Count:",
+                                                                className="card-text",
+                                                            )
+                                                        ),
+                                                        dbc.Col(
+                                                            html.P(
+                                                                "100",
+                                                                className="card-text",
+                                                            )
+                                                        ),
+                                                    ]
+                                                ),
+                                                dbc.Row(
+                                                    [
+                                                        dbc.Col(
+                                                            html.P(
+                                                                "Average Degree:",
+                                                                className="card-text",
+                                                            )
+                                                        ),
+                                                        dbc.Col(
+                                                            html.P(
+                                                                "2.5",
+                                                                className="card-text",
+                                                            )
+                                                        ),
+                                                    ]
+                                                ),
+                                            ]
+                                        ),
+                                    ],
+                                    className="pt-2 h-100",
+                                )  # Added h-100 for full height cards
+                            ],
+                            width=4,
+                        ),
+                        dbc.Col(
+                            [
+                                dbc.Card(
+                                    [
+                                        dbc.CardHeader("Panel 2"),
+                                        dbc.CardBody(
+                                            [
+                                                html.P(
+                                                    "This is a blank panel for a Metric.",
+                                                    className="card-text",
+                                                )
+                                            ]
+                                        ),
+                                    ],
+                                    className="pt-2 h-100",
+                                )
+                            ],
+                            width=4,
+                        ),
+                        dbc.Col(
+                            [
+                                dbc.Card(
+                                    [
+                                        dbc.CardHeader("Panel 3"),
+                                        dbc.CardBody(
+                                            [
+                                                html.P(
+                                                    "This is a blank panel for a Metric.",
+                                                    className="card-text",
+                                                )
+                                            ]
+                                        ),
+                                    ],
+                                    className="pt-2 h-100",
+                                )
+                            ],
+                            width=4,
+                        ),
+                    ],
+                    className="mb-4 flex-fill",
+                ),  # Added flex-fill
+                dbc.Row(
+                    [
+                        dbc.Col(
+                            [
+                                dbc.Card(
+                                    [
+                                        dbc.CardHeader("Panel 4"),
+                                        dbc.CardBody(
+                                            [
+                                                html.P(
+                                                    "This is a blank panel for a Metric.",
+                                                    className="card-text",
+                                                )
+                                            ]
+                                        ),
+                                    ],
+                                    className="pt-2 h-100",
+                                )
+                            ],
+                            width=4,
+                        ),
+                        dbc.Col(
+                            [
+                                dbc.Card(
+                                    [
+                                        dbc.CardHeader("Panel 5"),
+                                        dbc.CardBody(
+                                            [
+                                                html.P(
+                                                    "This is a blank panel for a Metric.",
+                                                    className="card-text",
+                                                )
+                                            ]
+                                        ),
+                                    ],
+                                    className="pt-2 h-100",
+                                )
+                            ],
+                            width=4,
+                        ),
+                        dbc.Col(
+                            [
+                                dbc.Card(
+                                    [
+                                        dbc.CardHeader("Panel 6"),
+                                        dbc.CardBody(
+                                            [
+                                                html.P(
+                                                    "This is a blank panel for a Metric.",
+                                                    className="card-text",
+                                                )
+                                            ]
+                                        ),
+                                    ],
+                                    className="pt-2 h-100",
+                                )
+                            ],
+                            width=4,
+                        ),
+                    ],
+                    className="mb-4 flex-fill",
+                ),  # Added flex-fill
             ],
             fluid=True,
             className="d-flex flex-column",
-            style={"minHeight": "80vh", "maxHeight": "90vh"}
+            style={"minHeight": "80vh", "maxHeight": "90vh"},
         )
