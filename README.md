@@ -15,6 +15,7 @@
 - [ ] Update the Headers on the Edges Page
 - [ ] Update the Headers on the Nodes Page
 - [ ] Update the Headers on the Edge Types Page
+- [ ] Refactor Pages & Controllers 
 - [ ] Add the Graph Filters
 - [ ] Add Network Analysis
 - [ ] Create the Controller for the Breakdowns Page
