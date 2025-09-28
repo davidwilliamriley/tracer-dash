@@ -11,14 +11,14 @@
 
 - [x] Created Data Editors for Edges, Nodes and Edge Types
 - [x] Created the Network Page
-- [ ] Update the Breakdowns Page 
+- [ ] Updating the Breakdowns Page 
 - [ ] Update the Headers on the Edges Page
 - [ ] Update the Headers on the Nodes Page
 - [ ] Update the Headers on the Edge Types Page
 - [ ] Refactor Pages & Controllers 
 - [ ] Add the Graph Filters
 - [ ] Add Network Analysis
-- [ ] Create the Controller for the Breakdowns Page
+- [ ] Update the Controller for the Breakdowns Page
 - [ ] Debounce the Networks Page
 - [ ] Modify table colors to match Bootstrap
 - [ ] Format Toasts for enhanced Readability
