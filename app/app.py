@@ -5,11 +5,12 @@ import dash
 from dash import html, dcc
 import dash_bootstrap_components as dbc
 from flask import Flask
-# from matplotlib.style import use
+# Remove the pages import from here - we'll import it after app creation
 
-# External Scripts
+# External Scripts - Added Tabulator JS library
 external_scripts = [
-    {"src": "https://unpkg.com/cytoscape@3.26.0/dist/cytoscape.min.js"}
+    {"src": "https://unpkg.com/cytoscape@3.26.0/dist/cytoscape.min.js"},
+    {"src": "https://unpkg.com/tabulator-tables@6.3.1/dist/js/tabulator.min.js"}  # Added this line
 ]
 
 # External Stylesheets  
@@ -31,6 +32,9 @@ app = dash.Dash(
 )
 
 server.static_folder = 'assets'
+
+# Import pages AFTER app instantiation
+import pages
 
 def get_header():
     return html.Header([
