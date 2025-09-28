@@ -80,6 +80,19 @@ def layout():
             style={"position": "fixed", "bottom": 20, "left": 20, "width": 350, "z-index": 9999}
         ),
         
+        dbc.Container(
+            [
+                html.H1("Nodes", className="my-4"),
+                # html.P("Manage Nodes in the system. Nodes represent entities such as locations, work phases, or other categorizations.", className="mb-4"),
+                dbc.Row (
+                    dbc.Col()
+                )
+            ],
+            fluid=True,
+            className="px-4"
+
+        ),
+
         # Main container
         html.Div([
             # Toolbar

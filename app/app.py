@@ -5,7 +5,7 @@ import dash
 from dash import html, dcc
 import dash_bootstrap_components as dbc
 from flask import Flask
-from matplotlib.style import use
+# from matplotlib.style import use
 
 # External Scripts
 external_scripts = [
