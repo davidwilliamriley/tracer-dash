@@ -40,7 +40,6 @@ def get_header():
         html.Div([
             html.Div([
                 html.Div([
-                    # html.H2("Tracer", className="d-flex align-items-center my-lg-0 me-lg-auto text-white text-decoration-none fw-light"),
                     html.H2("Tracer", className="d-flex align-items-center my-lg-0 me-lg-auto text-white text-decoration-none fw-light"),
                     html.Ul([
                         html.Li(html.A([html.I(className="bi bi-house-door-fill"), " Home"], href="/", className="nav-link text-white")),
@@ -64,7 +63,7 @@ def get_footer():
         html.Div([
             html.P("Provided by Rail Engineering & Integration (REI) @ John Holland Group Pty. Ltd.", className="text-muted")
         ], className="container-fluid d-flex justify-content-end p-3")
-    ], className="footer")
+    ], className="footer mt-auto bg-light")
 
 app.layout = html.Div([
     get_header(),
@@ -72,7 +71,7 @@ app.layout = html.Div([
         dash.page_container
     ], className="content"),
     get_footer()
-])
+], className="page-wrapper")
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -1,13 +1,15 @@
-# breakdowns.py
+# pages / breakdowns.py
 
 from typing import Dict, Any, List
 import json
 import dash
 from dash import callback, Input, Output, html, register_page, clientside_callback
+from views.breakdown_view import BreakdownView, DropdownOption
 
-from views.breakdown_view import BreakdownView
+register_page(__name__, path="/breakdowns", name="Breakdowns", title="Tracer - Breakdowns")
 
-# Enhanced sample data for testing
+breakdown_view = BreakdownView()
+
 SAMPLE_DATA = [
     {
         "id": 1,
@@ -34,9 +36,9 @@ SAMPLE_DATA = [
                         "Weight": "0.5",
                         "Identifier": "SRL-WPF-XPA-NAP-PRC-XSE-PWD-N001-A",
                         "Name": "Sub-procedure A",
-                        "Description": "Sub-component of procedure 001"
+                        "Description": "Sub-component of procedure 001",
                     }
-                ]
+                ],
             },
             {
                 "id": 4,
@@ -45,9 +47,9 @@ SAMPLE_DATA = [
                 "Weight": "1",
                 "Identifier": "SRL-WPF-XPA-NAP-PRC-XSE-PWD-N002",
                 "Name": "Acceptance Verification Procedure [002]",
-                "Description": "Secondary procedure verification"
-            }
-        ]
+                "Description": "Secondary procedure verification",
+            },
+        ],
     },
     {
         "id": 5,
@@ -65,39 +67,47 @@ SAMPLE_DATA = [
                 "Weight": "2",
                 "Identifier": "SRL-WPF-XPA-NAP-SMP-XSE-PWD-S001",
                 "Name": "Safety Management Procedure [001]",
-                "Description": "Primary safety management procedure"
+                "Description": "Primary safety management procedure",
             }
-        ]
-    }
+        ],
+    },
 ]
 
 
 class MockModel:
     """Mock model for testing - replace with your actual model"""
-    
+
     def get_data(self) -> List[Dict[str, Any]]:
         return SAMPLE_DATA
-    
-    def get_graph_options(self) -> List[Dict[str, str]]:
+
+    def get_breakdown_options(self) -> List[DropdownOption]:
         return [
-            {"label": "Acceptance Verification Procedures (AVP)", "value": "avp"},
-            {"label": "Safety Management Procedures (SMP)", "value": "smp"},
-            {"label": "All Procedures", "value": "all"}
+            {
+                "label": "Acceptance Verification Procedures (AVP)",
+                "value": "avp",
+                "disabled": False,
+            },
+            {
+                "label": "Safety Management Procedures (SMP)",
+                "value": "smp",
+                "disabled": False,
+            },
+            {"label": "All Procedures", "value": "all", "disabled": False},
         ]
-    
+
     def filter_by_graph(self, graph_type: str) -> List[Dict[str, Any]]:
         if graph_type == "avp":
             return [item for item in SAMPLE_DATA if "AVP" in item.get("Name", "")]
         elif graph_type == "smp":
             return [item for item in SAMPLE_DATA if "SMP" in item.get("Name", "")]
         return SAMPLE_DATA
-    
+
     def create_new_item(self) -> Dict[str, str]:
         return {"status": "success", "message": "Item created successfully"}
-    
+
     def delete_items(self, items: List[Dict]) -> Dict[str, str]:
         return {"status": "success", "message": f"Deleted {len(items)} items"}
-    
+
     def export_data(self, format_type: str = "json") -> Dict[str, Any]:
         if format_type == "json":
             return {"status": "success", "data": SAMPLE_DATA, "format": "json"}
@@ -106,47 +116,33 @@ class MockModel:
         return {"status": "error", "message": "Unknown format"}
 
 
-class BreakdownController:   
+class BreakdownController:
     def __init__(self, model=None):
         self.model = model or MockModel()
         self.view = BreakdownView()
-    
+
     def get_layout(self):
-        """Get the layout from the view"""
-        return self.view.create_layout()
-    
+        breakdown_options = self.model.get_breakdown_options()
+        return self.view.create_layout(breakdown_options)
+
     def get_breakdown_data(self) -> List[Dict[str, Any]]:
         """Get breakdown data from the model"""
         return self.model.get_data()
-    
-    def get_graph_options(self) -> List[Dict[str, str]]:
-        """Get available graph options from the model"""
-        return self.model.get_graph_options()
 
+    def get_graph_options(self) -> List[DropdownOption]:
+        """Get available graph options from the model"""
+        return self.model.get_breakdown_options()
 
 # Create the controller instance
 breakdown_controller = BreakdownController()
 
-# Register the page with Dash
-register_page(
-    __name__,
-    path="/breakdowns",
-    name="Breakdowns", 
-    title="Tracer - Breakdowns"
-)
-
 # Create the layout variable that Dash expects for auto-discovery
 layout = breakdown_controller.get_layout()
 
-
-# ============================================================================
-# CALLBACKS
-# ============================================================================
-
+# Callbacks
 @callback(
     Output("table-data-store", "children"),
-    [Input("graph-dropdown", "value"),
-     Input("refresh-nodes-btn", "n_clicks")]
+    [Input("breakdown-dropdown", "value"), Input("refresh-nodes-btn", "n_clicks")],
 )
 def update_table_data(selected_graph, refresh_clicks):
     """Update the data that will be used by Tabulator"""
@@ -154,14 +150,14 @@ def update_table_data(selected_graph, refresh_clicks):
         filtered_data = breakdown_controller.model.filter_by_graph(selected_graph)
     else:
         filtered_data = breakdown_controller.get_breakdown_data()
-    
+
     return json.dumps(filtered_data)
 
 
 # Clientside callback to initialize Tabulator
 clientside_callback(
     """
-    function(dataJson, pageSize) {
+    function(dataJson) {
         if (!dataJson) {
             return window.dash_clientside.no_update;
         }
@@ -189,7 +185,7 @@ clientside_callback(
         
         if (!data || data.length === 0) {
             container.innerHTML = '<div class="text-center py-4 text-muted">No data available for selected graph</div>';
-            return window.dash_clientside.no_update;
+            return "table-empty";
         }
         
         try {
@@ -201,7 +197,7 @@ clientside_callback(
                 dataTreeChildField: "_children",
                 height: "500px",
                 pagination: "local",
-                paginationSize: pageSize || 10,
+                paginationSize: 10,  // Fixed value
                 selectable: true,
                 columns: [
                     {
@@ -211,7 +207,7 @@ clientside_callback(
                         titleFormatter: "rowSelection", 
                         hozAlign: "center", 
                         headerSort: false, 
-                        width: 40
+                        width: 60
                     },
                     {title: "Element", field: "Element", width: 100, headerFilter: "input"},
                     {title: "Relation", field: "Relation", width: 150, headerFilter: "input"},
@@ -222,38 +218,33 @@ clientside_callback(
                 ],
                 rowClick: function(e, row) {
                     console.log("Row clicked:", row.getData());
-                },
-                tableBuilt: function() {
-                    setTimeout(function() {
-                        const totalRows = table.getDataCount();
-                        const rowInfo = document.getElementById('row-info');
-                        if (rowInfo) {
-                            rowInfo.textContent = `Showing ${totalRows} rows`;
-                        }
-                    }, 100);
                 }
             });
             
             window.tabulatorTable = table;
             
+            // Update row count
+            const totalRows = table.getDataCount();
+            const rowInfo = document.getElementById('row-info');
+            if (rowInfo) {
+                rowInfo.textContent = `Showing ${totalRows} rows`;
+            }
+            
+            return "table-loaded";
+            
         } catch (error) {
             console.error('Error initializing Tabulator:', error);
             container.innerHTML = '<div class="text-center py-4 text-danger">Error loading table</div>';
+            return "table-error";
         }
-        
-        return window.dash_clientside.no_update;
     }
     """,
-    Output("tabulator-table", "className"),
-    [Input("table-data-store", "children"),
-     Input("page-size-dropdown", "value")]
+    Output("tabulator-table", "data-status"),
+    Input("table-data-store", "children"),  # Removed page-size-dropdown input
 )
 
 
-@callback(
-    Output("graph-dropdown", "options"),
-    Input("graph-dropdown", "id")
-)
+@callback(Output("breakdown-dropdown", "options"), Input("breakdown-dropdown", "id"))
 def populate_graph_options(_):
     """Populate graph dropdown options"""
     return breakdown_controller.get_graph_options()
@@ -261,8 +252,7 @@ def populate_graph_options(_):
 
 @callback(
     Output("row-info", "children"),
-    [Input("graph-dropdown", "value"),
-     Input("refresh-nodes-btn", "n_clicks")]
+    [Input("breakdown-dropdown", "value"), Input("refresh-nodes-btn", "n_clicks")],
 )
 def update_row_info(selected_graph, refresh_clicks):
     """Update the row information display"""
@@ -270,17 +260,21 @@ def update_row_info(selected_graph, refresh_clicks):
         filtered_data = breakdown_controller.model.filter_by_graph(selected_graph)
     else:
         filtered_data = breakdown_controller.get_breakdown_data()
-    
+
     total_rows = len(filtered_data)
-    return "No rows to display" if total_rows == 0 else f"Loaded {total_rows} root items"
+    return (
+        "No rows to display" if total_rows == 0 else f"Loaded {total_rows} root items"
+    )
 
 
 @callback(
-    [Output("toast-message", "is_open"),
-     Output("toast-message", "children"),
-     Output("toast-message", "header")],
+    [
+        Output("toast-message", "is_open"),
+        Output("toast-message", "children"),
+        Output("toast-message", "header"),
+    ],
     Input("create-node-btn", "n_clicks"),
-    prevent_initial_call=True
+    prevent_initial_call=True,
 )
 def handle_create_click(n_clicks):
     """Handle create button clicks"""
@@ -293,11 +287,13 @@ def handle_create_click(n_clicks):
 
 
 @callback(
-    [Output("toast-message", "is_open", allow_duplicate=True),
-     Output("toast-message", "children", allow_duplicate=True),
-     Output("toast-message", "header", allow_duplicate=True)],
+    [
+        Output("toast-message", "is_open", allow_duplicate=True),
+        Output("toast-message", "children", allow_duplicate=True),
+        Output("toast-message", "header", allow_duplicate=True),
+    ],
     Input("delete-node-btn", "n_clicks"),
-    prevent_initial_call=True
+    prevent_initial_call=True,
 )
 def handle_delete_click(n_clicks):
     """Handle delete button clicks"""
@@ -312,11 +308,13 @@ def handle_delete_click(n_clicks):
 
 
 @callback(
-    [Output("toast-message", "is_open", allow_duplicate=True),
-     Output("toast-message", "children", allow_duplicate=True),
-     Output("toast-message", "header", allow_duplicate=True)],
+    [
+        Output("toast-message", "is_open", allow_duplicate=True),
+        Output("toast-message", "children", allow_duplicate=True),
+        Output("toast-message", "header", allow_duplicate=True),
+    ],
     Input("download-nodes-btn", "n_clicks"),
-    prevent_initial_call=True
+    prevent_initial_call=True,
 )
 def handle_download_click(n_clicks):
     """Handle download button clicks"""

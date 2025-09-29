@@ -17,7 +17,7 @@ class NodeView:
                 # Toast notification
                 self._create_toast(),
                 # Page header
-                self._create_header(),
+                self._create_content_header(),
                 # Main content with toolbar and table
                 self._create_main_content(nodes_data),
                 # Modals
@@ -45,7 +45,7 @@ class NodeView:
             },
         )
 
-    def _create_header(self) -> "dbc.Container":
+    def _create_content_header(self) -> "dbc.Container":
         """Create page header"""
         return dbc.Container(
             [
