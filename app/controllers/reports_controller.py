@@ -44,22 +44,22 @@ class ReportController:
             },
             {
                 "label": "Project Scope Allocation Matrix",
-                "value": "Report_00.pdf",
+                "value": "Report_04.pdf",
                 "disabled": False
             },
             {
                 "label": "Assurance Case",
-                "value": "Report_04.pdf",
-                "disabled": True
-            },
-            {
-                "label": "Safety Case",
                 "value": "Report_05.pdf",
                 "disabled": True
             },
             {
-                "label": "Completions Checklist",
+                "label": "Safety Case",
                 "value": "Report_06.pdf",
+                "disabled": True
+            },
+            {
+                "label": "Completions Checklist",
+                "value": "Report_07.pdf",
                 "disabled": True
             },
         ]
