@@ -1,4 +1,4 @@
-# views/view.py
+# views/index_view.py
 
 import dash
 from dash import html, dcc, Input, Output, State, callback_context, dash_table
@@ -7,20 +7,18 @@ import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
 
-class HomeView:
-    def __init__(self):
-        self.controller = None
+
+class IndexView:
+    """View class for Index/Home page"""
     
     def get_layout(self):
+        """Create the main layout for the home page"""
         return html.Div([
             html.Div([
-
                 # Navigation Cards
                 html.Div([
-
                     # First Row of Cards
                     html.Div([
-                        
                         # Card 1 - Dashboards
                         html.Div([
                             html.Div([
@@ -56,14 +54,14 @@ class HomeView:
                         ], className="card bg-light h-100 shadow-sm")
                     ], className="col-lg-3 col-md-6"),
                     
-                    # Card 4 - Graphs
+                    # Card 4 - Breakdowns
                     html.Div([
                         html.Div([
                             html.Div([
                                 html.I(className="bi bi-diagram-2 display-3 text-warning mb-3"),
-                                html.H5("Graphs", className="card-title"),
-                                html.P("Navigate network Graphs.", className="card-text mb-2"),
-                                html.A("View Graphs", href="/graphs", className="btn btn-warning btn-fixed-width")
+                                html.H5("Breakdowns", className="card-title"),
+                                html.P("Navigate network Breakdowns.", className="card-text mb-2"),
+                                html.A("View Breakdowns", href="/breakdowns", className="btn btn-warning btn-fixed-width")
                             ], className="card-body text-center")
                         ], className="card bg-light h-100 shadow-sm")
                     ], className="col-lg-3 col-md-6"),
@@ -97,7 +95,7 @@ class HomeView:
                     html.Div([
                         html.Div([
                             html.Div([
-                                html.I(className="bi bi-link-45deg display-3 text-secondary mb-3"),
+                                html.I(className="bi bi-link-45deg display-3 text-dark mb-3"),
                                 html.H5("Edge Types", className="card-title"),
                                 html.P("Define Edge Types in your System.", className="card-text mb-2"),
                                 html.A("Manage Edge Types", href="/edge-types", className="btn btn-dark btn-fixed-width")

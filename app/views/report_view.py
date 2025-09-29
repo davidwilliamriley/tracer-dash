@@ -2,22 +2,26 @@
 
 from dash import html, dcc
 import dash_bootstrap_components as dbc
-import dash_tabulator
-from typing import List, Dict, Any, Optional, Union
+from typing import List, Dict, Any, Union, TypedDict
+
+
+class DropdownOption(TypedDict):
+    """Type definition for dropdown options"""
+
+    label: str
+    value: str
+    disabled: bool
 
 
 class ReportView:
     """View layer for Reports page - handles UI Layout and Components"""
 
-    def __init__(self, controller=None):
-        self.controller = controller
-
-    def create_layout(self) -> dbc.Container:
+    def create_layout(self, report_options: List[DropdownOption]) -> "dbc.Container":
         """Creates the layout for the Reports page"""
         return dbc.Container(
             [
-                ReportView._create_toast(),
-                self._create_header(),
+                self._create_toast(),
+                self._create_header(report_options),
                 # PDF Viewer Row
                 dbc.Row(
                     [
@@ -49,8 +53,7 @@ class ReportView:
             className="py-4",
         )
 
-    @staticmethod
-    def _create_toast() -> dbc.Toast:
+    def _create_toast(self) -> dbc.Toast:
         """Create toast notification component"""
         return dbc.Toast(
             id="networks-toast-message",
@@ -67,28 +70,21 @@ class ReportView:
             },
         )
 
-    def _create_header(self) -> html.Div:
+    def _create_header(self, report_options: List[DropdownOption]) -> html.Div:
         """Create the header row for the Reports page"""
         return html.Div(
             [
                 dbc.Row(dbc.Col(html.H1("Reports", className="mb-4"), width=12)),
-                # dbc.Row(
-                #     dbc.Col(
-                #         html.P("Placeholder for the Report Server.", className="mb-4"),
-                #         width=12,
-                #     )
-                # ),
                 # Report Selection Row
                 dbc.Card(
                     [
-                        # dbc.CardHeader(html.H5("Select Report", className="mb-0")),
                         dbc.CardBody(
                             dbc.Row(
                                 [
                                     dbc.Col(
                                         dcc.Dropdown(
                                             id="report-select",
-                                            options=self._get_report_options(),  # type: ignore
+                                            options=report_options,  # type: ignore[arg-type]
                                             value="",  # No Default
                                             placeholder="Select a Report to View...",
                                             className="mb-0",
@@ -123,20 +119,3 @@ class ReportView:
             ],
             className="mb-4",
         )
-
-    def _get_report_options(self) -> List[Union[str, Dict[str, Any]]]:
-        """
-        Get the list of available report options for the dropdown
-        Uses controller data if available, otherwise provides fallback
-
-        Returns:
-            List of report options with labels and values
-        """
-        if self.controller:
-            return self.controller.get_available_reports()
-        else:
-            # Fallback if no controller provided
-            return [
-                {"label": "Select a Report Option...", "value": "", "disabled": True},
-                {"label": "No reports available", "value": "", "disabled": True},
-            ]

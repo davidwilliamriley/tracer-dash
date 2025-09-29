@@ -6,7 +6,7 @@ import dash_tabulator
 from typing import List, Dict, Any
 
 
-class NetworksView:
+class NetworkView:
     """View layer for networks page - handles UI layout and components"""
 
     @staticmethod
@@ -15,7 +15,7 @@ class NetworksView:
         return dbc.Container(
             [
                 # Toast notification component
-                NetworksView._create_toast(),
+                NetworkView._create_toast(),
                 # Data stores for network caching
                 dcc.Store(id="network-data-store", data=networks_data),
                 dcc.Store(
@@ -31,10 +31,10 @@ class NetworksView:
                     id="cache-invalidation-store", storage_type="session"
                 ),  # Track cache invalidation signals
                 # Main content section
-                NetworksView._create_visualization_section(),
+                NetworkView._create_visualization_section(),
             ],
-            fluid=True,  # Use fluid=True for full-width, or remove for fixed-width
-            className="py-4",  # Simplified padding - let Bootstrap handle margins
+            fluid=True,
+            className="py-4",
         )
 
     @staticmethod
@@ -232,7 +232,7 @@ class NetworksView:
                 ),
                 
                 # Network visualization container
-                NetworksView._create_cytoscape_container(),
+                NetworkView._create_cytoscape_container(),
             ]
         )
 

@@ -5,7 +5,7 @@ import json
 import dash
 from dash import callback, Input, Output, html, register_page, clientside_callback
 
-from views.breakdowns_view import BreakdownView
+from views.breakdown_view import BreakdownView
 
 # Enhanced sample data for testing
 SAMPLE_DATA = [

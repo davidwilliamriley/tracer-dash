@@ -1,5 +1,5 @@
 # views/__init__.py
 
-from .index_view import View
+from .index_view import IndexView
 
-__all__ = ["View"]
+__all__ = ["IndexView"]
