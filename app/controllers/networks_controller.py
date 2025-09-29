@@ -5,8 +5,6 @@ from typing import Any, Dict, List, Optional
 from sqlalchemy.orm import joinedload
 
 from models.model import Model, Node, Edge
-from utils.graph_cache_utils import GraphCacheUtils
-
 
 class NetworksController:
     """NetworkX-based controller for networks page - creates and analyzes graphs"""
@@ -162,7 +160,7 @@ class NetworksController:
             print(f"Error getting visualization data: {e}")
             return {"elements": []}
 
-    def get_graph_for_cache(self) -> Dict[str, Any]:
+    def get_graph_for_cache(self):
         """
         Get graph data formatted for dcc.Store caching.
 
@@ -171,31 +169,32 @@ class NetworksController:
         """
         try:
             graph = self.get_network()
-            return GraphCacheUtils.serialize_networkx_graph(graph)
+            # return GraphCacheUtils.serialize_networkx_graph(graph)
         except Exception as e:
             print(f"Error serializing graph for cache: {e}")
             return {}
 
-    def get_cache_metadata(self) -> Dict[str, Any]:
-        """Get metadata about the current graph for caching."""
-        try:
-            # Get database counts
-            session = self.model._get_session()
-            try:
-                nodes_count = session.query(Node).count()
-                edges_count = session.query(Edge).count()
+    def get_cache_metadata(self):
+        # """Get metadata about the current graph for caching."""
+        # try:
+        #     # Get database counts
+        #     session = self.model._get_session()
+        #     try:
+        #         nodes_count = session.query(Node).count()
+        #         edges_count = session.query(Edge).count()
 
-                return GraphCacheUtils.create_cache_metadata(
-                    nodes_count, edges_count, {"source": "database"}
-                )
-            finally:
-                session.close()
-        except Exception as e:
-            print(f"Error getting cache metadata: {e}")
-            return {}
+        #         # return GraphCacheUtils.create_cache_metadata(
+        #         #     nodes_count, edges_count, {"source": "database"}
+        #         # )
+        #     finally:
+        #         session.close()
+        # except Exception as e:
+        #     print(f"Error getting cache metadata: {e}")
+        #     return {}
+        pass
 
     def restore_graph_from_cache(
         self, cached_data: Dict[str, Any]
     ) -> Optional[nx.Graph]:
         """Restore NetworkX graph from dcc.Store cached data."""
-        return GraphCacheUtils.deserialize_networkx_graph(cached_data)
+        # return GraphCacheUtils.deserialize_networkx_graph(cached_data)
