@@ -40,6 +40,7 @@ def get_header():
         html.Div([
             html.Div([
                 html.Div([
+                    # html.H2("Tracer", className="d-flex align-items-center my-lg-0 me-lg-auto text-white text-decoration-none fw-light"),
                     html.H2("Tracer", className="d-flex align-items-center my-lg-0 me-lg-auto text-white text-decoration-none fw-light"),
                     html.Ul([
                         html.Li(html.A([html.I(className="bi bi-house-door-fill"), " Home"], href="/", className="nav-link text-white")),
@@ -55,7 +56,7 @@ def get_header():
                     ], className="nav col-12 col-lg-auto justify-content-center my-md-0 text-small", role="navigation")
                 ], className="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start")
             ], className="container-fluid")
-        ], className="text-bg-dark px-4 py-3")
+        ], className="text-bg-dark px-3 py-3")
     ], className="header")
 
 def get_footer():
