@@ -12,7 +12,6 @@ from dash import html
 
 logger = logging.getLogger(__name__)
 
-
 class Controller:
     def __init__(self, app, model, view):
         self.app = app

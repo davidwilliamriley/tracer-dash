@@ -1,16 +1,14 @@
 # breakdowns.py
 
-from typing import Dict, Any, Optional, List
-import pandas as pd
-import dash
-from dash import callback, Input, Output, State, html, register_page, clientside_callback
+from typing import Dict, Any, List
 import json
+import dash
+from dash import callback, Input, Output, html, register_page, clientside_callback
 
-# MVC Imports
 from views.breakdowns_view import BreakdownView
 
 # Enhanced sample data for testing
-sample_data = [
+SAMPLE_DATA = [
     {
         "id": 1,
         "Element": "1.0",
@@ -73,40 +71,40 @@ sample_data = [
     }
 ]
 
+
 class MockModel:
     """Mock model for testing - replace with your actual model"""
-    def get_data(self):
-        return sample_data
     
-    def get_graph_options(self):
+    def get_data(self) -> List[Dict[str, Any]]:
+        return SAMPLE_DATA
+    
+    def get_graph_options(self) -> List[Dict[str, str]]:
         return [
             {"label": "Acceptance Verification Procedures (AVP)", "value": "avp"},
             {"label": "Safety Management Procedures (SMP)", "value": "smp"},
             {"label": "All Procedures", "value": "all"}
         ]
     
-    def filter_by_graph(self, graph_type):
+    def filter_by_graph(self, graph_type: str) -> List[Dict[str, Any]]:
         if graph_type == "avp":
-            return [item for item in sample_data if "AVP" in item.get("Name", "")]
+            return [item for item in SAMPLE_DATA if "AVP" in item.get("Name", "")]
         elif graph_type == "smp":
-            return [item for item in sample_data if "SMP" in item.get("Name", "")]
-        else:
-            return sample_data
+            return [item for item in SAMPLE_DATA if "SMP" in item.get("Name", "")]
+        return SAMPLE_DATA
     
-    def create_new_item(self):
+    def create_new_item(self) -> Dict[str, str]:
         return {"status": "success", "message": "Item created successfully"}
     
-    def refresh_data(self):
-        return sample_data
-    
-    def delete_items(self, items):
+    def delete_items(self, items: List[Dict]) -> Dict[str, str]:
         return {"status": "success", "message": f"Deleted {len(items)} items"}
     
-    def export_data(self, format_type="json"):
+    def export_data(self, format_type: str = "json") -> Dict[str, Any]:
         if format_type == "json":
-            return {"status": "success", "data": sample_data, "format": "json"}
+            return {"status": "success", "data": SAMPLE_DATA, "format": "json"}
         elif format_type == "csv":
             return {"status": "success", "data": "csv_data_here", "format": "csv"}
+        return {"status": "error", "message": "Unknown format"}
+
 
 class BreakdownController:   
     def __init__(self, model=None):
@@ -115,13 +113,7 @@ class BreakdownController:
     
     def get_layout(self):
         """Get the layout from the view"""
-        layout = self.view.create_layout()
-        # Add a hidden div to store data for clientside callbacks
-        if layout and hasattr(layout, 'children') and layout.children is not None:
-            layout.children.append(
-                html.Div(id="table-data-store", style={"display": "none"})
-            )
-        return layout
+        return self.view.create_layout()
     
     def get_breakdown_data(self) -> List[Dict[str, Any]]:
         """Get breakdown data from the model"""
@@ -130,6 +122,7 @@ class BreakdownController:
     def get_graph_options(self) -> List[Dict[str, str]]:
         """Get available graph options from the model"""
         return self.model.get_graph_options()
+
 
 # Create the controller instance
 breakdown_controller = BreakdownController()
@@ -145,11 +138,15 @@ register_page(
 # Create the layout variable that Dash expects for auto-discovery
 layout = breakdown_controller.get_layout()
 
-# Server-side callback to provide data to clientside callbacks
+
+# ============================================================================
+# CALLBACKS
+# ============================================================================
+
 @callback(
     Output("table-data-store", "children"),
     [Input("graph-dropdown", "value"),
-     Input("refresh-btn", "n_clicks")]
+     Input("refresh-nodes-btn", "n_clicks")]
 )
 def update_table_data(selected_graph, refresh_clicks):
     """Update the data that will be used by Tabulator"""
@@ -160,17 +157,18 @@ def update_table_data(selected_graph, refresh_clicks):
     
     return json.dumps(filtered_data)
 
+
 # Clientside callback to initialize Tabulator
 clientside_callback(
     """
-    function(data_json, page_size) {
-        if (!data_json) {
+    function(dataJson, pageSize) {
+        if (!dataJson) {
             return window.dash_clientside.no_update;
         }
         
         let data;
         try {
-            data = JSON.parse(data_json);
+            data = JSON.parse(dataJson);
         } catch (e) {
             console.error('Failed to parse data:', e);
             return window.dash_clientside.no_update;
@@ -181,18 +179,19 @@ clientside_callback(
             return window.dash_clientside.no_update;
         }
         
-        // Clear existing table
         const container = document.getElementById('tabulator-table');
-        if (container) {
-            container.innerHTML = '';
+        if (!container) {
+            console.error('Container not found');
+            return window.dash_clientside.no_update;
         }
+        
+        container.innerHTML = '';
         
         if (!data || data.length === 0) {
             container.innerHTML = '<div class="text-center py-4 text-muted">No data available for selected graph</div>';
             return window.dash_clientside.no_update;
         }
         
-        // Initialize Tabulator
         try {
             const table = new Tabulator("#tabulator-table", {
                 data: data,
@@ -202,7 +201,7 @@ clientside_callback(
                 dataTreeChildField: "_children",
                 height: "500px",
                 pagination: "local",
-                paginationSize: page_size || 10,
+                paginationSize: pageSize || 10,
                 selectable: true,
                 columns: [
                     {
@@ -225,7 +224,6 @@ clientside_callback(
                     console.log("Row clicked:", row.getData());
                 },
                 tableBuilt: function() {
-                    // Update row count when table is built
                     setTimeout(function() {
                         const totalRows = table.getDataCount();
                         const rowInfo = document.getElementById('row-info');
@@ -236,7 +234,6 @@ clientside_callback(
                 }
             });
             
-            // Store table reference globally
             window.tabulatorTable = table;
             
         } catch (error) {
@@ -252,37 +249,20 @@ clientside_callback(
      Input("page-size-dropdown", "value")]
 )
 
-# Clientside callback for page size updates
-clientside_callback(
-    """
-    function(page_size) {
-        if (window.tabulatorTable && page_size) {
-            try {
-                window.tabulatorTable.setPageSize(page_size);
-            } catch (error) {
-                console.error('Error updating page size:', error);
-            }
-        }
-        return window.dash_clientside.no_update;
-    }
-    """,
-    Output("page-size-dropdown", "style"),
-    Input("page-size-dropdown", "value")
-)
 
-# Server-side callbacks
 @callback(
     Output("graph-dropdown", "options"),
     Input("graph-dropdown", "id")
 )
-def update_graph_options(_):
-    """Update graph dropdown options"""
+def populate_graph_options(_):
+    """Populate graph dropdown options"""
     return breakdown_controller.get_graph_options()
+
 
 @callback(
     Output("row-info", "children"),
     [Input("graph-dropdown", "value"),
-     Input("refresh-btn", "n_clicks")]
+     Input("refresh-nodes-btn", "n_clicks")]
 )
 def update_row_info(selected_graph, refresh_clicks):
     """Update the row information display"""
@@ -292,55 +272,57 @@ def update_row_info(selected_graph, refresh_clicks):
         filtered_data = breakdown_controller.get_breakdown_data()
     
     total_rows = len(filtered_data)
-    if total_rows == 0:
-        return "No rows to display"
-    
-    return f"Loaded {total_rows} root items"
+    return "No rows to display" if total_rows == 0 else f"Loaded {total_rows} root items"
+
 
 @callback(
-    [Output("create-btn", "color"),
-     Output("create-btn", "children")],
-    Input("create-btn", "n_clicks"),
+    [Output("toast-message", "is_open"),
+     Output("toast-message", "children"),
+     Output("toast-message", "header")],
+    Input("create-node-btn", "n_clicks"),
     prevent_initial_call=True
 )
 def handle_create_click(n_clicks):
     """Handle create button clicks"""
     if n_clicks and n_clicks > 0:
         result = breakdown_controller.model.create_new_item()
-        if result and result.get("status") == "success":
-            return "success", [html.I(className="bi bi-check-circle"), " Created"]
-        else:
-            return "danger", [html.I(className="bi bi-x-circle"), " Error"]
-    return "primary", [html.I(className="bi bi-plus-circle"), " Create"]
+        if result.get("status") == "success":
+            return True, result.get("message"), "Success"
+        return True, result.get("message", "An error occurred"), "Error"
+    return False, "", ""
+
 
 @callback(
-    [Output("delete-btn", "color"),
-     Output("delete-btn", "children")],
-    Input("delete-btn", "n_clicks"),
+    [Output("toast-message", "is_open", allow_duplicate=True),
+     Output("toast-message", "children", allow_duplicate=True),
+     Output("toast-message", "header", allow_duplicate=True)],
+    Input("delete-node-btn", "n_clicks"),
     prevent_initial_call=True
 )
 def handle_delete_click(n_clicks):
     """Handle delete button clicks"""
     if n_clicks and n_clicks > 0:
-        selected_items = []  # This would come from the clientside callback
+        # TODO: Get selected rows from clientside
+        selected_items = []
         result = breakdown_controller.model.delete_items(selected_items)
-        if result and result.get("status") == "success":
-            return "success", [html.I(className="bi bi-check-circle"), " Deleted"]
-        else:
-            return "danger", [html.I(className="bi bi-x-circle"), " Error"]
-    return "warning", [html.I(className="bi bi-trash"), " Delete"]
+        if result.get("status") == "success":
+            return True, result.get("message"), "Success"
+        return True, result.get("message", "An error occurred"), "Error"
+    return False, "", ""
+
 
 @callback(
-    Output("download-btn", "children"),
-    Input("download-btn", "n_clicks"),
+    [Output("toast-message", "is_open", allow_duplicate=True),
+     Output("toast-message", "children", allow_duplicate=True),
+     Output("toast-message", "header", allow_duplicate=True)],
+    Input("download-nodes-btn", "n_clicks"),
     prevent_initial_call=True
 )
 def handle_download_click(n_clicks):
     """Handle download button clicks"""
     if n_clicks and n_clicks > 0:
         result = breakdown_controller.model.export_data()
-        if result and result.get("status") == "success":
-            return [html.I(className="bi bi-check-circle"), " Downloaded"]
-        else:
-            return [html.I(className="bi bi-x-circle"), " Error"]
-    return [html.I(className="bi bi-download"), " Download"]
+        if result.get("status") == "success":
+            return True, "Data exported successfully", "Success"
+        return True, "Failed to export data", "Error"
+    return False, "", ""

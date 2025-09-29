@@ -3,11 +3,11 @@ import dash
 from dash import html, dcc, callback, Input, Output
 import dash_bootstrap_components as dbc
 
-from controllers.app_controller import Controller
-from views.app_view import View
+from app.controllers.index_controller import Controller
+from app.views.index_view import HomeView
 
 dash.register_page(__name__, path='/')
 
 def layout():
-    return View().get_layout()
+    return HomeView().get_layout()
 
