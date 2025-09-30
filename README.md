@@ -9,21 +9,15 @@
 <details>
 <summary>To-Do List:</summary>
 
-- [x] Created Data Editors for Edges, Nodes and Edge Types
-- [x] Created the Network Page
-- [ ] Updating the Breakdowns Page 
-- [ ] Update the Headers on the Edges Page
-- [ ] Update the Headers on the Nodes Page
-- [ ] Update the Headers on the Edge Types Page
-- [x] Refactor Pages & Controllers 
+- [x] Created an updated DBC Page Template
+- [ ] Refactor the Page Template for MVC
+- [ ] Deploy the Page Template
+- [ ] Updating the Breakdowns Page Tabulator
 - [ ] Add the Graph Filters
 - [ ] Add Graph Algorithims Selection
-- [ ] Add Network Analysis
-- [ ] Update the Controller for the Breakdowns Page
+- [ ] Add Network Analysis Dashboard
 - [ ] Debounce the Networks Page
-- [ ] Modify table colors to match Bootstrap
 - [ ] Format Toasts for enhanced Readability
-- [x] Sticky Footer to the Bottom of the Pages
 - [ ] Add Application Logging
 
 </details>
@@ -32,6 +26,11 @@
 Clone this Respository 
 
 ## Usage Examples
+
+### Objectives
+1. Completeness
+2. Robustness
+3. Resilience
 
 ### Edges
 [Placeholder]

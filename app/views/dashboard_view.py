@@ -15,8 +15,8 @@ class DashboardView:
     def create_layout(self):
         return dbc.Container(
             [
-                html.H1("Dashboards", className="my-4"),
-                html.P("This is a Placeholder for the Dashboards.", className="mb-4"),
+                html.H1("Dashboard", className="my-4"),
+                html.P("This is a Placeholder for the Metrics Dashboard.", className="mb-4"),
                 dbc.Row(
                     [
                         dbc.Col(
@@ -186,7 +186,6 @@ class DashboardView:
                     className="mb-4 flex-fill",
                 ),  # Added flex-fill
             ],
-            fluid=True,
             className="d-flex flex-column",
             style={"minHeight": "80vh", "maxHeight": "90vh"},
         )

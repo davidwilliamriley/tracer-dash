@@ -2,7 +2,7 @@
 
 # Imports
 import dash
-from dash import html, dcc
+from dash import html, dcc, callback, Output, Input
 import dash_bootstrap_components as dbc
 from flask import Flask
 
@@ -32,31 +32,58 @@ app = dash.Dash(
 
 server.static_folder = 'assets'
 
-# Import pages AFTER the instantiation of the App
+# Import pages AFTER instantiation of the App
 import pages
 
+# Page Navigation Bar
 def get_header():
-    return html.Header([
-        html.Div([
-            html.Div([
-                html.Div([
-                    html.H2("Tracer", className="d-flex align-items-center my-lg-0 me-lg-auto text-white text-decoration-none fw-light"),
-                    html.Ul([
-                        html.Li(html.A([html.I(className="bi bi-house-door-fill"), " Home"], href="/", className="nav-link text-white")),
-                        html.Li(html.A([html.I(className="bi bi-speedometer"), " Dashboards"], href="/dashboards", className="nav-link text-white")),
-                        html.Li(html.A([html.I(className="bi bi-file-earmark-richtext"), " Reports"], href="/reports", className="nav-link text-white")),
-                        html.Li(html.A([html.I(className="bi bi-bezier2"), " Networks"], href="/networks", className="nav-link text-white")),
-                        html.Li(html.A([html.I(className="bi bi-diagram-2"), " Breakdowns"], href="/breakdowns", className="nav-link text-white")),
-                        html.Li(html.A([html.I(className="bi bi-arrow-repeat"), " Edges"], href="/edges", className="nav-link text-white")),
-                        html.Li(html.A([html.I(className="bi bi-plus-circle"), " Nodes"], href="/nodes", className="nav-link text-white")),
-                        html.Li(html.A([html.I(className="bi bi-link-45deg"), " Edge Types"], href="/edge-types", className="nav-link text-white")),
-                        # html.Li(html.A([html.I(className="bi bi-gear"), " Settings"], href="/settings", className="nav-link text-white")),
-                        html.Li(html.A([html.I(className="bi bi-question-circle"), " Help"], href="/help", className="nav-link text-white")),
-                    ], className="nav col-12 col-lg-auto justify-content-center my-md-0 text-small", role="navigation")
-                ], className="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start")
-            ], className="container-fluid")
-        ], className="text-bg-dark px-3 py-3")
-    ], className="header")
+    return dbc.Navbar(
+        dbc.Container([
+            dbc.NavbarBrand([html.I(className="bi bi-node-plus me-2"), "Tracer"], href="/", className="fw-light fs-2"),
+            dbc.Nav([
+                dbc.NavItem(dbc.NavLink([html.I(className="bi bi-house-door-fill me-2"), "Home"], href="/", id="nav-home")),
+                dbc.NavItem(dbc.NavLink([html.I(className="bi bi-speedometer me-2"), "Dashboard"],href="/dashboard", id="nav-dashboard")),
+                dbc.NavItem(dbc.NavLink([html.I(className="bi bi-file-earmark-richtext me-2"), "Reports"], href="/reports", id="nav-reports")),
+                dbc.NavItem(dbc.NavLink([html.I(className="bi bi-bezier2 me-2"), "Networks"], href="/networks", id="nav-networks")),
+                dbc.NavItem(dbc.NavLink([html.I(className="bi bi-diagram-2 me-2"), "Breakdowns"],href="/breakdowns", id="nav-breakdowns")),
+                dbc.NavItem(dbc.NavLink([html.I(className="bi bi-arrow-repeat me-2"), "Edges"], href="/edges", id="nav-edges")),
+                dbc.NavItem(dbc.NavLink([html.I(className="bi bi-plus-circle me-2"), "Nodes"], href="/nodes", id="nav-nodes")),
+                dbc.NavItem(dbc.NavLink([html.I(className="bi bi-link-45deg me-2"), "Edge Types"], href="/edge-types", id="nav-edge-types")),
+                dbc.NavItem(dbc.NavLink([html.I(className="bi bi-question-circle me-2"), "Help"], href="/help", id="nav-help")),
+            ], navbar=True, className="ms-auto", id="nav-items"),
+        ]),
+        color="dark",
+        dark=True,
+        className="px-3 py-3",
+        sticky="top"
+    )
+
+@callback(
+    [Output(f"nav-{page}", "className") for page in 
+     ["home", "dashboard", "reports", "networks", "breakdowns", "edges", "nodes", "edge-types", "help"]],
+    Input("_pages_location", "pathname")
+)
+def update_nav_style(pathname):
+    nav_map = {
+        "/": "home",
+        "/dashboard": "dashboard",
+        "/reports": "reports",
+        "/networks": "networks",
+        "/breakdowns": "breakdowns",
+        "/edges": "edges",
+        "/nodes": "nodes",
+        "/edge-types": "edge-types",
+        "/help": "help"
+    }
+    
+    active_page = nav_map.get(pathname, None)
+    
+    return [
+        "text-white" if page == active_page else "text-white-50"
+        for page in ["home", "dashboard", "reports", "networks", "breakdowns", "edges", "nodes", "edge-types", "help"]
+    ]
+
+# To_Do : update the Footer to use the updated Template
 
 def get_footer():
     return html.Footer([
@@ -65,6 +92,7 @@ def get_footer():
         ], className="container-fluid d-flex justify-content-end p-3")
     ], className="footer mt-auto bg-light")
 
+# To-Do : update the Footer to use the updated Template
 app.layout = html.Div([
     get_header(),
     html.Main([

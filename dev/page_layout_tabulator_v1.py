@@ -190,7 +190,7 @@ main_content = dbc.Container([
         ], width="auto", className="ms-auto")
     ], className="mb-3"),
 
-    # Table card
+    # Table card - with full height
     dbc.Card([
         dbc.CardHeader([
             html.Div([
@@ -208,7 +208,7 @@ main_content = dbc.Container([
                         "layout": "fitColumns",
                         "pagination": "local",
                         "paginationSize": 10,
-                        "paginationSizeSelector": [5, 10, 20, 50],
+                        "paginationSizeSelector": [5, 10, 20, 30, 50],
                         "paginationCounter": "rows",
                         "movableColumns": True,
                         "resizableColumns": True,
@@ -218,10 +218,12 @@ main_content = dbc.Container([
                 )
             ], style={
                 'fontFamily': 'inherit',
+                'height': 'calc(100vh - 600px)',  # Full height minus navbar, header, filters, buttons, footer
+                'overflow': 'auto'
             })
         ], className="p-0")
-    ], className="shadow-sm")
-], style={'minHeight': 'calc(100vh - 120px)', 'paddingBottom': '80px'})
+    ], className="shadow-sm", style={'flex': '1'})
+], style={'minHeight': 'calc(100vh - 120px)', 'paddingBottom': '100px', 'display': 'flex', 'flexDirection': 'column'})
 
 # Sticky footer
 footer = html.Footer([
