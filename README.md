@@ -17,6 +17,7 @@
 - [ ] Update the Headers on the Edge Types Page
 - [x] Refactor Pages & Controllers 
 - [ ] Add the Graph Filters
+- [ ] Add Graph Algorithims Selection
 - [ ] Add Network Analysis
 - [ ] Update the Controller for the Breakdowns Page
 - [ ] Debounce the Networks Page
