@@ -15,14 +15,15 @@
 - [ ] Update the Headers on the Edges Page
 - [ ] Update the Headers on the Nodes Page
 - [ ] Update the Headers on the Edge Types Page
-- [ ] Refactor Pages & Controllers 
+- [x] Refactor Pages & Controllers 
 - [ ] Add the Graph Filters
 - [ ] Add Network Analysis
 - [ ] Update the Controller for the Breakdowns Page
 - [ ] Debounce the Networks Page
 - [ ] Modify table colors to match Bootstrap
 - [ ] Format Toasts for enhanced Readability
-- [ ] Sticky Footer to the Bottom of the Pages
+- [x] Sticky Footer to the Bottom of the Pages
+- [ ] Add Application Logging
 
 </details>
 
