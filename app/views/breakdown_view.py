@@ -22,16 +22,19 @@ class BreakdownView:
             [
                 # Toast Notification
                 self._create_toast_notification(),
+
                 # Main Content Stack
                 dbc.Stack(
                     [
                         # Content Header
                         self._create_content_header(),
+
                         # Controls
                         html.Div(
                             [
-                                self._create_action_buttons(),
                                 self._create_breakdown_selection(breakdown_options),
+                                html.Hr(),
+                                self._create_action_buttons(),
                             ]
                         ),
                         # Main Content
@@ -39,10 +42,16 @@ class BreakdownView:
                             [
                                 self._create_table_container(),
                             ]
+
                         ),
+                        # html.Iframe(
+                        #     id="breakdown-iframe",
+                        #     src="https://copilot.microsoft.com/",
+                        #     style={"width": "100%", "height": "600px", "border": "none"},
+                        # )
                     ]
                 ),
-                # Hidden data store for clientside callbacks
+                # Hidden data store for Clientside Callbacks
                 html.Div(id="table-data-store", style={"display": "none"}),
             ],
             fluid=True,

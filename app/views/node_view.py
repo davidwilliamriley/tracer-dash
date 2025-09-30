@@ -8,25 +8,48 @@ from typing import Any, Dict, List
 
 
 class NodeView:
-    """View class for Nodes page - handles all UI layout"""
+    def __init__(self):
+        self.controller = None
 
-    def create_layout(self, nodes_data: List[Dict[str, Any]]) -> html.Div:
-        """Create the main layout for the Nodes page"""
-        return html.Div(
-            [
-                # Toast notification
-                self._create_toast(),
-                # Page header
-                self._create_content_header(),
-                # Main content with toolbar and table
-                self._create_main_content(nodes_data),
-                # Modals
-                self._create_create_modal(),
-                self._create_delete_modal(),
-                # Hidden download component
-                dcc.Download(id="download-nodes-csv"),
-            ]
-        )
+    def create_layout(self, nodes_data: List[Dict[str, Any]]) -> "dbc.Container":
+            """Create the main layout for the Nodes page"""
+            return dbc.Container(
+                [
+                    # Toast notification
+                    self._create_toast(),
+                    
+                    # Main Content Stack
+                    dbc.Stack(
+                        [
+                            # Content Header
+                            self._create_content_header(),
+
+                            # Controls
+                            html.Div(
+                                [
+                                    # self._create_action_buttons(),
+                                    html.Hr()
+                                ]
+                            ),
+
+                            # Main Content
+                            html.Div(
+                                [
+                                    self._create_table_container(nodes_data),
+                                ]
+                            ),
+                            # self._create_main_content(nodes_data),
+                            
+                            # Modals
+                            self._create_create_modal(),
+                            self._create_delete_modal(),
+
+                            # Hidden Download Component
+                            dcc.Download(id="download-nodes-csv"),
+                        ]
+                    )
+                ], fluid=True
+            )
 
     def _create_toast(self) -> dbc.Toast:
         """Create toast notification component"""
@@ -59,7 +82,7 @@ class NodeView:
             className="px-4",
         )
 
-    def _create_main_content(self, nodes_data: List[Dict[str, Any]]) -> html.Div:
+    def _create_table_container(self, nodes_data: List[Dict[str, Any]]) -> html.Div:
         """Create main content area with toolbar and table"""
         return html.Div(
             [
