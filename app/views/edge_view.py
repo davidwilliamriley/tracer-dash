@@ -59,7 +59,7 @@ class EdgeView:
                 "Manage Edges in the system. Edges represent relationships between Nodes.",
                 className="mb-4"
             )
-        ], fluid=True, className="px-4")
+        ], className="px-4")
     
     def _create_main_content(
         self,
@@ -74,7 +74,7 @@ class EdgeView:
             
             # Table
             self._create_table(edges_data, node_label_map, edge_type_label_map)
-        ], className="container-fluid px-4 py-5")
+        ], className="px-4 py-5")
     
     def _create_toolbar(self) -> html.Div:
         """Create toolbar with action buttons"""

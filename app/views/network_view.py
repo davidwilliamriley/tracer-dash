@@ -33,7 +33,6 @@ class NetworkView:
                 # Main content section
                 NetworkView._create_visualization_section(),
             ],
-            fluid=True,
             className="py-4",
         )
 

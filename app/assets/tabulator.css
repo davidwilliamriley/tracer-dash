@@ -1,0 +1,67 @@
+/* Custom Tabulator Styles */
+
+.tabulator-row.tabulator-selected {
+    background-color: #cfe2ff !important;
+    color: #084298 !important;
+}
+.tabulator-row.tabulator-selected:hover {
+    background-color: #b6d4fe !important;
+    color: #084298 !important;
+}
+.tabulator-footer {
+    background-color: #f8f9fa !important;
+    border-top: 1px solid #dee2e6 !important;
+}
+.tabulator-paginator {
+    color: #495057 !important;
+}
+.tabulator-page-counter {
+    display: inline-block !important;
+    margin: 0 10px !important;
+}
+.tabulator-header {
+    background-color: #f8f9fa !important;
+    border-bottom: 2px solid #dee2e6 !important;
+}
+.tabulator-col {
+    background-color: #f8f9fa !important;
+    color: #495057 !important;
+}
+.tabulator-col:hover,
+.tabulator-col.tabulator-sortable:hover {
+    background-color: #cfe2ff !important;
+    color: #084298 !important;
+    cursor: pointer !important;
+}
+.tabulator-col.tabulator-sorted {
+    background-color: #cfe2ff !important;
+    color: #084298 !important;
+}
+.tabulator-page {
+    border: 1px solid #0d6efd !important;
+    color: #0d6efd !important;
+    background-color: transparent !important;
+    padding: 0.375rem 0.75rem !important;
+    border-radius: 0.25rem !important;
+    margin: 0 2px !important;
+}
+.tabulator-page:hover:not(.disabled) {
+    background-color: #0d6efd !important;
+    color: white !important;
+}
+.tabulator-page.active {
+    background-color: transparent !important;
+    color: #0d6efd !important;
+    border-color: #0d6efd !important;
+    font-weight: 600 !important;
+}
+.tabulator-page.active:hover {
+    background-color: #0d6efd !important;
+    color: white !important;
+}
+.tabulator-page.disabled {
+    border-color: #6c757d !important;
+    color: #6c757d !important;
+    opacity: 0.65 !important;
+    cursor: not-allowed !important;
+}

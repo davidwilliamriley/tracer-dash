@@ -54,7 +54,6 @@ class BreakdownView:
                 # Hidden data store for Clientside Callbacks
                 html.Div(id="table-data-store", style={"display": "none"}),
             ],
-            fluid=True,
         )
 
     def _create_toast_notification(self):

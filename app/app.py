@@ -83,14 +83,33 @@ def update_nav_style(pathname):
         for page in ["home", "dashboard", "reports", "networks", "breakdowns", "edges", "nodes", "edge-types", "help"]
     ]
 
-# To_Do : update the Footer to use the updated Template
-
+# Footer
 def get_footer():
     return html.Footer([
-        html.Div([
-            html.P("Provided by Rail Engineering & Integration (REI) @ John Holland Group Pty. Ltd.", className="text-muted")
-        ], className="container-fluid d-flex justify-content-end p-3")
-    ], className="footer mt-auto bg-light")
+        dbc.Container([
+            dbc.Row([
+                dbc.Col([
+                    html.P("© 2025 John Holland Group Pty. Ltd. All Rights Reserved.", 
+                           className="text-muted mb-0 small")
+                ], md=6),
+                dbc.Col([
+                    html.P([
+                        html.A("Privacy", href="#", className="text-muted me-3 small text-decoration-none"),
+                        html.A("Terms", href="#", className="text-muted me-3 small text-decoration-none"),
+                        # html.A("Help", href="#", className="text-muted small text-decoration-none"),
+                    ], className="text-end mb-0")
+                ], md=6)
+            ])
+        ])
+    ], style={
+        'position': 'fixed',
+        'bottom': '0',
+        'width': '100%',
+        'backgroundColor': 'white',
+        'padding': '15px 0',
+        'borderTop': '1px solid #dee2e6',
+        'boxShadow': '0 -2px 4px rgba(0,0,0,0.05)'
+    })
 
 # To-Do : update the Footer to use the updated Template
 app.layout = html.Div([
@@ -99,7 +118,7 @@ app.layout = html.Div([
         dash.page_container
     ], className="content"),
     get_footer()
-], className="page-wrapper")
+], className="page-wrapper", style={'backgroundColor': '#f8f9fa'})
 
 if __name__ == '__main__':
     app.run(debug=True)

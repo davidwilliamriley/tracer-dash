@@ -10,9 +10,9 @@ from views.dashboard_view import DashboardView
 
 register_page(
     __name__, 
-    path="/dashboards",
-    name="Dashboards",
-    title="Tracer - Dashboards"
+    path="/dashboard",
+    name="Dashboard",
+    title="Tracer - Dashboard"
 )
 
 dashboard_view = DashboardView()

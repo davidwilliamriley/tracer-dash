@@ -49,7 +49,6 @@ class ReportView:
                     className="mb-0",
                 ),
             ],
-            fluid=True,
             className="py-4",
         )
 

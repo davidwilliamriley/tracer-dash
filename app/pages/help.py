@@ -10,26 +10,26 @@ help_sections = [
     [
         {
             'icon': 'bi bi-search',
-            'title': 'About PCM',
+            'title': 'Tracer',
             'description': 'Read about the background, and purpose of PCM.',
             'link': '/help/about'
         }
     ],
     # Row 2
-    [
-        {
-            'icon': 'bi bi-diagram-3',
-            'title': 'Systems Engineering',
-            'description': 'A (very) brief introduction to Systems Engineering.',
-            'link': '/help/systems'
-        },
-        {
-            'icon': 'bi bi-person-gear',
-            'title': 'Role of the Architect',
-            'description': 'Read about the role of the System Architect.',
-            'link': '/help/architect'
-        }
-    ],
+    # [
+    #     {
+    #         'icon': 'bi bi-diagram-3',
+    #         'title': 'Systems Engineering',
+    #         'description': 'A (very) brief introduction to Systems Engineering.',
+    #         'link': '/help/systems'
+    #     },
+    #     {
+    #         'icon': 'bi bi-person-gear',
+    #         'title': 'Role of the Architect',
+    #         'description': 'Read about the role of the System Architect.',
+    #         'link': '/help/architect'
+    #     }
+    # ],
     # Row 3
     [
         {
