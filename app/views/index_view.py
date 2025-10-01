@@ -3,28 +3,36 @@
 import dash
 from dash import html, dcc, Input, Output, State, callback_context, dash_table
 import dash_bootstrap_components as dbc
-import pandas as pd
-import plotly.graph_objects as go
-import plotly.express as px
 
 
 class IndexView:
-    """View class for Index/Home page"""
-    
+    def __init__(self):
+        return
+   
     def get_layout(self):
         """Create the main layout for the home page"""
-        return html.Div([
-            html.Div([
-                # Navigation Cards
-                html.Div([
-                    # First Row of Cards
-                    html.Div([
-                        # Card 1 - Dashboards
-                        html.Div([
+
+        return dbc.Container([
+            dbc.Row([
+                html.Nav([
+                    html.Ol([
+                        html.Li(html.A("Home", href="#"), className="breadcrumb-item active")
+                    ], className="breadcrumb mb-2")
+                ]), 
+                html.H2("Home", className="mb-1"),
+                html.P("Welcome to the Tracer Network Analysis Application.", className="text-muted mb-4")
+            ]),
+
+            # First Row of Cards
+            dbc.Row([
+                dbc.Col([
+                    dbc.Card([
+                        dbc.CardBody([
                             html.Div([
                                 html.I(className="bi bi-speedometer display-3 text-primary mb-3"),
                                 html.H5("Dashboard", className="card-title"),
                                 html.P("Get an overview of the System.", className="card-text mb-2"),
+<<<<<<< HEAD
                                 html.A("Go to Dashboard", href="/dashboard", className="btn btn-primary btn-fixed-width")
                             ], className="card-body text-center")
                         ], className="card bg-white h-100 shadow-sm")
@@ -33,10 +41,22 @@ class IndexView:
                     # Card 2 - Reports
                     html.Div([
                         html.Div([
+=======
+                                dbc.Button("Go to Dashboards", href="/dashboards", color="primary", className="btn-fixed-width")
+                            ], className="text-center")
+                        ])
+                    ], className="bg-light h-100 shadow-sm")
+                ], lg=3, md=6, className="mb-4"),
+        
+                dbc.Col([
+                    dbc.Card([
+                        dbc.CardBody([
+>>>>>>> 244c3c9ca817ab9ef368488a260454891c627d66
                             html.Div([
                                 html.I(className="bi bi-file-earmark-richtext display-3 text-success mb-3"),
                                 html.H5("Reports", className="card-title"),
                                 html.P("Generate detailed Reports.", className="card-text mb-2"),
+<<<<<<< HEAD
                                 html.A("View Reports", href="/reports", className="btn btn-success btn-fixed-width")
                             ], className="card-body text-center")
                         ], className="card bg-white h-100 shadow-sm")
@@ -45,10 +65,22 @@ class IndexView:
                     # Card 3 - Networks
                     html.Div([
                         html.Div([
+=======
+                                dbc.Button("View Reports", href="/reports", color="success", className="btn-fixed-width")
+                            ], className="text-center")
+                        ])
+                    ], className="bg-light h-100 shadow-sm")
+                ], lg=3, md=6, className="mb-4"),
+                
+                dbc.Col([
+                    dbc.Card([
+                        dbc.CardBody([
+>>>>>>> 244c3c9ca817ab9ef368488a260454891c627d66
                             html.Div([
                                 html.I(className="bi bi-bezier2 display-3 text-info mb-3"),
                                 html.H5("Networks", className="card-title"),
                                 html.P("Visualize with interactive Networks.", className="card-text mb-2"),
+<<<<<<< HEAD
                                 html.A("Explore Networks", href="/networks", className="btn btn-info btn-fixed-width")
                             ], className="card-body text-center")
                         ], className="card bg-white h-100 shadow-sm")
@@ -57,10 +89,22 @@ class IndexView:
                     # Card 4 - Breakdowns
                     html.Div([
                         html.Div([
+=======
+                                dbc.Button("Explore Networks", href="/networks", color="info", className="btn-fixed-width")
+                            ], className="text-center")
+                        ])
+                    ], className="bg-light h-100 shadow-sm")
+                ], lg=3, md=6, className="mb-4"),
+                
+                dbc.Col([
+                    dbc.Card([
+                        dbc.CardBody([
+>>>>>>> 244c3c9ca817ab9ef368488a260454891c627d66
                             html.Div([
                                 html.I(className="bi bi-diagram-2 display-3 text-warning mb-3"),
                                 html.H5("Breakdowns", className="card-title"),
                                 html.P("Navigate network Breakdowns.", className="card-text mb-2"),
+<<<<<<< HEAD
                                 html.A("View Breakdowns", href="/breakdowns", className="btn btn-warning btn-fixed-width")
                             ], className="card-body text-center")
                         ], className="card bg-white h-100 shadow-sm")
@@ -70,10 +114,25 @@ class IndexView:
                     # Card 5 - Edges
                     html.Div([
                         html.Div([
+=======
+                                dbc.Button("View Breakdowns", href="/breakdowns", color="warning", className="btn-fixed-width")
+                            ], className="text-center")
+                        ])
+                    ], className="bg-light h-100 shadow-sm")
+                ], lg=3, md=6, className="mb-4")
+            ], className="g-3"),
+
+            # Second Row of Cards
+            dbc.Row([
+                dbc.Col([
+                    dbc.Card([
+                        dbc.CardBody([
+>>>>>>> 244c3c9ca817ab9ef368488a260454891c627d66
                             html.Div([
                                 html.I(className="bi bi-arrow-repeat display-3 text-danger mb-3"),
                                 html.H5("Edges", className="card-title"),
                                 html.P("Create and manage Edges.", className="card-text mb-2"),
+<<<<<<< HEAD
                                 html.A("Manage Edges", href="/edges", className="btn btn-danger btn-fixed-width")
                             ], className="card-body text-center")
                         ], className="card bg-white h-100 shadow-sm")
@@ -82,10 +141,22 @@ class IndexView:
                     # Card 6 - Nodes
                     html.Div([
                         html.Div([
+=======
+                                dbc.Button("Manage Edges", href="/edges", color="danger", className="btn-fixed-width")
+                            ], className="text-center")
+                        ])
+                    ], className="bg-light h-100 shadow-sm")
+                ], lg=3, md=6, className="mb-4"),
+                
+                dbc.Col([
+                    dbc.Card([
+                        dbc.CardBody([
+>>>>>>> 244c3c9ca817ab9ef368488a260454891c627d66
                             html.Div([
                                 html.I(className="bi bi-plus-circle display-3 text-secondary mb-3"),
                                 html.H5("Nodes", className="card-title"),
                                 html.P("Create and manage Nodes.", className="card-text mb-2"),
+<<<<<<< HEAD
                                 html.A("Manage Nodes", href="/nodes", className="btn btn-secondary btn-fixed-width")
                             ], className="card-body text-center")
                         ], className="card bg-white h-100 shadow-sm")
@@ -94,10 +165,22 @@ class IndexView:
                     # Card 7 - Edge Types
                     html.Div([
                         html.Div([
+=======
+                                dbc.Button("Manage Nodes", href="/nodes", color="secondary", className="btn-fixed-width")
+                            ], className="text-center")
+                        ])
+                    ], className="bg-light h-100 shadow-sm")
+                ], lg=3, md=6, className="mb-4"),
+                
+                dbc.Col([
+                    dbc.Card([
+                        dbc.CardBody([
+>>>>>>> 244c3c9ca817ab9ef368488a260454891c627d66
                             html.Div([
                                 html.I(className="bi bi-link-45deg display-3 text-dark mb-3"),
                                 html.H5("Edge Types", className="card-title"),
                                 html.P("Define Edge Types in your System.", className="card-text mb-2"),
+<<<<<<< HEAD
                                 html.A("Manage Edge Types", href="/edge-types", className="btn btn-dark btn-fixed-width")
                             ], className="card-body text-center")
                         ], className="card bg-white h-100 shadow-sm")
@@ -106,10 +189,22 @@ class IndexView:
                     # Card 8 - Help
                     html.Div([
                         html.Div([
+=======
+                                dbc.Button("Manage Edge Types", href="/edge-types", color="dark", className="btn-fixed-width")
+                            ], className="text-center")
+                        ])
+                    ], className="bg-light h-100 shadow-sm")
+                ], lg=3, md=6, className="mb-4"),
+                
+                dbc.Col([
+                    dbc.Card([
+                        dbc.CardBody([
+>>>>>>> 244c3c9ca817ab9ef368488a260454891c627d66
                             html.Div([
                                 html.I(className="bi bi-life-preserver display-3 text-muted mb-3"),
                                 html.H5("Help", className="card-title"),
                                 html.P("Get assistance with the App.", className="card-text mb-2"),
+<<<<<<< HEAD
                                 html.A("Get Help", href="/help", className="btn btn-outline-dark btn-fixed-width")
                             ], className="card-body text-center")
                         ], className="card bg-white h-100 shadow-sm")
@@ -119,3 +214,12 @@ class IndexView:
             ], className="container py-3")
         ], style={'minHeight': 'calc(100vh - 120px)', 'paddingBottom': '100px', 'display': 'flex', 'flexDirection': 'column'})
         # className="bg-light min-vh-100")
+=======
+                                dbc.Button("Get Help", href="/help", color="light", outline=True, className="btn-fixed-width")
+                            ], className="text-center")
+                        ])
+                    ], className="bg-light h-100 shadow-sm")
+                ], lg=3, md=6, className="mb-4")
+            ], className="g-3")
+        ], className="container px-4 py-5")
+>>>>>>> 244c3c9ca817ab9ef368488a260454891c627d66
