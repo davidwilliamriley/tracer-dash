@@ -11,12 +11,9 @@ Objective : ensure a Complete, Robust and Resilient Network.
 <details>
 <summary>To-Do List:</summary>
 
-- [x] Created an updated DBC Page Template
-- [ ] Refactor the Page Template for MVC
-- [ ] Deploy the Page Template
-- [ ] Updating the Breakdowns Page Tabulator
-- [ ] Add the Graph Filters (Fulter by Type)
-- [ ] Add Graph Algorithims Selection
+- [x] Refactor the Page Template for MVC
+- [ ] Deploying the Page Template
+- [ ] Updating the Tabulator CRUD Logic
 - [ ] Add Network Analysis Dashboard
 - [ ] Metrics - Completeness
 - [ ] Metrics - Robustness

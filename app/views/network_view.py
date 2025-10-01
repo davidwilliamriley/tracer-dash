@@ -57,7 +57,7 @@ class NetworkView:
             dbc.Card([
                 dbc.CardBody([
 
-                    # First Row
+                    # First Row - Graph Root Select
                     dbc.Row([
                         dbc.Col(
                             dbc.Select(
@@ -69,16 +69,14 @@ class NetworkView:
                                     {"label": "Root 3", "value": "root3"},
                                 ],
                                 placeholder="Select a Graph Root Node...",
-                                # value="all",
                                 disabled=True
                             ),
                             width=12,
-                            # md=9,
-                            className="mb-2 mb-md-0",
+                            className="mb-3",
                         ),
-                    ], className="mb-3 align-items-center"),
-                    
-                    # Second Row
+                    ]),
+
+                    # Filter Row - Element, "include", Property, Value, Apply, Reset
                     dbc.Row([
                         dbc.Col(
                             dbc.Select(
@@ -93,21 +91,27 @@ class NetworkView:
                             ),
                             width=12,
                             lg=2,
-                            className="mb-2 mb-lg-0",
+                            className="mb-3 mb-lg-0",
+                        ),
+
+                        # label
+                        dbc.Col(
+                            html.Div("include", className="text-center text-muted", 
+                                    style={"lineHeight": "38px"}),
+                            lg=1,
+                            className="d-none d-lg-block",
                         ),
 
                         dbc.Col(
                             dbc.Select(
                                 id="filter-property-select",
-                                options=[
-                                    {"label": "All Properties", "value": "all"}
-                                ],
+                                options=[{"label": "All Properties", "value": "all"}],
                                 value="all",
                                 disabled=True,
                             ),
                             width=12,
                             lg=2,
-                            className="mb-2 mb-lg-0",
+                            className="mb-3 mb-lg-0",
                         ),
 
                         dbc.Col(
@@ -115,73 +119,64 @@ class NetworkView:
                                 id="filter-value-input",
                                 placeholder="Add Search Terms",
                             ),
-                            width=11,
-                            lg=2,
-                            className="mb-2 mb-lg-0",
+                            width=12,
+                            lg=5,
+                            className="mb-3 mb-lg-0",
                         ),
 
                         dbc.Col(
-                            dbc.Button(
-                                "Apply",
+                            dbc.Button([html.I(className="bi bi-filter me-1"), "Apply"],
                                 id="apply-element-btn",
                                 color="primary",
-                                size="me",
+                                size="md",
                                 className="w-100",
                             ),
-                            width=1,
+                            width=6,
                             lg=1,
+                            className="mb-3 mb-lg-0 pe-1",
                         ),
+                        
                         dbc.Col(
-                            dbc.Button(
-                                "Reset",
+                            dbc.Button([html.I(className="bi bi-arrow-clockwise me-1"), "Reset"],
                                 id="reset-element-btn",
-                                color="primary",
-                                size="me",
+                                color="secondary",
+                                size="md",
                                 className="w-100",
                             ),
-                            width=1,
+                            width=6,
                             lg=1,
+                            className="ps-1",
                         ),
-                    ], className="align-items-center"),
-                ]),
-            ], className="mb-4"),
-            
-            # Layout Algorithm
-            dbc.Card([
-                dbc.CardBody([
+                    ], className="align-items-center g-3"),
+                    
+                    # Layout Algorithm Row
                     dbc.Row([
-                        dbc.Col(
-                            html.Label("Layout Algorithm:", className="form-label fw-bold"),
-                            width=12,
-                            md=2,
-                            className="d-flex align-items-center mb-2 mb-md-0",
-                        ),
                         dbc.Col(
                             dbc.Select(
                                 id="layout-algorithm-select",
                                 options=[
                                     {"label": "fCoSE (Force-directed)", "value": "fcose"},
-                                    {"label": "Cose (Force-directed)", "value": "cose"},
-                                    {"label": "Circle", "value": "circle"},
-                                    {"label": "Grid", "value": "grid"},
                                     {"label": "Breadthfirst", "value": "breadthfirst"},
+                                    {"label": "Circle", "value": "circle"},
                                     {"label": "Concentric", "value": "concentric"},
+                                    {"label": "Cose (Force-directed)", "value": "cose"},
+                                    {"label": "Grid", "value": "grid"},
                                 ],
+                                placeholder="Select a Layout Algorithm...",
                                 value="fcose",
-                                disabled=False
+                                disabled=True
                             ),
                             width=12,
-                            md=10,
-                            className="mb-2 mb-md-0",
+                            className="mt-3",
                         ),
-                    ], className="align-items-center"),
+                    ]),
                 ]),
             ], className="mb-4"),
-
+            
             # Network Graph Container
             NetworkView._create_cytoscape_container(),     
         ])
-    
+
     @staticmethod
     def _create_cytoscape_container() -> dbc.Card:
         return dbc.Card([

@@ -1,7 +1,7 @@
 # views/dashboards_view.
 
 # Imports
-from dash import html, dcc, Input, Output, callback
+from dash import html, dcc, Input, Output, callback, dash_table
 import dash_bootstrap_components as dbc
 from typing import Dict, Any
 
@@ -36,23 +36,38 @@ class DashboardView:
                 html.H1([html.I(className="bi bi-speedometer me-2"), "Dashboard"], className="my-4"),
                 html.P("Metrics for the current Network.", className="mb-4"),
                 dbc.Row([
+
+                    dbc.Col([
+                        dbc.Card([
+                            dbc.CardHeader("Descriptive Metrics"),
+                                dbc.CardBody([
+                                    dash_table.DataTable(
+                                        id="descriptive-metrics-table",
+                                        style_table={'overflowX': 'auto'},
+                                        style_cell={
+                                            'textAlign': 'left',
+                                            'padding': '10px'
+                                        },
+                                        style_header={
+                                            'backgroundColor': 'rgb(230, 230, 230)',
+                                            'fontWeight': 'bold'
+                                        }
+                                    )
+                                ])
+                        ], className="mb-4",
+                    )], md=6),
                     dbc.Col([
                         dbc.Card([
                             dbc.CardHeader("Descriptive Metrics"),
                             dbc.CardBody([dcc.Graph(id="descriptive-metrics")]),
                         ], className="mb-4",
                     )], md=6),
-                    dbc.Col([
-                        dbc.Card([
-                            dbc.CardHeader("System Health"),
-                            dbc.CardBody([dcc.Graph(id="system-health-graph")]),
-                        ], className="mb-4",
-                    )], md=6),
                 ]),
+
                 dbc.Accordion([
-                    dbc.AccordionItem([dcc.Graph(id="completeness-metrics")], title="Network Completeness"),
-                    dbc.AccordionItem([dcc.Graph(id="robustness-metrics")], title="Network Robustness"),
-                    dbc.AccordionItem([dcc.Graph(id="resilience-metrics")], title="Network Resilience"),
+                    dbc.AccordionItem([dcc.Graph(id="completeness-metrics")], title="Completeness Metrics"),
+                    dbc.AccordionItem([dcc.Graph(id="robustness-metrics")], title="Robustness Metrics"),
+                    dbc.AccordionItem([dcc.Graph(id="resilience-metrics")], title="Resilience Metrics"),
                 ],
                     start_collapsed=True,
                     always_open=False,
