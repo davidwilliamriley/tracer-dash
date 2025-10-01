@@ -4,41 +4,17 @@ from dash import html, dcc
 import dash_bootstrap_components as dbc
 import dash_tabulator
 from typing import List, Dict, Any
+import json
 
 
 class NetworkView:
     """View layer for networks page - handles UI layout and components"""
 
-    @staticmethod
-    def create_layout(networks_data: Dict[str, Any]) -> dbc.Container:
-        """Create the main layout for the Networks Page"""
-        return dbc.Container(
-            [
-                # Toast notification component
-                NetworkView._create_toast(),
-                # Data stores for network caching
-                dcc.Store(id="network-data-store", data=networks_data),
-                dcc.Store(
-                    id="graph-cache-store", storage_type="session"
-                ),  # Cache NetworkX graph data
-                dcc.Store(
-                    id="graph-metadata-store", storage_type="session"
-                ),  # Cache metadata like node/edge counts
-                dcc.Store(
-                    id="cache-timestamp-store", storage_type="session"
-                ),  # Track when cache was last updated
-                dcc.Store(
-                    id="cache-invalidation-store", storage_type="session"
-                ),  # Track cache invalidation signals
-                # Main content section
-                NetworkView._create_visualization_section(),
-            ],
-            className="py-4",
-        )
+    def __init__(self):
+        pass
 
     @staticmethod
     def _create_toast() -> dbc.Toast:
-        """Create toast notification component"""
         return dbc.Toast(
             id="networks-toast-message",
             header="Notification",
@@ -55,196 +31,162 @@ class NetworkView:
         )
 
     @staticmethod
-    def _create_visualization_section() -> html.Div:
-        """Create the enhanced network visualization section with multiple filters"""
-        return html.Div(
+    def create_layout(networks_data: Dict[str, Any]) -> dbc.Container:
+        return dbc.Container(
             [
-                # Header
-                dbc.Row(
-                    dbc.Col(
-                        html.H1("Network Visualisation", className="mb-4"),
-                        width=12
-                    )
-                ),
-                
-                # Filter Controls Card for better organization
-                dbc.Card(
-                    [
-                        dbc.CardHeader(
-                            html.H5("Filters", className="mb-0")
-                        ),
-                        dbc.CardBody(
-                            [
-                                # First row: Filter by Root
-                                dbc.Row(
-                                    [
-                                        dbc.Col(
-                                            html.Label(
-                                                "Filter by Root:",
-                                                className="form-label fw-bold",
-                                            ),
-                                            width=12,
-                                            md=2,
-                                            className="d-flex align-items-center mb-2 mb-md-0",
-                                        ),
-                                        dbc.Col(
-                                            dbc.Select(
-                                                id="filter-graph-select",
-                                                options=[
-                                                    {
-                                                        "label": "All Roots",
-                                                        "value": "all",
-                                                    },
-                                                    {
-                                                        "label": "Root 1",
-                                                        "value": "root1",
-                                                    },
-                                                    {
-                                                        "label": "Root 2",
-                                                        "value": "root2",
-                                                    },
-                                                    {
-                                                        "label": "Root 3",
-                                                        "value": "root3",
-                                                    },
-                                                ],
-                                                placeholder="Select a Graph Root Node...",
-                                                value="all",
-                                                disabled=True
-                                            ),
-                                            width=12,
-                                            md=9,
-                                            className="mb-2 mb-md-0",
-                                        ),
-                                        dbc.Col(
-                                            dbc.Button(
-                                                "Reset",
-                                                id="reset-graph-btn",
-                                                color="primary",
-                                                size="me",
-                                                className="w-100",
-                                            ),
-                                            width=12,
-                                            md=1,
-                                        ),
-                                    ],
-                                    className="mb-3 align-items-center",
-                                ),
-                                
-                                # Second Row: Advanced Filters
-                                dbc.Row(
-                                    [
-                                        dbc.Col(
-                                            html.Label(
-                                                "Filter by Element:",
-                                                className="form-label fw-bold",
-                                            ),
-                                            width=12,
-                                            lg=2,
-                                            className="d-flex align-items-center mb-2 mb-lg-0",
-                                        ),
-                                        dbc.Col(
-                                            dbc.Select(
-                                                id="filter-element-select",
-                                                options=[
-                                                    {
-                                                        "label": "All Elements",
-                                                        "value": "all",
-                                                    },
-                                                    {
-                                                        "label": "Edges",
-                                                        "value": "edges",
-                                                    },
-                                                    {
-                                                        "label": "Nodes",
-                                                        "value": "nodes",
-                                                    },
-                                                ],
-                                                value="all",
-                                                disabled=True,
-                                            ),
-                                            width=12,
-                                            lg=2,
-                                            className="mb-2 mb-lg-0",
-                                        ),
-                                        dbc.Col(
-                                            html.Label(
-                                                "Filter by Property:",
-                                                className="form-label fw-bold",
-                                            ),
-                                            width=12,
-                                            lg=2,
-                                            className="d-flex align-items-center mb-2 mb-lg-0",
-                                        ),
-                                        dbc.Col(
-                                            dbc.Select(
-                                                id="filter-property-select",
-                                                options=[
-                                                    {
-                                                        "label": "All Properties",
-                                                        "value": "all",
-                                                    }
-                                                ],
-                                                value="all",
-                                                disabled=True,
-                                            ),
-                                            width=12,
-                                            lg=2,
-                                            className="mb-2 mb-lg-0",
-                                        ),
-                                        dbc.Col(
-                                            html.Label(
-                                                "Filter by Value:",
-                                                className="form-label fw-bold",
-                                            ),
-                                            width=12,
-                                            lg=1,
-                                            className="d-flex align-items-center mb-2 mb-lg-0",
-                                        ),
-                                        dbc.Col(
-                                            dbc.Input(
-                                                id="filter-value-input",
-                                                placeholder="Enter value...",
-                                            ),
-                                            width=12,
-                                            lg=2,
-                                            className="mb-2 mb-lg-0",
-                                        ),
-                                        dbc.Col(
-                                            dbc.Button(
-                                                "Reset",
-                                                id="reset-element-btn",
-                                                color="primary",
-                                                size="me",
-                                                className="w-100",
-                                            ),
-                                            width=12,
-                                            lg=1,
-                                        ),
-                                    ],
-                                    className="align-items-center",
-                                ),
-                            ]
-                        ),
-                    ],
-                    className="mb-4",
-                ),
-                
-                # Network visualization container
-                NetworkView._create_cytoscape_container(),
-            ]
+                NetworkView._create_toast(),
+
+                html.Div(id="cytoscape-data-div",  children=json.dumps(networks_data), style={"display": "none"}),
+
+                html.H1([html.I(className="bi bi-bezier2 me-2"), "Network"], className="my-4"),
+                html.P("Visualise and Analyse the Network.", className="mb-4"),
+
+                NetworkView._create_filters(),
+            ],
+            style={
+                "minHeight": "calc(100vh - 120px)",
+                "paddingBottom": "100px",
+                "display": "flex",
+                "flexDirection": "column",
+            },
         )
 
     @staticmethod
+    def _create_filters() -> html.Div:
+        return html.Div([
+            dbc.Card([
+                dbc.CardBody([
+
+                    # First Row
+                    dbc.Row([
+                        dbc.Col(
+                            dbc.Select(
+                                id="filter-graph-select",
+                                options=[
+                                    {"label": "All Roots", "value": "all"},
+                                    {"label": "Root 1", "value": "root1"},
+                                    {"label": "Root 2", "value": "root2"},
+                                    {"label": "Root 3", "value": "root3"},
+                                ],
+                                placeholder="Select a Graph Root Node...",
+                                # value="all",
+                                disabled=True
+                            ),
+                            width=12,
+                            # md=9,
+                            className="mb-2 mb-md-0",
+                        ),
+                    ], className="mb-3 align-items-center"),
+                    
+                    # Second Row
+                    dbc.Row([
+                        dbc.Col(
+                            dbc.Select(
+                                id="filter-element-select",
+                                options=[
+                                    {"label": "All Elements", "value": "all"},
+                                    {"label": "Edges", "value": "edges"},
+                                    {"label": "Nodes", "value": "nodes"},
+                                ],
+                                value="all",
+                                disabled=True,
+                            ),
+                            width=12,
+                            lg=2,
+                            className="mb-2 mb-lg-0",
+                        ),
+
+                        dbc.Col(
+                            dbc.Select(
+                                id="filter-property-select",
+                                options=[
+                                    {"label": "All Properties", "value": "all"}
+                                ],
+                                value="all",
+                                disabled=True,
+                            ),
+                            width=12,
+                            lg=2,
+                            className="mb-2 mb-lg-0",
+                        ),
+
+                        dbc.Col(
+                            dbc.Input(
+                                id="filter-value-input",
+                                placeholder="Add Search Terms",
+                            ),
+                            width=11,
+                            lg=2,
+                            className="mb-2 mb-lg-0",
+                        ),
+
+                        dbc.Col(
+                            dbc.Button(
+                                "Apply",
+                                id="apply-element-btn",
+                                color="primary",
+                                size="me",
+                                className="w-100",
+                            ),
+                            width=1,
+                            lg=1,
+                        ),
+                        dbc.Col(
+                            dbc.Button(
+                                "Reset",
+                                id="reset-element-btn",
+                                color="primary",
+                                size="me",
+                                className="w-100",
+                            ),
+                            width=1,
+                            lg=1,
+                        ),
+                    ], className="align-items-center"),
+                ]),
+            ], className="mb-4"),
+            
+            # Layout Algorithm
+            dbc.Card([
+                dbc.CardBody([
+                    dbc.Row([
+                        dbc.Col(
+                            html.Label("Layout Algorithm:", className="form-label fw-bold"),
+                            width=12,
+                            md=2,
+                            className="d-flex align-items-center mb-2 mb-md-0",
+                        ),
+                        dbc.Col(
+                            dbc.Select(
+                                id="layout-algorithm-select",
+                                options=[
+                                    {"label": "fCoSE (Force-directed)", "value": "fcose"},
+                                    {"label": "Cose (Force-directed)", "value": "cose"},
+                                    {"label": "Circle", "value": "circle"},
+                                    {"label": "Grid", "value": "grid"},
+                                    {"label": "Breadthfirst", "value": "breadthfirst"},
+                                    {"label": "Concentric", "value": "concentric"},
+                                ],
+                                value="fcose",
+                                disabled=False
+                            ),
+                            width=12,
+                            md=10,
+                            className="mb-2 mb-md-0",
+                        ),
+                    ], className="align-items-center"),
+                ]),
+            ], className="mb-4"),
+
+            # Network Graph Container
+            NetworkView._create_cytoscape_container(),     
+        ])
+    
+    @staticmethod
     def _create_cytoscape_container() -> dbc.Card:
-        """Create the visualization container for Cytoscape with improved robustness"""
-        return dbc.Card(
-            [
-                dbc.CardHeader(
-                    html.H5("Network Graph", className="mb-0")
-                ),
-                dbc.CardBody(
-                    [
+        return dbc.Card([
+            # dbc.CardHeader(html.H5("Network Graph", className="mb-0")),
+                dbc.CardBody([
                         dbc.Spinner(
                             html.Div(
                                 id="cytoscape-container",
@@ -252,31 +194,37 @@ class NetworkView:
                                     "width": "100%",
                                     "height": "70vh",
                                     "border-radius": "0.375rem",
-                                    "background-color": "#f8f9fa",
+                                    "background-color": "white",
                                     "position": "relative"
                                 },
                             ),
                             id="cytoscape-spinner",
                             color="primary"
                         ),
-                        # Hidden div to trigger updates
                         html.Div(id="cytoscape-trigger", style={"display": "none"})
-                    ],
-                    className="p-0",  # Remove padding to let graph use full space
+                    ], className="p-0",  
                 ),
-            ],
-            className="mb-4",
+            ], className="mb-4",
         )
     
     @staticmethod
     def get_cytoscape_client_callback() -> str:
         """Return the JavaScript code for Cytoscape client-side callback with Bootstrap blue theme"""
         return """
-        function(networkData, filteredValue) {
-            if (!networkData || !networkData.elements) {
+        function(networkDataJson, filteredValue) {
+            // Parse the JSON data
+            let networkData;
+            try {
+                networkData = JSON.parse(networkDataJson);
+            } catch (e) {
+                console.error('Failed to parse network data:', e);
                 return window.dash_clientside.no_update;
             }
             
+            if (!networkData || !networkData.elements) {
+                return window.dash_clientside.no_update;
+            }
+                
             // Initialize or update Cytoscape
             const container = document.getElementById('cytoscape-container');
             if (!container) {

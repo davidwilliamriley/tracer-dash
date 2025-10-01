@@ -5,14 +5,14 @@ import networkx as nx
 from typing import Any, Dict, List, Optional
 from sqlalchemy.orm import joinedload
 
-# Import view and model
+# Import View and Model
 from views.network_view import NetworkView
 from models.model import Model, Node, Edge
 
-# Register the page
-dash.register_page(__name__, path='/networks')
+# Register the Page
+dash.register_page(__name__, path='/network')
 
-# Initialize model
+# Initialize the Model
 model = Model()
 
 # ==================== HELPER FUNCTIONS ====================
@@ -23,7 +23,6 @@ def build_network_from_database() -> nx.Graph:
         session = model._get_session()
         
         try:
-            # Use eager loading to avoid lazy loading issues
             nodes = session.query(Node).all()
             edges = (
                 session.query(Edge)
@@ -65,7 +64,7 @@ def build_network_from_database() -> nx.Graph:
             session.close()
             
     except Exception as e:
-        print(f"Error building NetworkX graph: {e}")
+        print(f"Error building the NetworkX Graph: {e}")
         raise
 
 
@@ -75,7 +74,6 @@ def get_network_visualization_data() -> Dict[str, Any]:
         session = model._get_session()
         
         try:
-            # Use eager loading to avoid lazy loading issues
             nodes = session.query(Node).all()
             edges = (
                 session.query(Edge)
@@ -89,7 +87,7 @@ def get_network_visualization_data() -> Dict[str, Any]:
             
             elements = []
             
-            # Add nodes to elements list
+            # Add Nodes to Elements List
             for node in nodes:
                 elements.append(
                     {
@@ -104,7 +102,7 @@ def get_network_visualization_data() -> Dict[str, Any]:
                     }
                 )
             
-            # Add edges to elements list
+            # Add Edges to Elements List
             for edge in edges:
                 edge_type_name = (
                     edge.edge_type.name if edge.edge_type else "connects to"
@@ -130,22 +128,20 @@ def get_network_visualization_data() -> Dict[str, Any]:
             session.close()
             
     except Exception as e:
-        print(f"Error getting visualization data: {e}")
+        print(f"Error getting the visualization data: {e}")
         return {"elements": []}
 
 # ==================== LAYOUT ====================
 
 def layout():
-    """Main layout function - delegates to view"""
     networks_data = get_network_visualization_data()
     return NetworkView.create_layout(networks_data)
 
 # ==================== CALLBACKS ====================
 
-# Client-side callback for Cytoscape visualization
 clientside_callback(
     NetworkView.get_cytoscape_client_callback(),
-    Output('cytoscape-container', 'data-dummy'),
-    [Input('network-data-store', 'data'),
+    Output('cytoscape-trigger', 'children'),
+    [Input('cytoscape-data-div', 'children'),
      Input('filter-value-input', 'value')]
 )

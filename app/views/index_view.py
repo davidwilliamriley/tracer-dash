@@ -23,11 +23,11 @@ class IndexView:
                         html.Div([
                             html.Div([
                                 html.I(className="bi bi-speedometer display-3 text-primary mb-3"),
-                                html.H5("Dashboards", className="card-title"),
+                                html.H5("Dashboard", className="card-title"),
                                 html.P("Get an overview of the System.", className="card-text mb-2"),
-                                html.A("Go to Dashboards", href="/dashboards", className="btn btn-primary btn-fixed-width")
+                                html.A("Go to Dashboard", href="/dashboard", className="btn btn-primary btn-fixed-width")
                             ], className="card-body text-center")
-                        ], className="card bg-light h-100 shadow-sm")
+                        ], className="card bg-white h-100 shadow-sm")
                     ], className="col-lg-3 col-md-6"),
                     
                     # Card 2 - Reports
@@ -39,7 +39,7 @@ class IndexView:
                                 html.P("Generate detailed Reports.", className="card-text mb-2"),
                                 html.A("View Reports", href="/reports", className="btn btn-success btn-fixed-width")
                             ], className="card-body text-center")
-                        ], className="card bg-light h-100 shadow-sm")
+                        ], className="card bg-white h-100 shadow-sm")
                     ], className="col-lg-3 col-md-6"),
                     
                     # Card 3 - Networks
@@ -51,7 +51,7 @@ class IndexView:
                                 html.P("Visualize with interactive Networks.", className="card-text mb-2"),
                                 html.A("Explore Networks", href="/networks", className="btn btn-info btn-fixed-width")
                             ], className="card-body text-center")
-                        ], className="card bg-light h-100 shadow-sm")
+                        ], className="card bg-white h-100 shadow-sm")
                     ], className="col-lg-3 col-md-6"),
                     
                     # Card 4 - Breakdowns
@@ -63,7 +63,7 @@ class IndexView:
                                 html.P("Navigate network Breakdowns.", className="card-text mb-2"),
                                 html.A("View Breakdowns", href="/breakdowns", className="btn btn-warning btn-fixed-width")
                             ], className="card-body text-center")
-                        ], className="card bg-light h-100 shadow-sm")
+                        ], className="card bg-white h-100 shadow-sm")
                     ], className="col-lg-3 col-md-6"),
                     
                     # Second Row of Cards
@@ -76,7 +76,7 @@ class IndexView:
                                 html.P("Create and manage Edges.", className="card-text mb-2"),
                                 html.A("Manage Edges", href="/edges", className="btn btn-danger btn-fixed-width")
                             ], className="card-body text-center")
-                        ], className="card bg-light h-100 shadow-sm")
+                        ], className="card bg-white h-100 shadow-sm")
                     ], className="col-lg-3 col-md-6"),
                     
                     # Card 6 - Nodes
@@ -88,7 +88,7 @@ class IndexView:
                                 html.P("Create and manage Nodes.", className="card-text mb-2"),
                                 html.A("Manage Nodes", href="/nodes", className="btn btn-secondary btn-fixed-width")
                             ], className="card-body text-center")
-                        ], className="card bg-light h-100 shadow-sm")
+                        ], className="card bg-white h-100 shadow-sm")
                     ], className="col-lg-3 col-md-6"),
 
                     # Card 7 - Edge Types
@@ -100,7 +100,7 @@ class IndexView:
                                 html.P("Define Edge Types in your System.", className="card-text mb-2"),
                                 html.A("Manage Edge Types", href="/edge-types", className="btn btn-dark btn-fixed-width")
                             ], className="card-body text-center")
-                        ], className="card bg-light h-100 shadow-sm")
+                        ], className="card bg-white h-100 shadow-sm")
                     ], className="col-lg-3 col-md-6"),
                     
                     # Card 8 - Help
@@ -112,9 +112,10 @@ class IndexView:
                                 html.P("Get assistance with the App.", className="card-text mb-2"),
                                 html.A("Get Help", href="/help", className="btn btn-outline-dark btn-fixed-width")
                             ], className="card-body text-center")
-                        ], className="card bg-light h-100 shadow-sm")
+                        ], className="card bg-white h-100 shadow-sm")
                     ], className="col-lg-3 col-md-6"),
                     
                 ], className="row g-3")
-            ], className="container px-4 py-5")
-        ])
+            ], className="container py-3")
+        ], style={'minHeight': 'calc(100vh - 120px)', 'paddingBottom': '100px', 'display': 'flex', 'flexDirection': 'column'})
+        # className="bg-light min-vh-100")

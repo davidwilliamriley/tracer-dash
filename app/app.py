@@ -44,7 +44,7 @@ def get_header():
                 dbc.NavItem(dbc.NavLink([html.I(className="bi bi-house-door-fill me-2"), "Home"], href="/", id="nav-home")),
                 dbc.NavItem(dbc.NavLink([html.I(className="bi bi-speedometer me-2"), "Dashboard"],href="/dashboard", id="nav-dashboard")),
                 dbc.NavItem(dbc.NavLink([html.I(className="bi bi-file-earmark-richtext me-2"), "Reports"], href="/reports", id="nav-reports")),
-                dbc.NavItem(dbc.NavLink([html.I(className="bi bi-bezier2 me-2"), "Networks"], href="/networks", id="nav-networks")),
+                dbc.NavItem(dbc.NavLink([html.I(className="bi bi-bezier2 me-2"), "Network"], href="/network", id="nav-network")),
                 dbc.NavItem(dbc.NavLink([html.I(className="bi bi-diagram-2 me-2"), "Breakdowns"],href="/breakdowns", id="nav-breakdowns")),
                 dbc.NavItem(dbc.NavLink([html.I(className="bi bi-arrow-repeat me-2"), "Edges"], href="/edges", id="nav-edges")),
                 dbc.NavItem(dbc.NavLink([html.I(className="bi bi-plus-circle me-2"), "Nodes"], href="/nodes", id="nav-nodes")),
@@ -60,7 +60,7 @@ def get_header():
 
 @callback(
     [Output(f"nav-{page}", "className") for page in 
-     ["home", "dashboard", "reports", "networks", "breakdowns", "edges", "nodes", "edge-types", "help"]],
+     ["home", "dashboard", "reports", "network", "breakdowns", "edges", "nodes", "edge-types", "help"]],
     Input("_pages_location", "pathname")
 )
 def update_nav_style(pathname):
@@ -68,7 +68,7 @@ def update_nav_style(pathname):
         "/": "home",
         "/dashboard": "dashboard",
         "/reports": "reports",
-        "/networks": "networks",
+        "/network": "network",
         "/breakdowns": "breakdowns",
         "/edges": "edges",
         "/nodes": "nodes",
@@ -80,7 +80,7 @@ def update_nav_style(pathname):
     
     return [
         "text-white" if page == active_page else "text-white-50"
-        for page in ["home", "dashboard", "reports", "networks", "breakdowns", "edges", "nodes", "edge-types", "help"]
+        for page in ["home", "dashboard", "reports", "network", "breakdowns", "edges", "nodes", "edge-types", "help"]
     ]
 
 # Footer

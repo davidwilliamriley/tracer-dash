@@ -34,21 +34,20 @@ class HelpView:
                 all_items.append(self.create_feature_accordion_item(feature, index))
                 index += 1
         
-        return [dbc.Accordion(all_items, start_collapsed=True, always_open=True)]
+        return [dbc.Accordion(all_items, start_collapsed=True, always_open=False)]
     
     def render(self):
         return dbc.Container([
             dbc.Row([
-                dbc.Col([
-                    html.Nav([
-                        html.Ol([
-                            html.Li(html.A("Home", href="#"), className="breadcrumb-item"),
-                            html.Li("Help", className="breadcrumb-item active"),
-                        ], className="breadcrumb mb-2 mt-2")
-                    ]),
-                    html.H2("Help Center", className="mb-1"),
-                    html.P("Resources to assist you working with Tracer", className="text-muted mb-4")
-                ])
+                # dbc.Col([
+                #     html.Nav([
+                #         html.Ol([
+                #             html.Li(html.A("Home", href="#"), className="breadcrumb-item"),
+                #             html.Li("Help", className="breadcrumb-item active"),
+                #         ], className="breadcrumb mb-2 mt-2")
+                #     ]),
+                html.H1([html.I(className="bi bi-question-circle me-2"), "Help & Resources"], className="my-4"),
+                html.P("Resources to assist you working with Tracer", className="text-muted mb-4")
             ]),
             dbc.Row([
                 dbc.Col([
