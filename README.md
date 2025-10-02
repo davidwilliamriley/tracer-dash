@@ -11,6 +11,10 @@ Objective : ensure a Complete, Robust and Resilient Network.
 <details>
 <summary>To-Do List:</summary>
 
+- [ ] Bug - fix Edges Page - Column Header Filters
+
+- [ ] Add Application Logging
+
 - [ ] Update & Test the CRUD Logic and Modals
 - [ ] Update Tabulator Stylesheet
 - [ ] Update Netwotk Filters
@@ -18,9 +22,9 @@ Objective : ensure a Complete, Robust and Resilient Network.
 - [ ] Metrics - Completeness
 - [ ] Metrics - Robustness
 - [ ] Metrics - Resilience
+
 - [ ] Debounce the Networks Page
 - [ ] Format Toasts for enhanced Readability
-- [ ] Add Application Logging
 
 </details>
 

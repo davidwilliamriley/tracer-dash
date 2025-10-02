@@ -53,8 +53,8 @@ class Edge(Base):
             'ID': self.id,
             'Identifier': self.identifier,
             'Source': self.source,
-            'Target': self.target,
             'Edge Type': self.edge_type.name if self.edge_type else 'Unknown',
+            'Target': self.target,
             'Description': self.description
         }
 
@@ -100,7 +100,7 @@ class EdgeType(Base):
 class Model:
     def __init__(self, db_path: Optional[str] = None):
         self.db_path = db_path if db_path is not None else DEFAULT_DB_PATH
-        logger.info(f"Initializing Model with database: {self.db_path}")
+        logger.info(f"Initializing Model with Database at {self.db_path}")
         self._initialize_database()
         self._ensure_default_data()
 

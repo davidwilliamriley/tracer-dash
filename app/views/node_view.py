@@ -20,7 +20,7 @@ class NodeView:
             duration=4000,
             style={
                 "position": "fixed",
-                "bottom": 20,
+                "top": 100,
                 "left": 20,
                 "width": 350,
                 "z-index": 9999,
