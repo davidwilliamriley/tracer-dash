@@ -34,7 +34,7 @@ class DashboardView:
                 self._create_toast(),
                 
                 html.H1([html.I(className="bi bi-speedometer me-2"), "Dashboard"], className="my-4"),
-                html.P("Metrics for the current Network.", className="mb-4"),
+                html.P("Metrics for the Network", className="mb-4 text-muted"),
                 dbc.Row([
 
                     dbc.Col([

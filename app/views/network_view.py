@@ -39,7 +39,7 @@ class NetworkView:
                 html.Div(id="cytoscape-data-div",  children=json.dumps(networks_data), style={"display": "none"}),
 
                 html.H1([html.I(className="bi bi-bezier2 me-2"), "Network"], className="my-4"),
-                html.P("Visualise and Analyse the Network.", className="mb-4"),
+                html.P("Visualise and Analyse the Network.", className="mb-4 text-muted"),
 
                 NetworkView._create_filters(),
             ],

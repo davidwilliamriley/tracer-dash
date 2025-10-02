@@ -31,7 +31,7 @@ class EdgeTypeView:
         return html.Div(
             [
                 html.H1([html.I(className="bi bi-link-45deg me-2"), "Edge Types"], className="my-4"),
-                html.P("Manage the Edge Type Data", className="mb-4"),
+                html.P("Manage the Edge Types", className="mb-4"),
             ]
         )
 

@@ -17,46 +17,7 @@ class BreakdownView:
     def __init__(self):
         self.controller = None
 
-    def create_layout(self, breakdown_options: List[DropdownOption]) -> "dbc.Container":
-        return dbc.Container(
-            [
-                # Toast Notification
-                self._create_toast_notification(),
-
-                # Main Content Stack
-                dbc.Stack(
-                    [
-                        # Content Header
-                        self._create_content_header(),
-
-                        # Controls
-                        html.Div(
-                            [
-                                self._create_breakdown_selection(breakdown_options),
-                                html.Hr(),
-                                self._create_action_buttons(),
-                            ]
-                        ),
-                        # Main Content
-                        html.Div(
-                            [
-                                self._create_table_container(),
-                            ]
-
-                        ),
-                        # html.Iframe(
-                        #     id="breakdown-iframe",
-                        #     src="https://copilot.microsoft.com/",
-                        #     style={"width": "100%", "height": "600px", "border": "none"},
-                        # )
-                    ]
-                ),
-                # Hidden data store for Clientside Callbacks
-                html.Div(id="table-data-store", style={"display": "none"}),
-            ],
-        )
-
-    def _create_toast_notification(self):
+    def _make_toast(self) -> dbc.Toast:
         return dbc.Toast(
             id="toast-message",
             header="Notification",
@@ -76,13 +37,52 @@ class BreakdownView:
         """Create page header"""
         return html.Div(
             [
-                html.H1("Breakdowns", className="my-3"),
-                html.P("Manage System and Subsystem Breakdowns", className="mb-4"),
+                html.H1([html.I(className="bi bi-diagram-2 me-2"), "Breakdowns"], className="my-4"),
+                html.P("Manage System and Subsystem Breakdowns", className="mb-4 text-muted"),
             ],
-            className="px-3",
         )
 
-    def _create_action_buttons(self):
+    def create_layout(self, breakdown_options: List[DropdownOption]) -> "dbc.Container":
+        """Create the main layout for the Breakdown View"""
+        return dbc.Container(
+            [
+                # Toast Notification
+                self._make_toast(),
+
+                # Main Content Stack
+                dbc.Stack(
+                    [
+                        # Content Header
+                        self._create_content_header(),
+
+                        # Controls
+                        html.Div(
+                            [
+                                self._create_breakdown_selection(breakdown_options),
+                                html.Hr(),
+                                self._create_toolbar(),
+                            ]
+                        ),
+                        # Main Content
+                        html.Div(
+                            [
+                                self._create_table_container(),
+                            ],
+                        ),
+                        html.Div(id="table-data-store", style={"display": "none"}),
+                    ]
+                )
+            ],
+            style={
+                "minHeight": "calc(100vh - 120px)",
+                "paddingBottom": "100px",
+                "display": "flex",
+                "flexDirection": "column",
+            },
+        )
+
+
+    def _create_toolbar(self):
         """Create action button toolbar"""
         return html.Div(
             [
@@ -126,8 +126,7 @@ class BreakdownView:
                                     ]
                                 )
                             ],
-                            md=6,
-                            className="d-flex justify-content-start",
+                            className="col-md-6",
                         ),
                         # Right Side Button Group
                         dbc.Col(
@@ -155,11 +154,10 @@ class BreakdownView:
                                     ]
                                 )
                             ],
-                            md=6,
-                            className="d-flex justify-content-end",
+                            className="col-md-6 d-flex justify-content-end",
                         ),
                     ],
-                    className="mb-3 px-3",
+                    className="row justify-content-between mb-3",
                 )
             ]
         )
@@ -211,7 +209,7 @@ class BreakdownView:
                     style={"border": "none"},
                 ),
             ],
-            className="mb-4 px-3",
+            className="mb-4",
         )
 
     def _create_table_container(self):
@@ -228,6 +226,5 @@ class BreakdownView:
                         ),
                     ]
                 )
-            ],
-            className="px-3",
+            ]
         )

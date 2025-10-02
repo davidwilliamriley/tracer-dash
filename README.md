@@ -11,10 +11,10 @@ Objective : ensure a Complete, Robust and Resilient Network.
 <details>
 <summary>To-Do List:</summary>
 
-- [x] Refactor the Page Template for MVC
-- [x] Deploying the Page Template
-- [ ] Updating the Tabulator CRUD Logic
-- [ ] Add Network Analysis Dashboard
+- [ ] Update & Test the CRUD Logic and Modals
+- [ ] Update Tabulator Stylesheet
+- [ ] Update Netwotk Filters
+- [ ] Add Network Metrics
 - [ ] Metrics - Completeness
 - [ ] Metrics - Robustness
 - [ ] Metrics - Resilience

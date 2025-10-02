@@ -26,15 +26,15 @@ class EdgeView:
             }
         )
 
-    def _create_content_header(self) -> dbc.Container:
-            """Create page header"""
-            return dbc.Container([
-                html.H1("Edges", className="my-4"),
-                html.P(
-                    "Manage Edges in the system. Edges represent relationships between Nodes.",
-                    className="mb-4"
-                )
-            ], className="px-4")
+
+    def _create_content_header(self):
+        """Create page header"""
+        return html.Div(
+            [
+                html.H1([html.I(className="bi bi-arrow-repeat me-2"), "Edges"], className="my-4"),
+                html.P("Create, Modify and / or Delete the Edges between the Nodes of the Network ", className="mb-4 text-muted"),
+            ],
+        )
     
     def create_layout(self, edges_data: List[Dict[str, Any]], node_label_map: Dict[str, str], edge_type_label_map: Dict[str, str]) -> dbc.Container:
         """Create the main layout for the Edges Page"""

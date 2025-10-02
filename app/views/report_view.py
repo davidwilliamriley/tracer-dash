@@ -66,7 +66,7 @@ class ReportView:
                 self._create_toast(),
 
                 html.H1([html.I(className="bi bi-file-earmark-richtext me-2"), "Reports"], className="my-4"),
-                html.P("Report for the current Network.", className="mb-4"),
+                html.P("Report for the Network", className="mb-4 text-muted"),
 
                 self._create_report_selector(report_options),
                 

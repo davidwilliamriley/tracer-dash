@@ -37,49 +37,49 @@ class NodeView:
         )
 
     def create_layout(self, nodes_data: List[Dict[str, Any]]) -> "dbc.Container":
-            """Create the main layout for the Nodes page"""
-            return dbc.Container(
-                [
-                    # Toast notification
-                    self._make_toast(),
+        """Create the main layout for the Nodes page"""
+        return dbc.Container(
+            [
+                # Toast notification
+                self._make_toast(),
                     
-                    # Main Content Stack
-                    dbc.Stack(
-                        [
-                            # Content Header
-                            self._create_content_header(),
+                # Main Content Stack
+                dbc.Stack(
+                    [
+                        # Content Header
+                        self._create_content_header(),
 
-                            # Controls
-                            html.Div(
-                                [
-                                    self._create_toolbar(),
-                                ]
-                            ),
+                        # Controls
+                        html.Div(
+                            [
+                                self._create_toolbar(),
+                            ]
+                        ),
 
-                            # Main Content
-                            html.Div(
-                                [
-                                    self._create_table(nodes_data),
-                                ],
-                            ),
-                            html.Div(id="table-data-store", style={"display": "none"}),
-                                                        
-                            # Modals
-                            self._create_create_modal(),
-                            self._create_delete_modal(),
+                        # Main Content
+                        html.Div(
+                            [
+                                self._create_table(nodes_data),
+                            ],
+                        ),
+                        html.Div(id="table-data-store", style={"display": "none"}),
+                                                    
+                        # Modals
+                        self._create_create_modal(),
+                        self._create_delete_modal(),
 
-                            # Hidden Download Component
-                            dcc.Download(id="download-nodes-csv"),
-                        ]
-                    )
-                ],
-                style={
-                    "minHeight": "calc(100vh - 120px)",
-                    "paddingBottom": "100px",
-                    "display": "flex",
-                    "flexDirection": "column",
-                },
-            )
+                        # Hidden Download Component
+                        dcc.Download(id="download-nodes-csv"),
+                    ]
+                )
+            ],
+            style={
+                "minHeight": "calc(100vh - 120px)",
+                "paddingBottom": "100px",
+                "display": "flex",
+                "flexDirection": "column",
+            },
+        )
 
     def _create_toolbar(self) -> html.Div:
             """Create toolbar with action buttons"""
@@ -155,8 +155,8 @@ class NodeView:
                                 className="col-md-6 d-flex justify-content-end",
                             ),
                         ],
-                        className="row justify-content-between mb-3 nodes-toolbar",
-                    ),
+                        className="row justify-content-between mb-3",
+                    )
                 ]
             )
 
