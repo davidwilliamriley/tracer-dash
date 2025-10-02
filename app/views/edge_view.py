@@ -8,33 +8,8 @@ from typing import List, Dict, Any
 
 class EdgeView:
     """View class for Edges page - handles all UI layout"""
-    
-    def create_layout(
-        self,
-        edges_data: List[Dict[str, Any]],
-        node_label_map: Dict[str, str],
-        edge_type_label_map: Dict[str, str]
-    ) -> html.Div:
-        """Create the main layout for the Edges page"""
-        return html.Div([
-            # Toast notification
-            self._create_toast(),
-            
-            # Page header
-            self._create_header(),
-            
-            # Main content with toolbar and table
-            self._create_main_content(edges_data, node_label_map, edge_type_label_map),
-            
-            # Modals
-            self._create_create_modal(),
-            self._create_delete_modal(),
-            
-            # Hidden download component
-            dcc.Download(id="download-edges-csv")
-        ])
-    
-    def _create_toast(self) -> dbc.Toast:
+
+    def _make_toast(self) -> dbc.Toast:
         """Create toast notification component"""
         return dbc.Toast(
             id="toast-message",
@@ -50,51 +25,79 @@ class EdgeView:
                 "z-index": 9999
             }
         )
+
+    def _create_content_header(self) -> dbc.Container:
+            """Create page header"""
+            return dbc.Container([
+                html.H1("Edges", className="my-4"),
+                html.P(
+                    "Manage Edges in the system. Edges represent relationships between Nodes.",
+                    className="mb-4"
+                )
+            ], className="px-4")
     
-    def _create_header(self) -> dbc.Container:
-        """Create page header"""
-        return dbc.Container([
-            html.H1("Edges", className="my-4"),
-            html.P(
-                "Manage Edges in the system. Edges represent relationships between Nodes.",
-                className="mb-4"
-            )
-        ], className="px-4")
+    def create_layout(self, edges_data: List[Dict[str, Any]], node_label_map: Dict[str, str], edge_type_label_map: Dict[str, str]) -> dbc.Container:
+        """Create the main layout for the Edges Page"""
+        return dbc.Container(
+            [
+                # Toast notification
+                self._make_toast(),
+
+                dbc.Stack(
+                    [
+                        # Main Content Header
+                        self._create_content_header(),
+
+                        # Controls and Table
+                        html.Div(
+                            [
+                                self._create_toolbar(),
+                            ]
+                        ),
+
+                        # Main Content
+                        html.Div(
+                            [
+                                self._create_table(edges_data, node_label_map, edge_type_label_map),
+                            ],
+                        ),
+                        html.Div(id="table-data-store", style={"display": "none"}),
+
+                        # Modals
+                        self._create_create_modal(),
+                        self._create_delete_modal(),
+                    
+                        # Hidden download component
+                        dcc.Download(id="download-edges-csv")
+                    ]
+                )
+            ], 
+            style={
+                "minHeight": "calc(100vh - 120px)",
+                "paddingBottom": "100px",
+                "display": "flex",
+                "flexDirection": "column",
+            },
+        )
+
     
-    def _create_main_content(
-        self,
-        edges_data: List[Dict[str, Any]],
-        node_label_map: Dict[str, str],
-        edge_type_label_map: Dict[str, str]
-    ) -> html.Div:
-        """Create main content area with toolbar and table"""
-        return html.Div([
-            # Toolbar
-            self._create_toolbar(),
-            
-            # Table
-            self._create_table(edges_data, node_label_map, edge_type_label_map)
-        ], className="px-4 py-5")
-    
+ 
     def _create_toolbar(self) -> html.Div:
-        """Create toolbar with action buttons"""
         return html.Div([
             html.Div([
                 # Left side buttons
                 html.Div([
-                    html.Div([
+                    dbc.ButtonGroup([
                         dbc.Button(
                             [html.I(className="bi bi-plus-lg me-2"), "Create"],
                             id="create-edge-btn",
                             color="primary",
-                            className="me-2",
                             title="Create a new Edge"
                         ),
                         dbc.Button(
                             [html.I(className="bi bi-arrow-clockwise me-2"), "Refresh"],
                             id="refresh-edges-btn",
                             color="primary",
-                            className="me-2",
                             title="Refresh the Edges Table"
                         ),
                         dbc.Button(
@@ -104,17 +107,16 @@ class EdgeView:
                             title="Delete selected Edge(s)",
                             disabled=True
                         ),
-                    ], className="d-flex justify-content-start"),
+                    ]),
                 ], className="col-md-6"),
                 
                 # Right side buttons
                 html.Div([
-                    html.Div([
+                    dbc.ButtonGroup([
                         dbc.Button(
                             [html.I(className="bi bi-printer me-2"), "Print"],
                             id="print-edges-btn",
                             color="primary",
-                            className="me-2",
                             title="Print the Table to PDF"
                         ),
                         dbc.Button(
@@ -123,8 +125,8 @@ class EdgeView:
                             color="primary",
                             title="Download the Table as CSV"
                         ),
-                    ], className="d-flex justify-content-end"),
-                ], className="col-md-6"),
+                    ]),
+                ], className="col-md-6 d-flex justify-content-end"),
             ], className="row justify-content-between mb-3 edges-toolbar"),
         ])
     

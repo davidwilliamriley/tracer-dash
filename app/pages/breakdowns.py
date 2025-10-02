@@ -143,6 +143,7 @@ layout = breakdown_controller.get_layout()
 @callback(
     Output("table-data-store", "children"),
     [Input("breakdown-dropdown", "value"), Input("refresh-nodes-btn", "n_clicks")],
+    prevent_initial_call=True 
 )
 def update_table_data(selected_graph, refresh_clicks):
     """Update the data that will be used by Tabulator"""
@@ -253,6 +254,7 @@ def populate_graph_options(_):
 @callback(
     Output("row-info", "children"),
     [Input("breakdown-dropdown", "value"), Input("refresh-nodes-btn", "n_clicks")],
+    prevent_initial_call=True 
 )
 def update_row_info(selected_graph, refresh_clicks):
     """Update the row information display"""

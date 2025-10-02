@@ -12,7 +12,7 @@ Objective : ensure a Complete, Robust and Resilient Network.
 <summary>To-Do List:</summary>
 
 - [x] Refactor the Page Template for MVC
-- [ ] Deploying the Page Template
+- [x] Deploying the Page Template
 - [ ] Updating the Tabulator CRUD Logic
 - [ ] Add Network Analysis Dashboard
 - [ ] Metrics - Completeness

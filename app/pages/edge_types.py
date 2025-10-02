@@ -202,7 +202,7 @@ def layout():
         The complete page layout from the view
     """
     edge_types = get_edge_types_from_db()
-    return view.render(edge_types)
+    return view.create_layout(edge_types)
 
 
 # ============================================================================
