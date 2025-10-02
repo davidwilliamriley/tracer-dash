@@ -1,11 +1,45 @@
 /* Custom Tabulator Styles */
 
-.tabulator-row.tabulator-selected {
+.tabulator {
+    /* font-family: Arial, sans-serif !important;
+    font-size: 14px !important; */
+    border: 1px solid #dee2e6 !important;
+    border-radius: 0.25rem !important;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+}
+
+.tabulator-row.tabulator-row-even {
+    background-color: #f8f9fa !important;
+}
+
+.tabulator-row.tabulator-row-odd {
+    background-color: #ffffff !important;
+}
+
+.tabulator-row.tabulator-row-even:hover {
     background-color: #cfe2ff !important;
+    color: #0c5460 !important;
+}
+
+.tabulator-row.tabulator-row-odd:hover {
+    background-color: #cfe2ff !important;
+    color: #0c5460 !important;
+}
+.tabulator-row:hover {
+    background-color: #cfe2ff !important;
+    color: #0c5460 !important;
+}
+
+.tabulator-row.tabulator-selectable:hover {
+    background-color: #cfe2ff !important;
+    color: #0c5460 !important;
+}
+.tabulator-row.tabulator-selected {
+    background-color: #cfe2ff  !important;
     color: #084298 !important;
 }
 .tabulator-row.tabulator-selected:hover {
-    background-color: #b6d4fe !important;
+    background-color: #cfe2ff  !important;
     color: #084298 !important;
 }
 .tabulator-footer {

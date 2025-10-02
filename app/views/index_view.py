@@ -21,8 +21,8 @@ class IndexView:
                         dbc.CardBody([
                             html.I(className="bi bi-speedometer display-3 text-primary mb-3"),
                             html.H5("Dashboard", className="card-title"),
-                            html.P("Get an overview of the Network", className="card-text mb-2"),
-                            html.A("Go to Dashboard", href="/dashboard", className="btn btn-primary btn-fixed-width")
+                            html.P("Get an overview of the Network", className="card-text mb-4"),
+                            html.A("Go to Dashboard", href="/dashboard", className="btn btn-outline-primary btn-fixed-width")
                         ], className="text-center")
                     ], className="h-100 shadow-sm")
                 ], className="col-lg-3 col-md-6"),
@@ -31,10 +31,10 @@ class IndexView:
                 dbc.Col([
                     dbc.Card([
                         dbc.CardBody([
-                            html.I(className="bi bi-file-earmark-richtext display-3 text-success mb-3"),
+                            html.I(className="bi bi-file-earmark-richtext display-3 text-primary mb-3"),
                             html.H5("Reports", className="card-title"),
-                            html.P("Generate detailed Reports", className="card-text mb-2"),
-                            html.A("View Reports", href="/reports", className="btn btn-success btn-fixed-width")
+                            html.P("Generate detailed Reports", className="card-text mb-4"),
+                            html.A("View Reports", href="/reports", className="btn btn-outline-primary btn-fixed-width")
                         ], className="text-center")
                     ], className="h-100 shadow-sm")
                 ], className="col-lg-3 col-md-6"),
@@ -43,10 +43,10 @@ class IndexView:
                 dbc.Col([
                     dbc.Card([
                         dbc.CardBody([
-                            html.I(className="bi bi-bezier2 display-3 text-info mb-3"),
+                            html.I(className="bi bi-bezier2 display-3 text-primary mb-3"),
                             html.H5("Networks", className="card-title"),
-                            html.P("Interactive visualisation of the Network", className="card-text mb-2"),
-                            html.A("Explore Networks", href="/network", className="btn btn-info btn-fixed-width")
+                            html.P("Interactive visualisation of the Network", className="card-text mb-4"),
+                            html.A("Explore Networks", href="/network", className="btn btn-outline-primary btn-fixed-width")
                         ], className="text-center")
                     ], className="h-100 shadow-sm")
                 ], className="col-lg-3 col-md-6"),
@@ -55,10 +55,10 @@ class IndexView:
                 dbc.Col([
                     dbc.Card([
                         dbc.CardBody([
-                            html.I(className="bi bi-diagram-2 display-3 text-warning mb-3"),
+                            html.I(className="bi bi-diagram-2 display-3 text-primary mb-3"),
                             html.H5("Breakdowns", className="card-title"),
-                            html.P("Navigate available Breakdowns", className="card-text mb-2"),
-                            html.A("View Breakdowns", href="/breakdowns", className="btn btn-warning btn-fixed-width")
+                            html.P("Navigate available Breakdowns", className="card-text mb-4"),
+                            html.A("View Breakdowns", href="/breakdowns", className="btn btn-outline-primary btn-fixed-width")
                         ], className="text-center")
                     ], className="h-100 shadow-sm")
                 ], className="col-lg-3 col-md-6"),
@@ -70,10 +70,10 @@ class IndexView:
                 dbc.Col([
                     dbc.Card([
                         dbc.CardBody([
-                            html.I(className="bi bi-arrow-repeat display-3 text-danger mb-3"),
+                            html.I(className="bi bi-arrow-repeat display-3 text-primary mb-3"),
                             html.H5("Edges", className="card-title"),
-                            html.P("Create, Modify, and Delete Edges", className="card-text mb-2"),
-                            html.A("Manage Edges", href="/edges", className="btn btn-danger btn-fixed-width")
+                            html.P("Create, Modify, and Delete Edges", className="card-text mb-4"),
+                            html.A("Manage Edges", href="/edges", className="btn btn-outline-primary btn-fixed-width")
                         ], className="text-center")
                     ], className="h-100 shadow-sm")
                 ], className="col-lg-3 col-md-6"),
@@ -82,10 +82,10 @@ class IndexView:
                 dbc.Col([
                     dbc.Card([
                         dbc.CardBody([
-                            html.I(className="bi bi-plus-circle display-3 text-secondary mb-3"),
+                            html.I(className="bi bi-plus-circle display-3 text-primary mb-3"),
                             html.H5("Nodes", className="card-title"),
-                            html.P("Create, Modify, and Delete Nodes", className="card-text mb-2"),
-                            html.A("Manage Nodes", href="/nodes", className="btn btn-secondary btn-fixed-width")
+                            html.P("Create, Modify, and Delete Nodes", className="card-text mb-4"),
+                            html.A("Manage Nodes", href="/nodes", className="btn btn-outline-primary btn-fixed-width")
                         ], className="text-center")
                     ], className="h-100 shadow-sm")
                 ], className="col-lg-3 col-md-6"),
@@ -94,10 +94,10 @@ class IndexView:
                 dbc.Col([
                     dbc.Card([
                         dbc.CardBody([
-                            html.I(className="bi bi-link-45deg display-3 text-dark mb-3"),
+                            html.I(className="bi bi-link-45deg display-3 text-primary mb-3"),
                             html.H5("Edge Types", className="card-title"),
-                            html.P("Create, Modify, and Delete Edge Types", className="card-text mb-2"),
-                            html.A("Manage Edge Types", href="/edge-types", className="btn btn-dark btn-fixed-width")
+                            html.P("Create, Modify, and Delete Edge Types", className="card-text mb-4"),
+                            html.A("Manage Edge Types", href="/edge-types", className="btn btn-outline-primary btn-fixed-width")
                         ], className="text-center")
                     ], className="h-100 shadow-sm")
                 ], className="col-lg-3 col-md-6"),
@@ -106,10 +106,10 @@ class IndexView:
                 dbc.Col([
                     dbc.Card([
                         dbc.CardBody([
-                            html.I(className="bi bi-life-preserver display-3 text-muted mb-3"),
+                            html.I(className="bi bi-life-preserver display-3 text-primary mb-3"),
                             html.H5("Help", className="card-title"),
-                            html.P("Resources for working with Tracer", className="card-text mb-2"),
-                            html.A("Get Help", href="/help", className="btn btn-outline-dark btn-fixed-width")
+                            html.P("Resources for working with Tracer", className="card-text mb-4"),
+                            html.A("Get Help", href="/help", className="btn btn-outline-primary btn-fixed-width")
                         ], className="text-center")
                     ], className="h-100 shadow-sm")
                 ], className="col-lg-3 col-md-6"),

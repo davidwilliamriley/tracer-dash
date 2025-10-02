@@ -16,7 +16,8 @@ external_scripts = [
 external_stylesheets = [
     dbc.themes.BOOTSTRAP,
     "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css",
-    "https://unpkg.com/tabulator-tables@6.3.1/dist/css/tabulator_bootstrap5.min.css"
+    "https://unpkg.com/tabulator-tables@6.3.1/dist/css/tabulator_bootstrap5.min.css",
+    "/assets/css/tabulator.css"
 ]
 
 server = Flask(__name__)

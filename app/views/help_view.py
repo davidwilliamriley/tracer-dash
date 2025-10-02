@@ -46,7 +46,7 @@ class HelpView:
                 #             html.Li("Help", className="breadcrumb-item active"),
                 #         ], className="breadcrumb mb-2 mt-2")
                 #     ]),
-                html.H1([html.I(className="bi bi-question-circle me-2"), "Help & Resources"], className="my-4"),
+                html.H1([html.I(className="bi bi-question-circle me-2"), "Help & Resources"], className="my-4 text-primary"),
                 html.P("Resources to assist you working with Tracer", className="text-muted mb-4")
             ]),
             dbc.Row([

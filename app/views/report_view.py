@@ -25,8 +25,8 @@ class ReportView:
             duration=4000,
             style={
                 "position": "fixed",
-                "bottom": 20,
-                "left": 20,
+                "top": 100,
+                "right": 20,
                 "width": 350,
                 "z-index": 9999,
             },
@@ -65,7 +65,7 @@ class ReportView:
             [
                 self._create_toast(),
 
-                html.H1([html.I(className="bi bi-file-earmark-richtext me-2"), "Reports"], className="my-4"),
+                html.H1([html.I(className="bi bi-file-earmark-richtext me-2"), "Reports"], className="my-4 text-primary"),
                 html.P("Report for the Network", className="mb-4 text-muted"),
 
                 self._create_report_selector(report_options),
@@ -80,7 +80,7 @@ class ReportView:
                                             style={
                                                 "width": "100%",
                                                 "height": "80vh",
-                                                "border": "solid 1px gainsboro",
+                                                "border": "solid 1px gainsboro"
                                             },
                                         )
                                     ], style={"height": "80vh"})

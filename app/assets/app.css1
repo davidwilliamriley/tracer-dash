@@ -1,4 +1,4 @@
-/* css / styles.css */
+css / styles.css
 
 /* html, body {
     background-color: white !important;
@@ -23,16 +23,16 @@
 } */
 
 /* Alert container positioning */
-.alert-container {
+/* .alert-container {
     position: fixed;
     top: 20px;
     right: 20px;
     z-index: 1050;
     max-width: 400px;
-}
+} */
 
 /* Loading overlay */
-.loading-overlay {
+/* .loading-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -47,7 +47,7 @@
 
 .loading-overlay.d-none {
     display: none !important;
-}
+} */
 
 /* Table container
 .nodes-table-container {
@@ -58,18 +58,18 @@
 } */
 
 /* Modal improvements */
-.modal-body .alert {
+/* .modal-body .alert {
     margin-bottom: 1rem;
-}
+} */
 
 /* Button improvements */
-.btn:disabled {
+/* .btn:disabled {
     opacity: 0.65;
     cursor: not-allowed;
-}
+} */
 
 /* Form validation feedback */
-.is-invalid {
+/* .is-invalid {
     border-color: #dc3545;
 }
 
@@ -79,10 +79,10 @@
     margin-top: 0.25rem;
     font-size: 0.875em;
     color: #dc3545;
-}
+} */
 
 /* Responsive adjustments */
-@media (max-width: 768px) {
+/* @media (max-width: 768px) {
     .alert-container {
         position: relative;
         top: auto;
@@ -98,10 +98,10 @@
     .nodes-toolbar .d-flex {
         justify-content: center !important;
     }
-}
+} */
 
 /* Print styles */
-@media print {
+/* @media print {
     .nodes-toolbar,
     .alert-container,
     .modal,
@@ -112,4 +112,4 @@
     .container-fluid {
         padding: 0 !important;
     }
-}
+} */

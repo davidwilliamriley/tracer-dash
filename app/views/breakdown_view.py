@@ -26,7 +26,7 @@ class BreakdownView:
             duration=4000,
             style={
                 "position": "fixed",
-                "bottom": 20,
+                "top": 100,
                 "left": 20,
                 "width": 350,
                 "z-index": 9999,
@@ -37,7 +37,7 @@ class BreakdownView:
         """Create page header"""
         return html.Div(
             [
-                html.H1([html.I(className="bi bi-diagram-2 me-2"), "Breakdowns"], className="my-4"),
+                html.H1([html.I(className="bi bi-diagram-2 me-2"), "Breakdowns"], className="my-4 text-primary"),
                 html.P("Manage System and Subsystem Breakdowns", className="mb-4 text-muted"),
             ],
         )
@@ -99,6 +99,7 @@ class BreakdownView:
                                                 "Create",
                                             ],
                                             id="create-node-btn",
+                                            outline=True,
                                             color="primary",
                                             title="Create a new Node",
                                         ),
@@ -110,6 +111,7 @@ class BreakdownView:
                                                 "Refresh",
                                             ],
                                             id="refresh-nodes-btn",
+                                            outline=True,
                                             color="primary",
                                             title="Refresh the Nodes Table",
                                         ),
@@ -119,6 +121,7 @@ class BreakdownView:
                                                 "Delete",
                                             ],
                                             id="delete-node-btn",
+                                            outline=True,
                                             color="warning",
                                             title="Delete a selected Node",
                                             disabled=True,
@@ -139,6 +142,7 @@ class BreakdownView:
                                                 "Print",
                                             ],
                                             id="print-nodes-btn",
+                                            outline=True,
                                             color="primary",
                                             title="Print the Table to PDF",
                                         ),
@@ -147,7 +151,8 @@ class BreakdownView:
                                                 html.I(className="bi bi-download me-2"),
                                                 "Download",
                                             ],
-                                            id="download-nodes-btn",
+                                            id="download-nodes-btn",\
+                                            outline=True,
                                             color="primary",
                                             title="Download the Table as CSV",
                                         ),
@@ -193,6 +198,7 @@ class BreakdownView:
                                                 "Reset",
                                             ],
                                             id="reset-filter-btn",
+                                            outline=True,
                                             color="primary",
                                             size="md",
                                             className="mb-0",

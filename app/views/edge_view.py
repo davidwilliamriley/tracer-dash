@@ -31,7 +31,7 @@ class EdgeView:
         """Create page header"""
         return html.Div(
             [
-                html.H1([html.I(className="bi bi-arrow-repeat me-2"), "Edges"], className="my-4"),
+                html.H1([html.I(className="bi bi-arrow-repeat me-2"), "Edges"], className="my-4 text-primary"),
                 html.P("Create, Modify and / or Delete the Edges between the Nodes of the Network ", className="mb-4 text-muted"),
             ],
         )
@@ -91,18 +91,21 @@ class EdgeView:
                         dbc.Button(
                             [html.I(className="bi bi-plus-lg me-2"), "Create"],
                             id="create-edge-btn",
+                            outline=True,
                             color="primary",
                             title="Create a new Edge"
                         ),
                         dbc.Button(
                             [html.I(className="bi bi-arrow-clockwise me-2"), "Refresh"],
                             id="refresh-edges-btn",
+                            outline=True,
                             color="primary",
                             title="Refresh the Edges Table"
                         ),
                         dbc.Button(
                             [html.I(className="bi bi-trash me-2"), "Delete"],
                             id="delete-edge-btn",
+                            outline=True,   
                             color="warning",
                             title="Delete selected Edge(s)",
                             disabled=True
@@ -116,12 +119,14 @@ class EdgeView:
                         dbc.Button(
                             [html.I(className="bi bi-printer me-2"), "Print"],
                             id="print-edges-btn",
+                            outline=True,
                             color="primary",
                             title="Print the Table to PDF"
                         ),
                         dbc.Button(
                             [html.I(className="bi bi-download me-2"), "Download"],
                             id="download-edges-btn",
+                            outline=True,
                             color="primary",
                             title="Download the Table as CSV"
                         ),

@@ -38,7 +38,7 @@ class NetworkView:
 
                 html.Div(id="cytoscape-data-div",  children=json.dumps(networks_data), style={"display": "none"}),
 
-                html.H1([html.I(className="bi bi-bezier2 me-2"), "Network"], className="my-4"),
+                html.H1([html.I(className="bi bi-bezier2 me-2"), "Network"], className="my-4 text-primary"),
                 html.P("Visualise and Analyse the Network.", className="mb-4 text-muted"),
 
                 NetworkView._create_filters(),
@@ -127,6 +127,7 @@ class NetworkView:
                         dbc.Col(
                             dbc.Button([html.I(className="bi bi-filter me-1"), "Apply"],
                                 id="apply-element-btn",
+                                outline=True,
                                 color="primary",
                                 size="md",
                                 className="w-100",
@@ -139,6 +140,7 @@ class NetworkView:
                         dbc.Col(
                             dbc.Button([html.I(className="bi bi-arrow-clockwise me-1"), "Reset"],
                                 id="reset-element-btn",
+                                outline=True,
                                 color="secondary",
                                 size="md",
                                 className="w-100",

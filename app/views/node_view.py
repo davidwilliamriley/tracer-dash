@@ -31,7 +31,7 @@ class NodeView:
         """Create page header"""
         return html.Div(
             [
-                html.H1([html.I(className="bi bi-plus-circle me-2"), "Nodes"], className="my-4"),
+                html.H1([html.I(className="bi bi-plus-circle me-2"), "Nodes"], className="my-4 text-primary"),
                 html.P("Manage the Network Nodes", className="mb-4 text-muted"),
             ],
         )
@@ -97,6 +97,7 @@ class NodeView:
                                                     "Create",
                                                 ],
                                                 id="create-node-btn",
+                                                outline=True,
                                                 color="primary",
                                                 title="Create a new Node",
                                             ),
@@ -108,6 +109,7 @@ class NodeView:
                                                     "Refresh",
                                                 ],
                                                 id="refresh-nodes-btn",
+                                                outline=True,
                                                 color="primary",
                                                 title="Refresh the Nodes Table",
                                             ),
@@ -117,6 +119,7 @@ class NodeView:
                                                     "Delete",
                                                 ],
                                                 id="delete-node-btn",
+                                                outline=True,
                                                 color="warning",
                                                 title="Delete selected Node(s)",
                                                 disabled=True,
@@ -137,6 +140,7 @@ class NodeView:
                                                     "Print",
                                                 ],
                                                 id="print-nodes-btn",
+                                                outline=True,
                                                 color="primary",
                                                 title="Print the Table to PDF",
                                             ),
@@ -146,6 +150,7 @@ class NodeView:
                                                     "Download",
                                                 ],
                                                 id="download-nodes-btn",
+                                                outline=True,
                                                 color="primary",
                                                 title="Download the Table as CSV",
                                             ),

@@ -30,7 +30,7 @@ class EdgeTypeView:
         """Create page header"""
         return html.Div(
             [
-                html.H1([html.I(className="bi bi-link-45deg me-2"), "Edge Types"], className="my-4"),
+                html.H1([html.I(className="bi bi-link-45deg me-2"), "Edge Types"], className="my-4 text-primary"),
                 html.P("Manage the Edge Types", className="mb-4"),
             ]
         )
@@ -45,6 +45,7 @@ class EdgeTypeView:
                                     dbc.Button(
                                         [html.I(className="bi bi-plus-lg me-2"), "Create"],
                                         id="create-edge-type-btn",
+                                        outline=True,
                                         color="primary",
                                         title="Create a new Edge Type",
                                     ),
@@ -54,12 +55,14 @@ class EdgeTypeView:
                                             "Refresh",
                                         ],
                                         id="refresh-edge-types-btn",
+                                        outline=True,
                                         color="primary",
                                         title="Refresh the Edge Types Table",
                                     ),
                                     dbc.Button(
                                         [html.I(className="bi bi-trash me-2"), "Delete"],
                                         id="delete-edge-type-btn",
+                                        outline=True,
                                         color="warning",
                                         title="Delete a selected Edge Type",
                                         disabled=True,
@@ -76,6 +79,7 @@ class EdgeTypeView:
                                     dbc.Button(
                                         [html.I(className="bi bi-printer me-2"), "Print"],
                                         id="print-edge-types-btn",
+                                        outline=True,
                                         color="primary",
                                         title="Print the Table to PDF",
                                     ),
@@ -85,6 +89,7 @@ class EdgeTypeView:
                                             "Download",
                                         ],
                                         id="download-edge-types-btn",
+                                        outline=True,
                                         color="primary",
                                         title="Download the Table as CSV",
                                     ),
