@@ -354,17 +354,6 @@ class Model:
     # ==================== UPDATE OPERATIONS ====================
 
     def update_node_field(self, node_id: str, field_name: str, new_value: str) -> bool:
-        """
-        Update a specific field of a node - for dash-tabulator cell editing
-        
-        Args:
-            node_id: The ID of the node to update
-            field_name: The field to update ('identifier', 'name', 'description')
-            new_value: The new value for the field
-            
-        Returns:
-            bool: True if successful, False otherwise
-        """
         session = self.SessionLocal()
         try:
             node = session.query(Node).filter(Node.id == node_id).first()
