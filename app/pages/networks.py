@@ -4,6 +4,7 @@ from dash import callback, Input, Output, State, no_update, clientside_callback,
 import networkx as nx
 from typing import Any, Dict, List, Optional
 from sqlalchemy.orm import joinedload
+from typing import cast
 
 # Import View and Model
 from views.network_view import NetworkView
@@ -65,7 +66,7 @@ def build_network_from_database() -> nx.Graph:
             
     except Exception as e:
         print(f"Error building the NetworkX Graph: {e}")
-        raise
+        return nx.Graph()
 
 
 def get_network_visualization_data() -> Dict[str, Any]:

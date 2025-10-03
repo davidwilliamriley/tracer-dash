@@ -238,7 +238,7 @@ class EdgeView:
                         dbc.Input(
                             id="new-edge-identifier",
                             type="text",
-                            placeholder="Enter unique identifier (optional)"
+                            placeholder="Enter an (optional) Identifier"
                         )
                     ], width=12, className="mb-3"),
                 ]),
@@ -247,25 +247,27 @@ class EdgeView:
                         dbc.Label("Source Node:", className="fw-bold"),
                         dcc.Dropdown(
                             id="new-edge-source",
-                            placeholder="Select source node*",
+                            placeholder="Select the Source Node (Required)",
                             clearable=False
                         )
-                    ], width=6, className="mb-3"),
-                    dbc.Col([
-                        dbc.Label("Target Node:", className="fw-bold"),
-                        dcc.Dropdown(
-                            id="new-edge-target",
-                            placeholder="Select target node*",
-                            clearable=False
-                        )
-                    ], width=6, className="mb-3"),
+                    ], width=12, className="mb-3"),
                 ]),
                 dbc.Row([
                     dbc.Col([
                         dbc.Label("Edge Type:", className="fw-bold"),
                         dcc.Dropdown(
                             id="new-edge-type",
-                            placeholder="Select edge type*",
+                            placeholder="Select the Edge Type (Required)",
+                            clearable=False
+                        )
+                    ], width=12, className="mb-3"),
+                ]),
+                dbc.Row([
+                    dbc.Col([
+                        dbc.Label("Target Node:", className="fw-bold"),
+                        dcc.Dropdown(
+                            id="new-edge-target",
+                            placeholder="Select the Target Node (Required)",
                             clearable=False
                         )
                     ], width=12, className="mb-3"),
@@ -275,7 +277,7 @@ class EdgeView:
                         dbc.Label("Description:", className="fw-bold"),
                         dbc.Textarea(
                             id="new-edge-description",
-                            placeholder="Enter description (optional)",
+                            placeholder="Enter an (optional) Description",
                             rows=3
                         )
                     ], width=12)
@@ -285,19 +287,20 @@ class EdgeView:
                 dbc.Button(
                     "Create Edge",
                     id="confirm-create-edge",
+                    outline=True,
                     color="primary",
                     className="me-2"
                 ),
                 dbc.Button(
                     "Cancel",
                     id="cancel-create-edge",
+                    outline=True,
                     color="secondary"
                 )
             ])
-        ], id="create-edge-modal", is_open=False, backdrop="static", size="lg")
+        ], id="create-edge-modal", is_open=False, backdrop="static", size="md")
     
     def _create_delete_modal(self) -> dbc.Modal:
-        """Create modal for delete confirmation"""
         return dbc.Modal([
             dbc.ModalHeader(dbc.ModalTitle("Confirm Delete")),
             dbc.ModalBody(html.Div(id="delete-modal-body")),
@@ -305,12 +308,14 @@ class EdgeView:
                 dbc.Button(
                     "Delete",
                     id="confirm-delete-edge",
+                    outline=True,
                     color="danger",
                     className="me-2"
                 ),
                 dbc.Button(
                     "Cancel",
                     id="cancel-delete-edge",
+                    outline=True,
                     color="secondary"
                 )
             ])
@@ -321,11 +326,10 @@ class EdgeView:
         selected_edges: List[str],
         raw_selected_rows: List[Dict[str, Any]]
     ) -> html.Div:
-        """Create delete confirmation message body"""
         return html.Div([
-            html.P(f"Are you sure you want to delete the following {len(selected_edges)} edge(s)?"),
+            html.P(f"Confirm Deletion of {len(selected_edges)} Edge(s)?"),
             html.Ul([html.Li(edge) for edge in selected_edges]),
-            html.P("This action cannot be undone.", className="text-danger fw-bold"),
+            html.P("YYou cannot undo this Action.", className="text-danger fw-bold"),
             # Store the raw selected rows data in a hidden div
             html.Div(
                 id="raw-selected-data",

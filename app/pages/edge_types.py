@@ -25,26 +25,16 @@ view = EdgeTypeView()
 def get_edge_types_from_db() -> List[Dict[str, Any]]:
     """Get edge types from database"""
     try:
-        return model.get_edge_types_for_editor()
+        result = model.get_edge_types_for_editor()
+        return result if result is not None else []
     except Exception as e:
         print(f"Error getting edge types from database: {e}")
         return []
 
 
 def create_edge_type(identifier: str, name: str, description: str) -> Tuple[bool, str, Optional[List[Dict[str, Any]]]]:
-    """
-    Create a new edge type
-    
-    Args:
-        identifier: Edge type identifier (optional)
-        name: Edge type name (required)
-        description: Edge type description (optional)
-        
-    Returns:
-        Tuple of (success, message, updated_data)
-    """
     if not name:
-        return False, "Name is required", None
+        return False, "Name is a Required Field", None
     
     try:
         new_edge_type_id = str(uuid.uuid4())
@@ -52,14 +42,14 @@ def create_edge_type(identifier: str, name: str, description: str) -> Tuple[bool
             edge_type_id=new_edge_type_id,
             identifier=identifier or '',
             name=name,
-            description=description or ''
+            description=description or None
         )
         
-        if isinstance(result, dict) and result.get('success'):
+        if result.get('success'):
             updated_data = get_edge_types_from_db()
             return True, f"Successfully created edge type: {name}", updated_data
         else:
-            error_msg = result.get('message', 'Unknown error') if isinstance(result, dict) else 'Create failed'
+            error_msg = result.get('message', 'Unknown error')
             return False, f"Failed to create edge type: {error_msg}", None
     except Exception as e:
         print(f"Error creating edge type: {e}")
@@ -67,15 +57,6 @@ def create_edge_type(identifier: str, name: str, description: str) -> Tuple[bool
 
 
 def update_edge_types(changed_data: List[Dict[str, Any]]) -> Tuple[bool, str, Optional[List[Dict[str, Any]]]]:
-    """
-    Update edge types based on changed data
-    
-    Args:
-        changed_data: List of edge type dictionaries with updated values
-        
-    Returns:
-        Tuple of (success, message, updated_data)
-    """
     if not changed_data:
         return False, "No data to update", None
     
@@ -89,17 +70,17 @@ def update_edge_types(changed_data: List[Dict[str, Any]]) -> Tuple[bool, str, Op
                 
                 updates = {}
                 if 'Identifier' in row:
-                    updates['identifier'] = row['Identifier'] or ''
+                    updates['identifier'] = row['Identifier'] or None
                 if 'Name' in row:
                     updates['name'] = row['Name']
                 if 'Description' in row:
-                    updates['description'] = row['Description'] or ''
+                    updates['description'] = row['Description'] or None
                 
                 result = model.update_edge_type(edge_type_id, **updates)
-                if isinstance(result, dict) and result.get('success'):
+                if result.get('success'):
                     updated_count += 1
                 else:
-                    error_msg = result.get('message', 'Unknown error') if isinstance(result, dict) else 'Update failed'
+                    error_msg = result.get('message', 'Unknown error')
                     errors.append(f"Failed to update edge type {edge_type_id}: {error_msg}")
         
         updated_data = get_edge_types_from_db()
@@ -118,15 +99,6 @@ def update_edge_types(changed_data: List[Dict[str, Any]]) -> Tuple[bool, str, Op
 
 
 def delete_edge_types(selected_rows: List[Dict[str, Any]]) -> Tuple[bool, str, Optional[List[Dict[str, Any]]]]:
-    """
-    Delete selected edge types
-    
-    Args:
-        selected_rows: List of edge type dictionaries to delete
-        
-    Returns:
-        Tuple of (success, message, updated_data)
-    """
     if not selected_rows:
         return False, "No edge types selected for deletion", None
     
@@ -136,11 +108,12 @@ def delete_edge_types(selected_rows: List[Dict[str, Any]]) -> Tuple[bool, str, O
         
         for row in selected_rows:
             edge_type_id = row['ID']
-            success, message = model.delete_edge_type(edge_type_id)
-            if success:
+            result = model.delete_edge_type(edge_type_id)
+            if result['success']:
                 deleted_count += 1
+                print(f"Deleted edge type: {result['message']}")
             else:
-                errors.append(f"Failed to delete {row['Name']}: {message}")
+                errors.append(f"Failed to delete Edge Type {row['Name']}: {result.get('message', 'Unknown error')}")
         
         updated_data = get_edge_types_from_db()
         
@@ -225,15 +198,18 @@ def handle_data_change(changed_data, current_data):
     if not changed_data:
         return no_update, no_update, no_update, no_update
     
-    print(f"DEBUG: Data changed event fired with: {changed_data}")
+    print(f"DEBUG: Data Changed Event fired with {changed_data}")
     
+    # Use the update_edge_types function which handles batches correctly
     success, message, updated_data = update_edge_types(changed_data)
     
+    # Always return a list to the table, never None
     if updated_data is not None:
         icon = "success" if success else "warning"
         return updated_data, True, message, icon
     else:
-        return no_update, True, message, "danger"
+        # Return current data if update failed
+        return current_data or [], True, message, "danger"
 
 
 @callback(
@@ -357,15 +333,16 @@ def manage_edge_types(create_clicks, delete_clicks, identifier, name, descriptio
     
     button_id = ctx.triggered[0]['prop_id'].split('.')[0]
     
-    # Create new edge type
+    # Create new Edge Type
     if button_id == 'confirm-create-edge-type':
         success, message, updated_data = create_edge_type(identifier, name, description)
         
-        if success and updated_data is not None:
-            return updated_data, True, message, "success", '', '', ''
+        if updated_data is not None:
+            icon = "success" if success else "warning"
+            return updated_data, True, message, icon, '', '', ''
         else:
-            return data, True, message, "danger", no_update, no_update, no_update
-    
+            return data or [], True, message, "danger", no_update, no_update, no_update
+
     # Delete selected edge types
     elif button_id == 'confirm-delete-edge-type':
         success, message, updated_data = delete_edge_types(selected_rows)
@@ -374,7 +351,7 @@ def manage_edge_types(create_clicks, delete_clicks, identifier, name, descriptio
             icon = "success" if success else "warning"
             return updated_data, True, message, icon, no_update, no_update, no_update
         else:
-            return data, True, message, "danger", no_update, no_update, no_update
+            return data or [], True, message, "danger", no_update, no_update, no_update
     
     return no_update, no_update, no_update, no_update, no_update, no_update, no_update
 
@@ -430,5 +407,5 @@ def refresh_table(n_clicks):
             return refreshed_data, True, message, "info"
         except Exception as e:
             message = f"Error refreshing data: {str(e)}"
-            return no_update, True, message, "danger"
+            return [], True, message, "danger"
     return no_update, no_update, no_update, no_update

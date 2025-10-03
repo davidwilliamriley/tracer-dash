@@ -221,7 +221,7 @@ class EdgeTypeView:
                                         dbc.Input(
                                             id="new-edge-type-identifier",
                                             type="text",
-                                            placeholder="Enter unique identifier (optional)",
+                                            placeholder="Enter an (optional) Identifier",
                                         ),
                                     ],
                                     width=12,
@@ -237,7 +237,7 @@ class EdgeTypeView:
                                         dbc.Input(
                                             id="new-edge-type-name",
                                             type="text",
-                                            placeholder="Enter edge type name*",
+                                            placeholder="Enter an Edge Type Name (Required)",
                                             required=True,
                                         ),
                                     ],
@@ -253,7 +253,7 @@ class EdgeTypeView:
                                         dbc.Label("Description:", className="fw-bold"),
                                         dbc.Textarea(
                                             id="new-edge-type-description",
-                                            placeholder="Enter description (optional)",
+                                            placeholder="Enter an (optional) Description",
                                             rows=3,
                                         ),
                                     ],
@@ -268,11 +268,15 @@ class EdgeTypeView:
                         dbc.Button(
                             "Create Edge Type",
                             id="confirm-create-edge-type",
+                            outline=True,
                             color="primary",
                             className="me-2",
                         ),
                         dbc.Button(
-                            "Cancel", id="cancel-create-edge-type", color="secondary"
+                            "Cancel", 
+                            id="cancel-create-edge-type", 
+                            outline=True,
+                            color="secondary"
                         ),
                     ]
                 ),
@@ -293,11 +297,12 @@ class EdgeTypeView:
                         dbc.Button(
                             "Delete",
                             id="confirm-delete-edge-type",
+                            outline=True,
                             color="danger",
                             className="me-2",
                         ),
                         dbc.Button(
-                            "Cancel", id="cancel-delete-edge-type", color="secondary"
+                            "Cancel", id="cancel-delete-edge-type", outline=True, color="secondary"
                         ),
                     ]
                 ),
@@ -309,23 +314,14 @@ class EdgeTypeView:
 
     @staticmethod
     def create_delete_modal_body(selected_names: List[str]) -> html.Div:
-        """
-        Create the content for the delete confirmation modal
-
-        Args:
-            selected_names: List of edge type names to be deleted
-
-        Returns:
-            html.Div containing the modal body content
-        """
         return html.Div(
             [
                 html.P(
-                    f"Are you sure you want to delete the following {len(selected_names)} edge type(s)?"
+                    f"Confirm Deletion of {len(selected_names)} Edge Type(s)"
                 ),
                 html.Ul([html.Li(name) for name in selected_names]),
                 html.P(
-                    "This action cannot be undone.", className="text-danger fw-bold"
+                    "You cannot undo this Action!", className="text-danger fw-bold"
                 ),
             ]
         )

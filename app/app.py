@@ -8,7 +8,13 @@ from flask import Flask
 
 # External Scripts
 external_scripts = [
-    {"src": "https://unpkg.com/cytoscape@3.26.0/dist/cytoscape.min.js"},
+    {"src": "https://unpkg.com/cytoscape@3.23.0/dist/cytoscape.min.js"},
+    {"src": "https://unpkg.com/cytoscape-fcose@2.2.0/cytoscape-fcose.js"},
+    {"src": "/assets/js/cytoscape_config.js"},
+    {"src": "/assets/js/cytoscape_utils.js"},
+    {"src": "/assets/js/cytoscape_styles.js"},
+    {"src": "/assets/js/cytoscape_events.js"},
+    {"src": "/assets/js/cytoscape_callback.js"},
     {"src": "https://unpkg.com/tabulator-tables@6.3.1/dist/js/tabulator.min.js"}
 ]
 

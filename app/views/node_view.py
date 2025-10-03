@@ -251,7 +251,7 @@ class NodeView:
                                         dbc.Input(
                                             id="new-node-identifier",
                                             type="text",
-                                            placeholder="Enter unique identifier (optional)",
+                                            placeholder="Enter an (optional) Identifier",
                                         ),
                                     ],
                                     width=12,
@@ -267,7 +267,7 @@ class NodeView:
                                         dbc.Input(
                                             id="new-node-name",
                                             type="text",
-                                            placeholder="Enter node name*",
+                                            placeholder="Enter a Node Name (Required)",
                                             required=True,
                                         ),
                                     ],
@@ -283,7 +283,7 @@ class NodeView:
                                         dbc.Label("Description:", className="fw-bold"),
                                         dbc.Textarea(
                                             id="new-node-description",
-                                            placeholder="Enter description (optional)",
+                                            placeholder="Enter an (optional) Description",
                                             rows=3,
                                         ),
                                     ],
@@ -298,11 +298,15 @@ class NodeView:
                         dbc.Button(
                             "Create Node",
                             id="confirm-create-node",
+                            outline=True,
                             color="primary",
                             className="me-2",
                         ),
                         dbc.Button(
-                            "Cancel", id="cancel-create-node", color="secondary"
+                            "Cancel", 
+                            id="cancel-create-node", 
+                            outline=True, 
+                            color="secondary"
                         ),
                     ]
                 ),
@@ -323,11 +327,12 @@ class NodeView:
                         dbc.Button(
                             "Delete",
                             id="confirm-delete-node",
+                            outline=True,
                             color="danger",
                             className="me-2",
                         ),
                         dbc.Button(
-                            "Cancel", id="cancel-delete-node", color="secondary"
+                            "Cancel", id="cancel-delete-node", outline=True, color="secondary"
                         ),
                     ]
                 ),
@@ -338,15 +343,14 @@ class NodeView:
         )
 
     def create_delete_confirmation(self, selected_names: List[str]) -> html.Div:
-        """Create delete confirmation message body"""
         return html.Div(
             [
                 html.P(
-                    f"Are you sure you want to delete the following {len(selected_names)} node(s)?"
+                    f"Confirm Deletion of {len(selected_names)} Node(s)?"
                 ),
                 html.Ul([html.Li(name) for name in selected_names]),
                 html.P(
-                    "This action cannot be undone.", className="text-danger fw-bold"
+                    "You cannot undo this Action!", className="text-danger fw-bold"
                 ),
             ]
         )

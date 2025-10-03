@@ -22,7 +22,7 @@ view = NodeView()
 def get_nodes_data() -> List[Dict[str, Any]]:
     """Get nodes from database for display"""
     try:
-        return model.get_nodes_for_editor()
+        return model.get_nodes_for_editor() or []
     except Exception as e:
         print(f"Error getting nodes: {e}")
         return []
@@ -36,7 +36,7 @@ def layout():
 
 # ==================== CALLBACKS ====================
 
-# Handle table data changes (cell edits)
+# Handle changes to Table Data (Cell Edits)
 @callback(
     [
         Output('nodes-table', 'data', allow_duplicate=True),

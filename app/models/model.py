@@ -2,15 +2,26 @@
 
 # models/model.py
 
+# Table of Contents
+# 1. Imports
+# 2. SQLAlchemy Models
+# 3. Database Configuration
+# 4. CRUD Operations
+# 5. Batch Operations
+# 6. Data Formatting Methods
+# 7. Dash Statistics and Analytics
+# 8. Utility Methods
+
 # Imports
 import os
 import logging
 from pathlib import Path
-from sqlalchemy import create_engine, Column, Integer, String, Text, ForeignKey, DateTime, Boolean
+from sqlalchemy import create_engine, Column, Integer, String, Text, ForeignKey, DateTime, Boolean, Index
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.sql import func
 from typing import Optional, List, Dict, Any, Union
+from datetime import datetime
 
 # Dash-specific Logging
 logger = logging.getLogger(__name__)
@@ -20,7 +31,7 @@ try:
     DEFAULT_DB_PATH = DATABASE_CONFIG["database"]
 except ImportError:
     DEFAULT_DB_PATH = "db.sqlite"
-    logger.warning("Could not import DATABASE_CONFIG, using default database path")
+    logger.warning("Could not import DATABASE_CONFIG, using default Database Path")
 
 Base = declarative_base()
 
@@ -34,7 +45,14 @@ class Edge(Base):
     source_node_id = Column(String, ForeignKey('nodes.id'), nullable=False)
     edge_type_id = Column(String, ForeignKey('edge_types.id'), nullable=False)
     target_node_id = Column(String, ForeignKey('nodes.id'), nullable=False)
-    description = Column(String, default='None')
+    description = Column(String, nullable=True, default=None)
+
+    # Indexes for Performance
+    __table_args__ = (
+        Index('idx_edge_source', 'source_node_id'),
+        Index('idx_edge_target', 'target_node_id'),
+        Index('idx_edge_type', 'edge_type_id'),
+    )
     
     source_node = relationship("Node", foreign_keys=[source_node_id], back_populates="source_edges")  # type: ignore
     target_node = relationship("Node", foreign_keys=[target_node_id], back_populates="target_edges")  # type: ignore
@@ -64,7 +82,12 @@ class Node(Base):
     id = Column(String, primary_key=True)
     identifier = Column(String, nullable=True)
     name = Column(String, default='Default')
-    description = Column(String, default='None')
+    description = Column(String, nullable=True, default=None)
+
+    __table_args__ = (
+        Index('idx_node_identifier', 'identifier'),
+        Index('idx_node_name', 'name'),
+    )
     
     source_edges = relationship("Edge", foreign_keys="[Edge.source_node_id]", back_populates="source_node") # type: ignore
     target_edges = relationship("Edge", foreign_keys="[Edge.target_node_id]", back_populates="target_node") # type: ignore
@@ -83,7 +106,7 @@ class EdgeType(Base):
     id = Column(String, primary_key=True)
     identifier = Column(String, nullable=True)
     name = Column(String, nullable=False, default='Default')
-    description = Column(String, default='None')
+    description = Column(String, nullable=True, default=None)
     
     edges = relationship("Edge", back_populates="edge_type")
 
@@ -115,24 +138,6 @@ class Model:
             raise
     
     def _ensure_default_data(self):
-    #     session = self.SessionLocal()
-    #     try:
-    #         edge_type_count = session.query(EdgeType).count()
-    #         if edge_type_count == 0:
-    #             default_edge_types = [
-    #                 EdgeType(id="et_001", identifier="CONN", name="connects", description="Basic connection between nodes"),
-    #                 EdgeType(id="et_002", identifier="DEP", name="depends_on", description="Dependency relationship"),
-    #                 EdgeType(id="et_003", identifier="COMM", name="communicates_with", description="Communication relationship")
-    #             ]
-    #             for et in default_edge_types:
-    #                 session.add(et)
-    #             session.commit()
-    #             logger.info("Created default edge types for Dash application")
-    #     except Exception as e:
-    #         session.rollback()
-    #         logger.error(f"Error creating default data: {e}")
-    #     finally:
-    #         session.close()
         pass
 
     def _get_session(self):
@@ -140,11 +145,99 @@ class Model:
 
     # ==================== CREATE EDGE, NODE & EDGE_TYPE OPERATIONS ====================
 
+    # Create Edge Function
+
+    def create_edge(self, 
+                    edge_id: str, 
+                    identifier: str, 
+                    source_node_id: str, 
+                    edge_type_id: str, 
+                    target_node_id: str, 
+                    description: Optional[str] = None) -> Dict[str, Any]:
+        
+        session = self._get_session()
+
+        try:
+            existing_edge = session.query(Edge).filter(Edge.id == edge_id).first()
+            if existing_edge:
+                return {
+                    'success': False,
+                    'message': f"Found existing Edge with ID '{edge_id}'.",
+                    'data': None
+                }
+
+            source_node = session.query(Node).filter(Node.id == source_node_id).first()
+            target_node = session.query(Node).filter(Node.id == target_node_id).first()
+            edge_type = session.query(EdgeType).filter(EdgeType.id == edge_type_id).first()
+            
+            if not source_node:
+                return {
+                    'success': False,
+                    'message': f"Unable to find existing Source Node '{source_node_id}'.",
+                    'data': None
+                }
+            if not target_node:
+                return {
+                    'success': False,
+                    'message': f"Unable to find existing Target Node '{target_node_id}'.",
+                    'data': None
+                }
+            if not edge_type:
+                return {
+                    'success': False,
+                    'message': f"Unable to find existing Edge Type '{edge_type_id}'.",
+                    'data': None
+                }
+
+            duplicate = session.query(Edge).filter(
+                Edge.source_node_id == source_node_id,
+                Edge.target_node_id == target_node_id,
+                Edge.edge_type_id == edge_type_id
+            ).first()
+            
+            if duplicate:
+                return {
+                    'success': False,
+                    'message': f"Found existing Edge between '{source_node.name}' and '{target_node.name}' with Edge Type '{edge_type.name}'",
+                    'data': None
+                }
+
+            new_edge = Edge(
+                id=edge_id,
+                identifier=identifier,
+                source_node_id=source_node_id,
+                edge_type_id=edge_type_id,
+                target_node_id=target_node_id,
+                description=description
+            )
+
+            session.add(new_edge)
+            session.commit()
+
+            return {
+                'success': True,
+                'message': "Successfully created Edge",
+                'data': new_edge.to_dict()
+            }
+        
+        except Exception as e:
+            session.rollback()
+            return {
+                'success': False,
+                'message': f"Error creating Edge: {str(e)}",
+                'data': None
+            }
+        finally:
+            session.close()
+
+
+    # Create Node Function
+
     def create_node(self, 
                     node_id: str, 
                     identifier: str, 
                     name: str, 
-                    description: str = 'None') -> Dict[str, Any]:
+                    description: Optional[str] = None) -> Dict[str, Any]:
 
         session = self._get_session()
 
@@ -153,7 +246,8 @@ class Model:
             if existing_node:
                 return {
                     'success': False,
-                    'message': f"Found existing Node with ID '{node_id}'."
+                    'message': f"Found existing Node with ID '{node_id}'.",
+                    'data': None
                 }
 
             new_node = Node(id=node_id, identifier=identifier, name=name, description=description)
@@ -170,83 +264,47 @@ class Model:
             logger.error(f"Error creating Node: {str(e)}")
             return {
                 'success': False,
-                'message': f"Error creating Node: {str(e)}"
+                'message': f"Error creating Node: {str(e)}",
+                'data': None
             }
         finally:
             session.close()
 
-    def create_edge(self, 
-                    edge_id: str, 
-                    identifier: str, 
-                    source_node_id: str, 
-                    target_node_id: str, 
-                    edge_type_id: str, 
-                    description: str = 'None') -> tuple:
-        
-        session = self._get_session()
-
-        try:
-            existing_edge = session.query(Edge).filter(Edge.id == edge_id).first()
-            if existing_edge:
-                return False, f"Found existing Edge with ID '{edge_id}'."
-            
-            source_node = session.query(Node).filter(Node.id == source_node_id).first()
-            target_node = session.query(Node).filter(Node.id == target_node_id).first()
-            edge_type = session.query(EdgeType).filter(EdgeType.id == edge_type_id).first()
-            
-            if not source_node:
-                return False, f"Unable to find existing Source Node '{source_node_id}'."
-            if not target_node:
-                return False, f"Unable to find existing Target Node '{target_node_id}'."
-            if not edge_type:
-                return False, f"Unable to find existing Edge Type '{edge_type_id}'."
-
-            duplicate = session.query(Edge).filter(
-                Edge.source_node_id == source_node_id,
-                Edge.target_node_id == target_node_id,
-                Edge.edge_type_id == edge_type_id
-            ).first()
-            
-            if duplicate:
-                return False, f"Found existing Edge between '{source_node.name}' and '{target_node.name}' with Edge Type '{edge_type.name}'"
-            
-            new_edge = Edge(
-                id=edge_id,
-                identifier=identifier,
-                source_node_id=source_node_id,
-                target_node_id=target_node_id,
-                edge_type_id=edge_type_id,
-                description=description
-            )
-            session.add(new_edge)
-            session.commit()
-            return True, "Successfully created Edge"
-        except Exception as e:
-            session.rollback()
-            return False, f"Error creating Edge: {str(e)}"
-        finally:
-            session.close()
+    # Create Edge Type Function
 
     def create_edge_type(self, 
                          edge_type_id: str, 
                          identifier: str, 
                          name: str, 
-                         description: str = 'None') -> tuple:
+                         description: Optional[str] = None) -> Dict[str, Any]: 
         
         session = self._get_session()
 
         try:
             existing_edge_type = session.query(EdgeType).filter(EdgeType.id == edge_type_id).first()
             if existing_edge_type:
-                return False, f"Found existing Edge Type with ID '{edge_type_id}'."
+                return {
+                    'success': False,
+                    'message': f"Found existing Edge Type with ID '{edge_type_id}'.",
+                    'data': None
+                }
 
             new_edge_type = EdgeType(id=edge_type_id, identifier=identifier, name=name, description=description)
             session.add(new_edge_type)
             session.commit()
-            return True, "Successfully created Edge Type"
+
+            return {
+                'success': True,
+                'message': "Successfully created Edge Type",
+                'data': new_edge_type.to_dict()
+            }
         except Exception as e:
             session.rollback()
-            return False, f"Error creating Edge Type: {str(e)}"
+            return {
+                'success': False,
+                'message': f"Error creating Edge Type: {str(e)}",
+                'data': None
+            }
         finally:
             session.close()
 
@@ -383,6 +441,81 @@ class Model:
         finally:
             session.close()
 
+    # Update Edge Function
+
+    def update_edge(self, edge_id: str, 
+                    identifier: Optional[str] = None, 
+                    source_node_id: Optional[str] = None, 
+                    edge_type_id: Optional[str] = None, 
+                    target_node_id: Optional[str] = None,
+                    description: Optional[str] = None) -> Dict[str, Any]: 
+        
+        session = self.SessionLocal()
+
+        try:
+            edge = session.query(Edge).filter(Edge.id == edge_id).first()
+            if not edge:
+                return {
+                    'success': False,
+                    'message': f"Unable to find Edge with ID '{edge_id}'.",
+                    'data': None
+                }
+
+            if source_node_id is not None:
+                source_node = session.query(Node).filter(Node.id == source_node_id).first()
+                if not source_node:
+                    return {
+                        'success': False,
+                        'message': f"Unable to find Source Node '{source_node_id}'.",
+                        'data': None
+                    }
+
+                edge.source_node_id = source_node_id  # type: ignore
+            
+            if edge_type_id is not None:
+                edge_type = session.query(EdgeType).filter(EdgeType.id == edge_type_id).first()
+                if not edge_type:
+                    return {
+                        'success': False,
+                        'message': f"Unable to find Edge Type '{edge_type_id}'.",
+                        'data': None
+                    }
+                edge.edge_type_id = edge_type_id  # type: ignore
+
+            if target_node_id is not None:
+                target_node = session.query(Node).filter(Node.id == target_node_id).first()
+                if not target_node:
+                    return {
+                        'success': False,
+                        'message': f"Unable to find Target Node '{target_node_id}'.",
+                        'data': None
+                    }
+                edge.target_node_id = target_node_id  # type: ignore
+            
+            if identifier is not None:
+                edge.identifier = identifier  # type: ignore
+            
+            if description is not None:
+                edge.description = description  # type: ignore
+            
+            session.commit()
+            return {
+                'success': True,
+                'message': "Successfully updated Edge",
+                'data': edge.to_dict()
+            }
+        except Exception as e:
+            session.rollback()
+            return {
+                'success': False,
+                'message': f"Error updating Edge {str(e)}",
+                'data': None
+            }
+        finally:
+            session.close()
+
+    # Update Node Function
+
     def update_node(self, 
                     node_id: str, 
                     identifier: Optional[str] = None, 
@@ -396,7 +529,8 @@ class Model:
             if not node:
                 return {
                     'success': False,
-                    'message': f"Unable to find Node '{node_id}'."
+                    'message': f"Unable to find Node '{node_id}'.",
+                    'data': None
                 }
 
             if identifier is not None:
@@ -419,187 +553,183 @@ class Model:
             logger.error(f"Error updating node: {str(e)}")
             return {
                 'success': False,
-                'message': f"Error updating node: {str(e)}"
+                'message': f"Error updating node: {str(e)}",
+                'data': None
             }
         finally:
             session.close()
+
+    # Update Edge Type Function
 
     def update_edge_type(self, 
                          edge_type_id: str, 
                          identifier: Optional[str] = None, 
                          name: Optional[str] = None, 
-                         description: Optional[str] = None) -> tuple:
+                         description: Optional[str] = None) -> Dict[str, Any]:
         
         session = self.SessionLocal()
 
         try:
             edge_type = session.query(EdgeType).filter(EdgeType.id == edge_type_id).first()
             if not edge_type:
-                return False, f"Edge type with ID '{edge_type_id}' not found"
-            
+                return {
+                    'success': False,
+                    'message': f"Unable to find Edge Type with ID '{edge_type_id}'.",
+                    'data': None
+                }
+
+            # Update identifier if provided
+            if identifier is not None:
+                edge_type.identifier = identifier  # type: ignore
+
             # Check for name conflicts if name is being updated
             if name is not None and name != edge_type.name:
                 existing_name = session.query(EdgeType).filter(EdgeType.name == name, EdgeType.id != edge_type_id).first()
                 if existing_name:
-                    return False, f"Edge type with name '{name}' already exists"
+                    return {
+                        'success': False,
+                        'message': f"Found existing Edge Type with name '{name}'.",
+                        'data': None
+                    }
                 edge_type.name = name  # type: ignore
                 
             if description is not None:
                 edge_type.description = description  # type: ignore
             
             session.commit()
-            return True, "Edge type updated successfully"
-        except Exception as e:
-            session.rollback()
-            return False, f"Error updating edge type: {str(e)}"
-        finally:
-            session.close()
 
-    def update_edge(self, edge_id: str, 
-                    identifier: Optional[str] = None, 
-                    source_node_id: Optional[str] = None, 
-                    target_node_id: Optional[str] = None,
-                    edge_type_id: Optional[str] = None, 
-                    description: Optional[str] = None) -> tuple:
-        
-        session = self.SessionLocal()
-        try:
-            edge = session.query(Edge).filter(Edge.id == edge_id).first()
-            if not edge:
-                return False, f"Unable to find Edge with ID '{edge_id}'."
-            
-            # Validate nodes and edge type if they're being updated
-            if source_node_id is not None:
-                source_node = session.query(Node).filter(Node.id == source_node_id).first()
-                if not source_node:
-                    return False, f"Source node '{source_node_id}' does not exist"
-                edge.source_node_id = source_node_id  # type: ignore
-            
-            if target_node_id is not None:
-                target_node = session.query(Node).filter(Node.id == target_node_id).first()
-                if not target_node:
-                    return False, f"Target node '{target_node_id}' does not exist"
-                edge.target_node_id = target_node_id  # type: ignore
-            
-            if edge_type_id is not None:
-                edge_type = session.query(EdgeType).filter(EdgeType.id == edge_type_id).first()
-                if not edge_type:
-                    return False, f"Edge type '{edge_type_id}' does not exist"
-                edge.edge_type_id = edge_type_id  # type: ignore
-            
-            if description is not None:
-                edge.description = description  # type: ignore
-            
-            session.commit()
-            return True, "Edge updated successfully"
+            return {
+                'success': True,
+                'message': "Successfully updated Edge Type",
+                'data': edge_type.to_dict()
+            }
         except Exception as e:
             session.rollback()
-            return False, f"Error updating edge: {str(e)}"
+            return {
+                'success': False,
+                'message': f"Error updating Edge Type: {str(e)}",
+                'data': None
+            }
         finally:
             session.close()
 
     # ==================== DELETE OPERATIONS ====================
 
-    def delete_node(self, node_id: str) -> tuple:
+    # Delete Edge Function
+
+    def delete_edge(self, edge_id: str) -> Dict[str, Any]: 
+        session = self.SessionLocal()
+        try:
+            edge = session.query(Edge).filter(Edge.id == edge_id).first()
+            if not edge:
+                return {
+                    'success': False,
+                    'message': f"Unable to find Edge with ID '{edge_id}'",
+                    'data': None
+                }
+            
+            session.delete(edge)
+            session.commit()
+            return {
+                'success': True,
+                'message': "Successfully deleted Edge",
+                'data': None
+            }
+        except Exception as e:
+            session.rollback()
+            return {
+                'success': False,
+                'message': f"Error deleting Edge: {str(e)}",
+                'data': None
+            }
+        finally:
+            session.close()
+
+    # Delete Node Function
+
+    def delete_node(self, node_id: str) -> Dict[str, Any]: 
         session = self.SessionLocal()
         try:
             node = session.query(Node).filter(Node.id == node_id).first()
             if not node:
-                return False, f"Node with ID '{node_id}' not found"
+                return {
+                    'success': False,
+                    'message': f"Unable to find Node with ID '{node_id}'",
+                    'data': None
+                }
             
-            # Check if node is referenced by any edges
             referencing_edges = session.query(Edge).filter(
                 (Edge.source_node_id == node_id) | (Edge.target_node_id == node_id)
             ).count()
             
             if referencing_edges > 0:
-                return False, f"Cannot delete node '{node_id}': it is referenced by {referencing_edges} edge(s)"
+                return {
+                    'success': False,
+                    'message': f"Cannot delete Node '{node_id}': it is referenced by {referencing_edges} edge(s)",
+                    'data': None
+                }
             
             session.delete(node)
             session.commit()
-            return True, "Node deleted successfully"
+            return {
+                'success': True,
+                'message': "Successfully deleted Node",
+                'data': None
+            }
         except Exception as e:
             session.rollback()
-            return False, f"Error deleting node: {str(e)}"
+            return {
+                'success': False,
+                'message': f"Error deleting Node {str(e)}",
+                'data': None
+            }
         finally:
             session.close()
 
-    def delete_edge(self, edge_id: str) -> tuple:
-        session = self.SessionLocal()
-        try:
-            edge = session.query(Edge).filter(Edge.id == edge_id).first()
-            if not edge:
-                return False, f"Edge with ID '{edge_id}' not found"
-            
-            session.delete(edge)
-            session.commit()
-            return True, "Edge deleted successfully"
-        except Exception as e:
-            session.rollback()
-            return False, f"Error deleting edge: {str(e)}"
-        finally:
-            session.close()
+    # Delete Edge Type Function
 
-    def delete_edge_type(self, edge_type_id: str) -> tuple:
+    def delete_edge_type(self, edge_type_id: str) -> Dict[str, Any]:
         session = self.SessionLocal()
         try:
             edge_type = session.query(EdgeType).filter(EdgeType.id == edge_type_id).first()
             if not edge_type:
-                return False, f"Edge type with ID '{edge_type_id}' not found"
+                return {
+                    'success': False,
+                    'message': f"Unable to find Edge Type with ID '{edge_type_id}'",
+                    'data': None
+                }
             
-            # Check if edge type is referenced by any edges
             referencing_edges = session.query(Edge).filter(Edge.edge_type_id == edge_type_id).count()
             
             if referencing_edges > 0:
-                return False, f"Cannot delete edge type '{edge_type_id}': it is referenced by {referencing_edges} edge(s)"
-            
+                return {
+                    'success': False,
+                    'message': f"Cannot delete Edge Type '{edge_type_id}': it is referenced by {referencing_edges} edge(s)",
+                    'data': None
+                }
+
             session.delete(edge_type)
             session.commit()
-            return True, "Edge type deleted successfully"
+            return {
+                'success': True,
+                'message': "Successfully deleted Edge Type",
+                'data': None
+            }
         except Exception as e:
             session.rollback()
-            return False, f"Error deleting edge type: {str(e)}"
+            return {
+                'success': False,
+                'message': f"Error deleting Edge Type {str(e)}",
+                'data': None
+            }
         finally:
             session.close()
 
-    # ==================== BATCH OPERATIONS (Keep your existing implementation) ====================
+    # ==================== BATCH OPERATIONS ====================
 
-    def batch_update_nodes(self, updates: List[Dict[str, Any]]) -> tuple:
-        """Batch update multiple nodes"""
-        session = self.SessionLocal()
-        try:
-            updated_count = 0
-            errors = []
-            
-            for update in updates:
-                node_id = update.get('id')
-                if not node_id:
-                    continue
-                    
-                node = session.query(Node).filter(Node.id == node_id).first()
-                if node:
-                    if 'name' in update:
-                        node.name = update['name']
-                    if 'description' in update:
-                        node.description = update['description']
-                    updated_count += 1
-                else:
-                    errors.append(f"Node '{node_id}' not found")
-            
-            session.commit()
-            
-            if errors:
-                return True, f"Updated {updated_count} nodes. Errors: {'; '.join(errors)}"
-            else:
-                return True, f"Successfully updated {updated_count} nodes"
-                
-        except Exception as e:
-            session.rollback()
-            return False, f"Batch update failed: {str(e)}"
-        finally:
-            session.close()
+    # Batch Update Edges Function
 
-    def batch_update_edges(self, updates: List[Dict[str, Any]]) -> tuple:
+    def batch_update_edges(self, updates: List[Dict[str, Any]]) -> Dict[str, Any]: 
         """Batch update multiple edges"""
         session = self.SessionLocal()
         try:
@@ -650,17 +780,79 @@ class Model:
             session.commit()
             
             if errors:
-                return True, f"Updated {updated_count} edges. Errors: {'; '.join(errors[:5])}" + (f" and {len(errors)-5} more..." if len(errors) > 5 else "")
+                return {
+                    'success': True,    
+                    'message': f"Updated {updated_count} edges. Errors: {'; '.join(errors[:5])}" + (f" and {len(errors)-5} more..." if len(errors) > 5 else "")
+                }
             else:
-                return True, f"Successfully updated {updated_count} edges"
-                
+                return {
+                    'success': True,
+                    'message': f"Successfully updated {updated_count} edges"
+                }
+
         except Exception as e:
             session.rollback()
-            return False, f"Batch update failed: {str(e)}"
+            return {
+                'success': False,
+                'message': f"Batch update failed: {str(e)}",
+                'data': None
+            }
         finally:
             session.close()
 
-    def batch_update_edge_types(self, updates: List[Dict[str, Any]]) -> tuple:
+    # Batch Update Nodes Function
+
+    def batch_update_nodes(self, updates: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """Batch update multiple nodes"""
+        session = self.SessionLocal()
+        try:
+            updated_count = 0
+            errors = []
+            
+            for update in updates:
+                node_id = update.get('id')
+                if not node_id:
+                    continue
+                    
+                node = session.query(Node).filter(Node.id == node_id).first()
+                if node:
+                    if 'name' in update:
+                        node.name = update['name']
+                    if 'description' in update:
+                        node.description = update['description']
+                    updated_count += 1
+                else:
+                    errors.append(f"Node '{node_id}' not found")
+            
+            session.commit()
+            
+            if errors:
+                return {
+                    'success': True,
+                    'message': f"Updated {updated_count} nodes. Errors: {'; '.join(errors)}",
+                    'data': {'updated': updated_count, 'errors': errors}
+                }
+            else:
+                return {
+                    'success': True,
+                    'message': f"Successfully updated {updated_count} nodes",
+                    'data': {'updated': updated_count}
+                }
+
+        except Exception as e:
+            session.rollback()
+            return {
+                'success': False,
+                'message': f"Batch update failed: {str(e)}",
+                'data': None
+            }
+        finally:
+            session.close()
+
+
+    # Batch Update Edge Types Function
+
+    def batch_update_edge_types(self, updates: List[Dict[str, Any]]) -> Dict[str, Any]:
         """Batch update multiple edge types"""
         session = self.SessionLocal()
         try:
@@ -685,13 +877,25 @@ class Model:
             session.commit()
             
             if errors:
-                return True, f"Updated {updated_count} edge types. Errors: {'; '.join(errors)}"
+                return {
+                    'success': True,
+                    'message': f"Updated {updated_count} edge types. Errors: {'; '.join(errors)}",
+                    'data': {'updated': updated_count, 'errors': errors}
+                }
             else:
-                return True, f"Successfully updated {updated_count} edge types"
-                
+                return {
+                    'success': True,
+                    'message': f"Successfully updated {updated_count} edge types",
+                    'data': {'updated': updated_count}
+                }
+
         except Exception as e:
             session.rollback()
-            return False, f"Batch update failed: {str(e)}"
+            return {
+                'success': False,
+                'message': f"Batch update failed: {str(e)}",
+                'data': None
+            }
         finally:
             session.close()
 
@@ -741,7 +945,7 @@ class Model:
         return []
 
     def validate_database_integrity(self) -> Dict[str, Any]:
-
+        """Validate all foreign key relationships in the database"""
         session = self.SessionLocal()
 
         try:
