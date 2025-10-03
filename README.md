@@ -12,6 +12,7 @@ Objective : ensure a Complete, Robust and Resilient Network.
 <summary>To-Do List:</summary>
 
 - [ ] Bug - fix Edges Page Column Filters
+- [ ] Add Tabulator Print Functions 
 - [ ] Add Application Logging
 - [ ] Add Breakdown and Root Nodes Logic
 - [ ] Update Network Filters
