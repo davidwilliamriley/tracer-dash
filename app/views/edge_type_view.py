@@ -27,7 +27,6 @@ class EdgeTypeView:
         )
 
     def _create_content_header(self):
-        """Create page header"""
         return html.Div(
             [
                 html.H1([html.I(className="bi bi-link-45deg me-2"), "Edge Types"], className="my-4 text-primary"),
@@ -36,71 +35,55 @@ class EdgeTypeView:
         )
 
     def _create_toolbar(self) -> html.Div:
-            return html.Div(
-                [
-                    html.Div(
-                        [
-                            dbc.ButtonGroup(
-                                [
-                                    dbc.Button(
-                                        [html.I(className="bi bi-plus-lg me-2"), "Create"],
-                                        id="create-edge-type-btn",
-                                        outline=True,
-                                        color="primary",
-                                        title="Create a new Edge Type",
-                                    ),
-                                    dbc.Button(
-                                        [
-                                            html.I(className="bi bi-arrow-clockwise me-2"),
-                                            "Refresh",
-                                        ],
-                                        id="refresh-edge-types-btn",
-                                        outline=True,
-                                        color="primary",
-                                        title="Refresh the Edge Types Table",
-                                    ),
-                                    dbc.Button(
-                                        [html.I(className="bi bi-trash me-2"), "Delete"],
-                                        id="delete-edge-type-btn",
-                                        outline=True,
-                                        color="warning",
-                                        title="Delete a selected Edge Type",
-                                        disabled=True,
-                                    ),
-                                ],
-                            ),
-                        ],
-                        className="col-md-6",
-                    ),
-                    html.Div(
-                        [
-                            dbc.ButtonGroup(
-                                [
-                                    dbc.Button(
-                                        [html.I(className="bi bi-printer me-2"), "Print"],
-                                        id="print-edge-types-btn",
-                                        outline=True,
-                                        color="primary",
-                                        title="Print the Table to PDF",
-                                    ),
-                                    dbc.Button(
-                                        [
-                                            html.I(className="bi bi-download me-2"),
-                                            "Download",
-                                        ],
-                                        id="download-edge-types-btn",
-                                        outline=True,
-                                        color="primary",
-                                        title="Download the Table as CSV",
-                                    ),
-                                ],
-                            ),
-                        ],
-                        className="col-md-6 d-flex justify-content-end",
-                    ),
-                ],
-                className="row justify-content-between mb-3 edge-types-toolbar",
-            )
+        return html.Div([
+            html.Div([
+                html.Div([  
+                    dbc.ButtonGroup([
+                        dbc.Button(
+                            [html.I(className="bi bi-plus-lg me-2"), "Create Edge Type"],
+                            id="create-edge-type-btn",
+                            outline=True,
+                            color="primary",
+                            title="Create a new Edge Type",
+                        ),
+                        dbc.Button(
+                            [html.I(className="bi bi-arrow-clockwise me-2"), "Refresh Edge Types"],
+                                id="refresh-edge-types-btn",
+                                outline=True,
+                                color="primary",
+                                title="Refresh the Edge Types Table",
+                        ),
+                        dbc.Button(
+                            [html.I(className="bi bi-trash me-2"), "Delete Edge Type(s)"],
+                            id="delete-edge-type-btn",
+                            outline=True,
+                            color="warning",
+                            title="Delete a selected Edge Type",
+                            disabled=True,
+                        ),
+                    ]),
+                ], className="col-md-6"),
+                
+                html.Div([
+                    dbc.ButtonGroup([
+                        dbc.Button(
+                            [html.I(className="bi bi-printer me-2"), "Print PDF"],
+                            id="print-edge-types-btn",
+                            outline=True,
+                            color="primary",
+                            title="Print the Table to PDF",
+                        ),
+                        dbc.Button(
+                            [html.I(className="bi bi-download me-2"), "Download CSV"],
+                            id="download-edge-types-btn",
+                            outline=True,
+                            color="primary",
+                            title="Download the Table as CSV",
+                        ),
+                    ]),
+                ], className="col-md-6 d-flex justify-content-end"),    
+        ], className="row justify-content-between mb-3 edge-types-toolbar"),
+    ])
 
     def create_layout(self, edge_types: List[Dict[str, Any]]) -> "dbc.Container":
         return dbc.Container(
@@ -128,6 +111,7 @@ class EdgeTypeView:
                         self._render_delete_modal(),
 
                         dcc.Download(id="download-edge-types-csv"),
+                        dcc.Download(id="print-edge-types-pdf"),
                     ]
                 )
             ],
@@ -140,15 +124,6 @@ class EdgeTypeView:
         )
 
     def _render_table(self, edge_types: List[Dict[str, Any]]) -> html.Div:
-        """
-        Render the edge types table
-
-        Args:
-            edge_types: List of edge type dictionaries to display
-
-        Returns:
-            html.Div containing the table component
-        """
         return html.Div(
             [
                 dash_tabulator.DashTabulator(
@@ -156,36 +131,18 @@ class EdgeTypeView:
                     theme="tabulator",
                     data=edge_types,
                     columns=[
-                        {
-                            "title": "ID",
-                            "field": "ID",
-                            "width": 300,
-                            "headerFilter": True,
-                            "editor": False,
-                            "visible": False,
-                        },
-                        {
-                            "title": "Identifier",
-                            "field": "Identifier",
-                            "width": 200,
-                            "headerFilter": True,
-                            "editor": "input",
-                        },
-                        {
-                            "title": "Name",
-                            "field": "Name",
-                            "width": 300,
-                            "headerFilter": True,
-                            "editor": "input",
-                        },
-                        {
-                            "title": "Description",
-                            "field": "Description",
-                            "headerFilter": True,
-                            "editor": "input",
-                        },
+                        {"title": "ID", "field": "ID", "headerFilter": True, "editor": False, "visible": False},
+                        {"title": "Identifier", "field": "Identifier", "headerFilter": True, "editor": "input"},
+                        {"title": "Name", "field": "Name", "headerFilter": True, "editor": "input"},
+                        {"title": "Description", "field": "Description", "headerFilter": True, "editor": "input"},
                     ],
                     options={
+                        "downloadConfig": {
+                            "columnHeaders": True,
+                            "columnGroups": True,
+                            "rowGroups": True,
+                            "columnCalcs": True,
+                        },
                         "selectable": True,
                         "selectableRangeMode": "click",
                         "pagination": "local",
@@ -199,11 +156,9 @@ class EdgeTypeView:
                         "responsiveLayout": "hide",
                         "tooltips": True,
                         "clipboard": True,
-                        "printAsHtml": True,
-                        "printHeader": "Edge Types Table",
                     },
                 )
-            ]
+            ],
         )
 
     def _render_create_modal(self) -> dbc.Modal:

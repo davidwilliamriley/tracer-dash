@@ -17,7 +17,7 @@ register_page(
 
 dashboard_view = DashboardView()
 
-layout = dashboard_view.create_layout()
+layout = dashboard_view.get_layout()
 
 @callback(
     Output("descriptive-metrics-table", "data"),

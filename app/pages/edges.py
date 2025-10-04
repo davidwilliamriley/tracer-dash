@@ -1,26 +1,27 @@
 # pages/edges.py
 
+# Iport Libraries
 import dash
 from dash import html, dcc, callback, Input, Output, no_update, State
 import dash_bootstrap_components as dbc
-import pandas as pd
-import uuid
-import json
 from datetime import datetime
-from typing import Any, Dict, List
+import json
+import pandas as pd
+from typing import Any, Dict, List, Tuple, Optional
+import uuid
 
-# Import model and view
+# Import Model and View
 from models.model import Model
+from utils.pdf_generator import generate_table_pdf
 from views.edge_view import EdgeView
 
 dash.register_page(__name__, path="/edges")
 
-# Initialize model and view
+# Initialize Model and View
 model = Model()
 view = EdgeView()
 
 # ==================== HELPER FUNCTIONS ====================
-
 
 def get_edges_from_db() -> List[Dict[str, Any]]:
     """Get Edges from the Database with display names for the table"""
@@ -39,21 +40,20 @@ def get_edges_from_db() -> List[Dict[str, Any]]:
         display_edges = []
         for edge in raw_edges:
             source_uuid = edge["Source"]
-            target_uuid = edge["Target"]
             edge_type_uuid = edge["Edge Type"]
+            target_uuid = edge["Target"]
+
 
             display_edge = {
                 "ID": edge["ID"],
                 "Identifier": edge["Identifier"],
-                "Source": node_uuid_to_label.get(source_uuid, source_uuid),
-                "Target": node_uuid_to_label.get(target_uuid, target_uuid),
-                "Edge Type": edge_type_uuid_to_label.get(
-                    edge_type_uuid, edge_type_uuid
-                ),
-                "Description": edge["Description"],
                 "Source_UUID": source_uuid,
-                "Target_UUID": target_uuid,
+                "Source": node_uuid_to_label.get(source_uuid, source_uuid),
                 "Edge_Type_UUID": edge_type_uuid,
+                "Edge Type": edge_type_uuid_to_label.get(edge_type_uuid, edge_type_uuid),
+                "Target_UUID": target_uuid,
+                "Target": node_uuid_to_label.get(target_uuid, target_uuid),
+                "Description": edge["Description"],
             }
             display_edges.append(display_edge)
 
@@ -299,7 +299,7 @@ def manage_edges(
             return (
                 data,
                 True,
-                f"Failed to create edge: {message}",
+                f"Failed to create Edge: {message}",
                 "danger",
                 no_update,
                 no_update,
@@ -537,27 +537,20 @@ def download_csv(n_clicks, data):
             filename=f"edges_export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
         )
 
-
-# Print functionality
+# Print PDF
 @callback(
-    [
-        Output("toast-message", "is_open", allow_duplicate=True),
-        Output("toast-message", "children", allow_duplicate=True),
-        Output("toast-message", "icon", allow_duplicate=True),
-    ],
+    Output("print-edges-pdf", "data"),
     Input("print-edges-btn", "n_clicks"),
-    prevent_initial_call=True,
+    State("edges-table", "data"),
+    prevent_initial_call=True
 )
-def print_table(n_clicks):
-    """Handle print functionality"""
-    if n_clicks:
-        return (
-            True,
-            "Print functionality would open a print dialog or generate a PDF report.",
-            "info",
-        )
-    return no_update, no_update, no_update
-
+def download_pdf(n_clicks, table_data):
+    return generate_table_pdf(
+        data=table_data,
+        title="Edges Table",
+        columns_to_exclude=["ID", "Source_UUID", "Target_UUID", "Edge_Type_UUID"],
+        filename="edges"
+    )
 
 # Refresh table
 @callback(

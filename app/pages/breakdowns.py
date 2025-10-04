@@ -211,8 +211,8 @@ clientside_callback(
                         width: 60
                     },
                     {title: "Element", field: "Element", width: 100, headerFilter: "input"},
-                    {title: "Relation", field: "Relation", width: 150, headerFilter: "input"},
-                    {title: "Weight", field: "Weight", width: 100, headerFilter: "input"},
+                    {title: "Edge Type", field: "Relation", width: 150, headerFilter: "input"},
+                    # {title: "Weight", field: "Weight", width: 100, headerFilter: "input"},
                     {title: "Identifier", field: "Identifier", width: 250, headerFilter: "input"},
                     {title: "Name", field: "Name", width: 300, headerFilter: "input"},
                     {title: "Description", field: "Description", headerFilter: "input", minWidth: 200}

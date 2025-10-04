@@ -7,10 +7,10 @@ import json
 from typing import List, Dict, Any
 
 class EdgeView:
-    """View class for Edges page - handles all UI layout"""
+    def __init__(self):
+        pass
 
     def _make_toast(self) -> dbc.Toast:
-        """Create toast notification component"""
         return dbc.Toast(
             id="toast-message",
             header="Notification",
@@ -26,21 +26,69 @@ class EdgeView:
             }
         )
 
-
     def _create_content_header(self):
-        """Create page header"""
         return html.Div(
             [
                 html.H1([html.I(className="bi bi-arrow-repeat me-2"), "Edges"], className="my-4 text-primary"),
                 html.P("Create, Modify and / or Delete the Edges between the Nodes of the Network ", className="mb-4 text-muted"),
-            ],
+            ]
         )
-    
+
+    def _create_toolbar(self) -> html.Div:
+        return html.Div([
+            html.Div([
+                html.Div([
+                    dbc.ButtonGroup([
+                        dbc.Button(
+                            [html.I(className="bi bi-plus-lg me-2"), "Create Edge"],
+                            id="create-edge-btn",
+                            outline=True,
+                            color="primary",
+                            title="Create a new Edge"
+                        ),
+                        dbc.Button(
+                            [html.I(className="bi bi-arrow-clockwise me-2"), "Refresh Edges"],
+                            id="refresh-edges-btn",
+                            outline=True,
+                            color="primary",
+                            title="Refresh the Edges Table"
+                        ),
+                        dbc.Button(
+                            [html.I(className="bi bi-trash me-2"), "Delete Edge(s)"],
+                            id="delete-edge-btn",
+                            outline=True,   
+                            color="warning",
+                            title="Delete selected Edge(s)",
+                            disabled=True
+                        ),
+                    ]),
+                ], className="col-md-6"),
+                
+                html.Div([
+                    dbc.ButtonGroup([
+                        dbc.Button(
+                            [html.I(className="bi bi-printer me-2"), "Print PDF"],
+                            id="print-edges-btn",
+                            outline=True,
+                            color="primary",
+                            title="Print the Table to PDF"
+                        ),
+                        dbc.Button(
+                            [html.I(className="bi bi-download me-2"), "Download CSV"],
+                            id="download-edges-btn",
+                            outline=True,
+                            color="primary",
+                            title="Download the Table as CSV"
+                        ),
+                    ]),
+                ], className="col-md-6 d-flex justify-content-end"),
+            ], className="row justify-content-between mb-3 edges-toolbar"),
+        ])
+     
     def create_layout(self, edges_data: List[Dict[str, Any]], node_label_map: Dict[str, str], edge_type_label_map: Dict[str, str]) -> dbc.Container:
         """Create the main layout for the Edges Page"""
-        return dbc.Container(
-            [
-                # Toast notification
+        return dbc.Container([
+                # Toast Notification
                 self._make_toast(),
 
                 dbc.Stack(
@@ -68,7 +116,8 @@ class EdgeView:
                         self._create_delete_modal(),
                     
                         # Hidden download component
-                        dcc.Download(id="download-edges-csv")
+                        dcc.Download(id="download-edges-csv"),
+                        dcc.Download(id="print-edges-pdf"),
                     ]
                 )
             ], 
@@ -79,132 +128,65 @@ class EdgeView:
                 "flexDirection": "column",
             },
         )
-
-    
  
-    def _create_toolbar(self) -> html.Div:
-        return html.Div([
-            html.Div([
-                # Left side buttons
-                html.Div([
-                    dbc.ButtonGroup([
-                        dbc.Button(
-                            [html.I(className="bi bi-plus-lg me-2"), "Create"],
-                            id="create-edge-btn",
-                            outline=True,
-                            color="primary",
-                            title="Create a new Edge"
-                        ),
-                        dbc.Button(
-                            [html.I(className="bi bi-arrow-clockwise me-2"), "Refresh"],
-                            id="refresh-edges-btn",
-                            outline=True,
-                            color="primary",
-                            title="Refresh the Edges Table"
-                        ),
-                        dbc.Button(
-                            [html.I(className="bi bi-trash me-2"), "Delete"],
-                            id="delete-edge-btn",
-                            outline=True,   
-                            color="warning",
-                            title="Delete selected Edge(s)",
-                            disabled=True
-                        ),
-                    ]),
-                ], className="col-md-6"),
-                
-                # Right side buttons
-                html.Div([
-                    dbc.ButtonGroup([
-                        dbc.Button(
-                            [html.I(className="bi bi-printer me-2"), "Print"],
-                            id="print-edges-btn",
-                            outline=True,
-                            color="primary",
-                            title="Print the Table to PDF"
-                        ),
-                        dbc.Button(
-                            [html.I(className="bi bi-download me-2"), "Download"],
-                            id="download-edges-btn",
-                            outline=True,
-                            color="primary",
-                            title="Download the Table as CSV"
-                        ),
-                    ]),
-                ], className="col-md-6 d-flex justify-content-end"),
-            ], className="row justify-content-between mb-3 edges-toolbar"),
-        ])
-    
     def _create_table(
         self,
         edges_data: List[Dict[str, Any]],
         node_label_map: Dict[str, str],
         edge_type_label_map: Dict[str, str]
     ) -> html.Div:
-        """Create Tabulator table"""
+        """Create Tabulator Table"""
         return html.Div([
             dash_tabulator.DashTabulator(
                 id='edges-table',
                 theme='tabulator',
                 data=edges_data,
                 columns=[
+                    {"title": "ID", "field": "ID", "headerFilter": False, "visible": False},
                     {
-                        "title": "ID",
-                        "field": "ID",
-                        "headerFilter": False,
-                        "visible": False
-                    },
-                    {
-                        "title": "Identifier",
-                        "field": "Identifier",
-                        "headerFilter": True,
+                        "title": "Identifier", 
+                        "field": "Identifier", 
+                        "headerFilter": "input", 
+                        "headerFilterParams": {"clearable": True},
+                        "headerFilterPlaceholder": "Filter by Identifier...", 
                         "editor": "input"
                     },
-                    {
-                        "title": "Source_UUID",
-                        "field": "Source_UUID",
-                        "headerFilter": False,
-                        "visible": False
-                    },
+                    {"title": "Source_UUID", "field": "Source_UUID", "headerFilter": False, "visible": False},
                     {
                         "title": "Source",
                         "field": "Source",
-                        "headerFilter": True,
+                        "headerFilter": "input",
+                        "headerFilterParams": {"clearable": True},
+                        "headerFilterPlaceholder": "Filter by Source...",
                         "editor": "select",
                         "editorParams": {"values": node_label_map}
                     },
+                    {"title": "Edge_Type_UUID", "field": "Edge_Type_UUID", "headerFilter": False, "visible": False},
                     {
-                        "title": "Edge_Type_UUID",
-                        "field": "Edge_Type_UUID",
-                        "headerFilter": False,
-                        "visible": False
-                    },
-                    {
-                        "title": "Edge Type",
-                        "field": "Edge Type",
-                        "headerFilter": True,
-                        "editor": "select",
+                        "title": "Edge Type", 
+                        "field": "Edge Type", 
+                        "headerFilter": "input",
+                        "headerFilterParams": {"clearable": True},
+                        "headerFilterPlaceholder": "Filter by Edge Type...",
+                        "editor": "select", 
                         "editorParams": {"values": edge_type_label_map}
                     },
-                    {
-                        "title": "Target_UUID",
-                        "field": "Target_UUID",
-                        "headerFilter": False,
-                        "visible": False
-                    },
+                    {"title": "Target_UUID", "field": "Target_UUID", "headerFilter": False, "visible": False},
                     {
                         "title": "Target",
                         "field": "Target",
-                        "headerFilter": True,
+                        "headerFilter": "input",
+                        "headerFilterParams": {"clearable": True},
+                        "headerFilterPlaceholder": "Filter by Target...",
                         "editor": "select",
                         "editorParams": {"values": node_label_map}
                     },
                     {
-                        "title": "Description",
-                        "field": "Description",
-                        "headerFilter": True,
-                        "editor": "input"
-                    }
+                        "title": "Description", 
+                        "field": "Description", 
+                        "headerFilter": "input",
+                        "headerFilterPlaceholder": "Filter by Description...", 
+                        "editor": "input"}
                 ],
                 options={
                     "selectable": True,

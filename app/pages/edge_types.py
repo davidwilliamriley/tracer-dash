@@ -1,16 +1,27 @@
 # pages/edge_types.py
+
+# Import Libraries
+# import base64
 import dash
-from dash import callback, Input, Output, State, no_update
-import pandas as pd
-import uuid
+from dash import callback, dcc, Input, Output, State, no_update #, clientside_callback, ClientsideFunction
 from datetime import datetime
+import pandas as pd
+# from reportlab.lib import colors
+# from reportlab.lib.pagesizes import A4, letter, landscape
+# from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+# from reportlab.lib.styles import getSampleStyleSheet
+# from reportlab.lib.units import inch
+# import io
+
 from typing import Any, Dict, List, Tuple, Optional
+import uuid
 
 # Import Model and View
 from models.model import Model
+from utils.pdf_generator import generate_table_pdf
 from views.edge_type_view import EdgeTypeView
 
-# Register page
+# Register Page
 dash.register_page(__name__, path='/edge-types')
 
 # Initialize Model and View
@@ -97,7 +108,6 @@ def update_edge_types(changed_data: List[Dict[str, Any]]) -> Tuple[bool, str, Op
         print(f"Error updating edge types: {e}")
         return False, f"Error saving changes: {str(e)}", None
 
-
 def delete_edge_types(selected_rows: List[Dict[str, Any]]) -> Tuple[bool, str, Optional[List[Dict[str, Any]]]]:
     if not selected_rows:
         return False, "No edge types selected for deletion", None
@@ -131,15 +141,6 @@ def delete_edge_types(selected_rows: List[Dict[str, Any]]) -> Tuple[bool, str, O
 
 
 def export_to_csv(data: List[Dict[str, Any]]) -> Tuple[str, str]:
-    """
-    Export edge types data to CSV
-    
-    Args:
-        data: List of edge type dictionaries
-        
-    Returns:
-        Tuple of (csv_content, filename)
-    """
     if not data:
         return "", ""
     
@@ -151,32 +152,15 @@ def export_to_csv(data: List[Dict[str, Any]]) -> Tuple[str, str]:
 
 
 def validate_selection(selected_rows: Optional[List[Dict[str, Any]]]) -> bool:
-    """
-    Validate if any rows are selected
-    
-    Args:
-        selected_rows: List of selected row dictionaries or None
-        
-    Returns:
-        True if rows are selected, False otherwise
-    """
     return selected_rows is not None and len(selected_rows) > 0
-
 
 # ============================================================================
 # LAYOUT
 # ============================================================================
 
 def layout():
-    """
-    Generate the page layout
-    
-    Returns:
-        The complete page layout from the view
-    """
     edge_types = get_edge_types_from_db()
     return view.create_layout(edge_types)
-
 
 # ============================================================================
 # CALLBACKS
@@ -343,7 +327,7 @@ def manage_edge_types(create_clicks, delete_clicks, identifier, name, descriptio
         else:
             return data or [], True, message, "danger", no_update, no_update, no_update
 
-    # Delete selected edge types
+    # Delete selected Edge Types
     elif button_id == 'confirm-delete-edge-type':
         success, message, updated_data = delete_edge_types(selected_rows)
         
@@ -372,21 +356,18 @@ def download_csv(n_clicks, data):
 
 
 @callback(
-    [
-        Output('toast-message', 'is_open', allow_duplicate=True),
-        Output('toast-message', 'children', allow_duplicate=True),
-        Output('toast-message', 'icon', allow_duplicate=True)
-    ],
-    Input('print-edge-types-btn', 'n_clicks'),
+    Output("print-edge-types-pdf", "data"),
+    Input("print-edge-types-btn", "n_clicks"),
+    State("edge-types-table", "data"),
     prevent_initial_call=True
 )
-def print_table(n_clicks):
-    """Handle print functionality"""
-    if n_clicks:
-        message = "Print functionality would open a print dialog or generate a PDF report."
-        return True, message, "info"
-    return no_update, no_update, no_update
-
+def download_pdf(n_clicks, table_data):
+    return generate_table_pdf(
+        data=table_data,
+        title="Edge Types Table",
+        columns_to_exclude=["ID"],
+        filename="edge_types"
+    )
 
 @callback(
     [
@@ -403,7 +384,7 @@ def refresh_table(n_clicks):
     if n_clicks:
         try:
             refreshed_data = get_edge_types_from_db()
-            message = f"Table refreshed successfully - loaded {len(refreshed_data)} edge types"
+            message = f"Table refreshed successfully - loaded {len(refreshed_data)} Edge Types"
             return refreshed_data, True, message, "info"
         except Exception as e:
             message = f"Error refreshing data: {str(e)}"

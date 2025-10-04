@@ -3,6 +3,9 @@
 import dash
 from dash import html, dcc, Input, Output, State, callback_context, dash_table
 import dash_bootstrap_components as dbc
+import logging
+
+logger = logging.getLogger('TracerApp')
 
 
 class IndexView:
@@ -10,8 +13,7 @@ class IndexView:
         return
    
     def get_layout(self):
-        """Create the main layout for the home page"""
-
+        logger.info("Generating layout for IndexView")
         return dbc.Container([
             # First Row of Cards
             dbc.Row([
@@ -34,7 +36,7 @@ class IndexView:
                             html.I(className="bi bi-file-earmark-richtext display-3 text-primary mb-3"),
                             html.H5("Reports", className="card-title"),
                             html.P("Generate detailed Reports", className="card-text mb-4"),
-                            html.A("View Reports", href="/reports", className="btn btn-outline-primary btn-fixed-width")
+                            # html.A("View Reports", href="/reports", className="btn btn-outline-primary btn-fixed-width")
                         ], className="text-center")
                     ], className="h-100 shadow-sm")
                 ], className="col-lg-3 col-md-6"),
@@ -109,9 +111,10 @@ class IndexView:
                             html.I(className="bi bi-life-preserver display-3 text-primary mb-3"),
                             html.H5("Help", className="card-title"),
                             html.P("Resources for working with Tracer", className="card-text mb-4"),
-                            html.A("Get Help", href="/help", className="btn btn-outline-primary btn-fixed-width")
+                            # html.A("Get Help", href="/help", className="btn btn-outline-primary btn-fixed-width")
                         ], className="text-center")
                     ], className="h-100 shadow-sm")
                 ], className="col-lg-3 col-md-6"),
             ], className="g-3")
         ], style={'minHeight': 'calc(100vh - 120px)', 'paddingBottom': '100px', 'display': 'flex', 'flexDirection': 'column'}, className="py-3")
+

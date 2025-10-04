@@ -1,34 +1,22 @@
 # views/node_view.py
 
-import dash
+# Import Libaries
 from dash import html, dcc
 import dash_bootstrap_components as dbc
 import dash_tabulator
 from typing import Any, Dict, List
 
+# Import Model, View and Utils
+from utils.toaster import ToastFactory
 
 class NodeView:
     def __init__(self):
         pass
 
     def _make_toast(self) -> dbc.Toast:
-        return dbc.Toast(
-            id="toast-message",
-            header="Notification",
-            is_open=False,
-            dismissable=True,
-            duration=4000,
-            style={
-                "position": "fixed",
-                "top": 100,
-                "left": 20,
-                "width": 350,
-                "z-index": 9999,
-            },
-        )
+        return ToastFactory.create_toast()
     
     def _create_content_header(self) -> html.Div:
-        """Create page header"""
         return html.Div(
             [
                 html.H1([html.I(className="bi bi-plus-circle me-2"), "Nodes"], className="my-4 text-primary"),
@@ -36,24 +24,104 @@ class NodeView:
             ],
         )
 
+    def _create_toolbar(self) -> html.Div:
+        return html.Div([
+            html.Div(
+                    [
+                        # Left side buttons
+                        html.Div(
+                            [
+                                dbc.ButtonGroup(
+                                    [
+                                        dbc.Button(
+                                            [
+                                                html.I(className="bi bi-plus-lg me-2"),
+                                                "Create Node",
+                                            ],
+                                            id="create-node-btn",
+                                            outline=True,
+                                            color="primary",
+                                            title="Create a new Node",
+                                        ),
+                                        dbc.Button(
+                                            [
+                                                html.I(
+                                                    className="bi bi-arrow-clockwise me-2"
+                                                ),
+                                                "Refresh Nodes",
+                                            ],
+                                            id="refresh-nodes-btn",
+                                            outline=True,
+                                            color="primary",
+                                            title="Refresh the Nodes Table",
+                                        ),
+                                        dbc.Button(
+                                            [
+                                                html.I(className="bi bi-trash me-2"),
+                                                "Delete Node(s)",
+                                            ],
+                                            id="delete-node-btn",
+                                            outline=True,
+                                            color="warning",
+                                            title="Delete selected Node(s)",
+                                            disabled=True,
+                                        ),
+                                    ],
+                                ),
+                            ],
+                            className="col-md-6",
+                        ),
+                        # Right side buttons
+                        html.Div(
+                            [
+                                dbc.ButtonGroup(
+                                    [
+                                        dbc.Button(
+                                            [
+                                                html.I(className="bi bi-printer me-2"),
+                                                "Print PDF",
+                                            ],
+                                            id="print-nodes-btn",
+                                            outline=True,
+                                            color="primary",
+                                            title="Print the Table to PDF",
+                                        ),
+                                        dbc.Button(
+                                            [
+                                                html.I(className="bi bi-download me-2"),
+                                                "Download CSV",
+                                            ],
+                                            id="download-nodes-btn",
+                                            outline=True,
+                                            color="primary",
+                                            title="Download the Table as CSV",
+                                        ),
+                                    ],
+                                ),
+                            ],
+                            className="col-md-6 d-flex justify-content-end",
+                        ),
+                    ],
+                    className="row justify-content-between mb-3",
+                )
+            ]
+        )
+    
     def create_layout(self, nodes_data: List[Dict[str, Any]]) -> "dbc.Container":
-        """Create the main layout for the Nodes page"""
         return dbc.Container(
             [
                 # Toast notification
-                self._make_toast(),
+                ToastFactory.create_toast(),
                     
                 # Main Content Stack
-                dbc.Stack(
-                    [
-                        # Content Header
-                        self._create_content_header(),
+                dbc.Stack([
+                    # Content Header
+                    self._create_content_header(),
 
-                        # Controls
-                        html.Div(
-                            [
-                                self._create_toolbar(),
-                            ]
+                    # Controls
+                    html.Div([
+                        self._create_toolbar(),
+                        ]
                         ),
 
                         # Main Content
@@ -70,6 +138,7 @@ class NodeView:
 
                         # Hidden Download Component
                         dcc.Download(id="download-nodes-csv"),
+                        dcc.Download(id="print-nodes-pdf"),
                     ]
                 )
             ],
@@ -81,104 +150,8 @@ class NodeView:
             },
         )
 
-    def _create_toolbar(self) -> html.Div:
-            """Create toolbar with action buttons"""
-            return html.Div([
-                html.Div(
-                        [
-                            # Left side buttons
-                            html.Div(
-                                [
-                                    dbc.ButtonGroup(
-                                        [
-                                            dbc.Button(
-                                                [
-                                                    html.I(className="bi bi-plus-lg me-2"),
-                                                    "Create",
-                                                ],
-                                                id="create-node-btn",
-                                                outline=True,
-                                                color="primary",
-                                                title="Create a new Node",
-                                            ),
-                                            dbc.Button(
-                                                [
-                                                    html.I(
-                                                        className="bi bi-arrow-clockwise me-2"
-                                                    ),
-                                                    "Refresh",
-                                                ],
-                                                id="refresh-nodes-btn",
-                                                outline=True,
-                                                color="primary",
-                                                title="Refresh the Nodes Table",
-                                            ),
-                                            dbc.Button(
-                                                [
-                                                    html.I(className="bi bi-trash me-2"),
-                                                    "Delete",
-                                                ],
-                                                id="delete-node-btn",
-                                                outline=True,
-                                                color="warning",
-                                                title="Delete selected Node(s)",
-                                                disabled=True,
-                                            ),
-                                        ],
-                                    ),
-                                ],
-                                className="col-md-6",
-                            ),
-                            # Right side buttons
-                            html.Div(
-                                [
-                                    dbc.ButtonGroup(
-                                        [
-                                            dbc.Button(
-                                                [
-                                                    html.I(className="bi bi-printer me-2"),
-                                                    "Print",
-                                                ],
-                                                id="print-nodes-btn",
-                                                outline=True,
-                                                color="primary",
-                                                title="Print the Table to PDF",
-                                            ),
-                                            dbc.Button(
-                                                [
-                                                    html.I(className="bi bi-download me-2"),
-                                                    "Download",
-                                                ],
-                                                id="download-nodes-btn",
-                                                outline=True,
-                                                color="primary",
-                                                title="Download the Table as CSV",
-                                            ),
-                                        ],
-                                    ),
-                                ],
-                                className="col-md-6 d-flex justify-content-end",
-                            ),
-                        ],
-                        className="row justify-content-between mb-3",
-                    )
-                ]
-            )
-
-    # def _create_table_container(self, nodes_data: List[Dict[str, Any]]) -> html.Div:
-    #     """Create main content area with toolbar and table"""
-    #     return html.Div(
-    #         [
-    #             # Toolbar
-    #             self._create_toolbar(),
-    #             # Table
-    #             self._create_table(nodes_data),
-    #         ],
-    #         className="container-fluid px-4 py-5",
-    #     )
-
     def _create_table(self, nodes_data: List[Dict[str, Any]]) -> html.Div:
-        """Create Tabulator table"""
+        """Create Tabulator Table"""
         return html.Div(
             [
                 dash_tabulator.DashTabulator(

@@ -3,7 +3,10 @@
 # Imports
 from dash import html, dcc, Input, Output, callback, dash_table
 import dash_bootstrap_components as dbc
+import logging
 from typing import Dict, Any
+
+logger = logging.getLogger('TracerApp')
 
 
 class DashboardView:
@@ -12,7 +15,7 @@ class DashboardView:
     def __init__(self):
         pass
 
-    def _create_toast(self) -> dbc.Toast:
+    def _make_toast(self) -> dbc.Toast:
         return dbc.Toast(
             id="networks-toast-message",
             header="Notification",
@@ -28,15 +31,33 @@ class DashboardView:
             },
         )
 
-    def create_layout(self):
+    def get_layout(self):
+        logger.info("Generating layout for DashboardView")
         return dbc.Container(
             [
-                self._create_toast(),
+                self._make_toast(),
                 
                 html.H1([html.I(className="bi bi-speedometer me-2"), "Dashboard"], className="my-4 text-primary"),
                 html.P("Metrics for the Network", className="mb-4 text-muted"),
                 dbc.Row([
 
+                    dbc.Col([
+                        dbc.Card([
+                            dbc.CardHeader("Description of Current Network"),
+                                dbc.CardBody([
+                                    dash_table.DataTable(
+                                        id="network-description-metrics-table",
+                                        style_table={'overflowX': 'auto'},
+                                        style_cell={
+                                            'textAlign': 'left',
+                                            'padding': '10px'
+                                        },
+                                    )
+                                ])
+                        ], className="mb-4",
+                    )], md=12),
+                ]),
+                dbc.Row([
                     dbc.Col([
                         dbc.Card([
                             dbc.CardHeader("Descriptive Metrics"),

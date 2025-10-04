@@ -1,19 +1,23 @@
 # pages/nodes.py
-import dash
-from dash import html, dcc, callback, Input, Output, State, no_update
-import dash_bootstrap_components as dbc
-import pandas as pd
-import uuid
-from datetime import datetime
-from typing import Any, Dict, List
 
-# Direct imports - no controller layer
+# Import Libraries
+import dash
+from dash import html, dcc, callback, Input, Output, no_update, State
+import dash_bootstrap_components as dbc
+from datetime import datetime
+import json
+import pandas as pd
+from typing import Any, Dict, List
+import uuid
+
+# Import Model and View
 from models.model import Model
+from utils.pdf_generator import generate_table_pdf
 from views.node_view import NodeView
 
 dash.register_page(__name__, path='/nodes')
 
-# Initialize model and view
+# Initialize Model and View
 model = Model()
 view = NodeView()
 
@@ -217,21 +221,22 @@ def download_csv(n_clicks, data):
             filename=f"nodes_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
         )
 
-# Print functionality
+# Print PDF
 @callback(
-    [Output('toast-message', 'is_open', allow_duplicate=True),
-     Output('toast-message', 'children', allow_duplicate=True),
-     Output('toast-message', 'icon', allow_duplicate=True)],
-    Input('print-nodes-btn', 'n_clicks'),
+    Output("print-nodes-pdf", "data"),
+    Input("print-nodes-btn", "n_clicks"),
+    State("nodes-table", "data"),
     prevent_initial_call=True
 )
-def print_table(n_clicks):
-    """Handle print request"""
-    if n_clicks:
-        return True, "Print dialog would open here", "info"
-    return no_update, no_update, no_update
+def download_pdf(n_clicks, table_data):
+    return generate_table_pdf(
+        data=table_data,
+        title="Nodes Table",
+        columns_to_exclude=["ID"],
+        filename="nodes"
+    )
 
-# Refresh table
+# Refresh Table
 @callback(
     [Output('nodes-table', 'data', allow_duplicate=True),
      Output('toast-message', 'is_open', allow_duplicate=True),
