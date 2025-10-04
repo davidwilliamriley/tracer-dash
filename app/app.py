@@ -8,9 +8,33 @@ from flask import Flask
 from flask_caching import Cache
 import logging
 from logging.handlers import RotatingFileHandler
+import networkx as nx
 import sys
 import uuid
 import os
+
+# Initialize the Network Data on Startup
+from models.model import Model
+
+_model_instance = None
+_network_graph = None
+
+def get_model():
+    global _model_instance
+    if _model_instance is None:
+        _model_instance = Model()
+    return _model_instance
+
+def get_network():
+    global _network_graph
+    return _network_graph
+
+def set_network(G: nx.Graph):
+
+    global _network_graph
+    _network_graph = G
+
+get_model()
 
 # External Scripts
 external_scripts = [
@@ -88,7 +112,6 @@ server.static_folder = 'assets'
 
 # Import pages AFTER instantiation of the App
 import pages
-
 
 # Page Navigation Bar
 def get_header():
@@ -177,15 +200,14 @@ def get_footer():
         'boxShadow': '0 -2px 4px rgba(0,0,0,0.05)'
     })
 
-# To-Do : update the Footer to use the updated Template
+
+
 app.layout = html.Div([
     dcc.Store(id='session-id', storage_type='session'),
+    html.Div(id='startup-trigger', style={'display': 'none'}),
     get_header(),
-    html.Main([
-        dash.page_container
-    ], className="content"),
+    html.Main([dash.page_container], className="content"),
     get_footer()
-# ], className="page-wrapper", style={'backgroundColor': '#f8f9fa'})
 ], style={'backgroundColor': '#f8f9fa'})
 
 # Initialize the Session
@@ -200,6 +222,23 @@ def init_session(session_id):
     new_session = str(uuid.uuid4())
     logger.info(f"Created a new session with ID {new_session}")
     return new_session
+
+# Initialize the Network Data on Startup
+@callback(
+    Output('startup-trigger', 'children'),
+    Input('startup-trigger', 'children'),
+    prevent_initial_call=False
+)
+def load_network_on_startup(_):
+    global _network_graph
+
+    logger.info("Loading Network at Startup...")
+    from pages.networks import build_network_from_database
+
+    _network_graph = build_network_from_database()
+    logger.info(f"Successfully loaded Network: {_network_graph.number_of_nodes()} nodes, {_network_graph.number_of_edges()} edges")
+    
+    return ""
 
 if __name__ == '__main__':
     logger.info("Starting the Dash Server...")
