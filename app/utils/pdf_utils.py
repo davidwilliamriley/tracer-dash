@@ -212,3 +212,201 @@ def generate_table_pdf(data: List[Dict[str, Any]], title: str, columns_to_exclud
         "filename": filename,
         "base64": True
     }
+
+# Generate Breakdown PDF
+
+def generate_breakdown_pdf(
+    data: List[Dict[str, Any]], 
+    title: str, 
+    filename: str = "breakdown_export"
+) -> Dict[str, Any]:
+    """Generate a PDF from hierarchical breakdown data with indentation"""
+    
+    def flatten_hierarchy(items: List[Dict[str, Any]], level: int = 0) -> List[Dict[str, Any]]:
+        """Flatten hierarchical data while preserving tree structure with indentation"""
+        flattened = []
+        
+        for item in items:
+            # Create a copy of the item
+            flat_item = {
+                'level': level,
+                'Element': item.get('Element', ''),
+                'Relation': item.get('Relation', ''),
+                'Weight': item.get('Weight', ''),
+                'Identifier': item.get('Identifier', ''),
+                'Name': item.get('Name', ''),
+                'Description': item.get('Description', '')
+            }
+            flattened.append(flat_item)
+            
+            # Process children recursively
+            children = item.get('_children', [])
+            if children:
+                flattened.extend(flatten_hierarchy(children, level + 1))
+        
+        return flattened
+    
+    # Flatten the hierarchical data
+    flat_data = flatten_hierarchy(data)
+    
+    timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+    filename = f"{timestamp}_{filename}.pdf"
+
+    page_width, page_height = landscape(A3)
+    available_width = page_width - 60
+    
+    # Create PDF in Memory
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=landscape(A3),
+        rightMargin=30,
+        leftMargin=30,
+        topMargin=50,
+        bottomMargin=40,
+    )
+    
+    elements = []
+    styles = getSampleStyleSheet()
+    elements.append(Spacer(1, 12))
+
+    # Define columns
+    columns = ['Element', 'Relation', 'Weight', 'Identifier', 'Name', 'Description']
+    header_row = columns
+    
+    # Prepare the Table Data with indentation
+    table_data = [header_row]
+    
+    for row_data in flat_data:
+        level = row_data['level']
+        indent = '    ' * level  # 4 spaces per level
+        
+        # Add indentation to the Element column
+        element_text = indent + row_data['Element']
+        
+        row = [
+            element_text,
+            row_data['Relation'],
+            row_data['Weight'],
+            row_data['Identifier'],
+            row_data['Name'],
+            row_data['Description']
+        ]
+        table_data.append(row)
+    
+    # Calculate column widths
+    # Element: fixed width to accommodate indentation
+    # Name & Description: expandable
+    # Others: fit to content
+    num_columns = len(columns)
+    col_widths = []
+    
+    # Element column - wider to show indentation
+    col_widths.append(100)
+    
+    # Relation & Weight - fit to content
+    for col_idx in [1, 2]:  # Relation, Weight
+        max_width = 0.0
+        for row in table_data:
+            text = str(row[col_idx])
+            if table_data.index(row) == 0:
+                text_width = stringWidth(text, 'Helvetica-Bold', 10)
+            else:
+                text_width = stringWidth(text, 'Helvetica', 10)
+            max_width = max(max_width, text_width)
+        col_widths.append(max_width + 20)
+    
+    # Identifier - fit to content
+    max_width = 0.0
+    for row in table_data:
+        text = str(row[3])
+        if table_data.index(row) == 0:
+            text_width = stringWidth(text, 'Helvetica-Bold', 10)
+        else:
+            text_width = stringWidth(text, 'Helvetica', 10)
+        max_width = max(max_width, text_width)
+    col_widths.append(max_width + 20)
+    
+    # Name & Description - split remaining space
+    used_width = sum(col_widths)
+    remaining_width = available_width - used_width
+    col_widths.append(remaining_width * 0.4)  # Name gets 40%
+    col_widths.append(remaining_width * 0.6)  # Description gets 60%
+
+    # Create Table
+    t = Table(table_data, colWidths=col_widths, repeatRows=1)
+
+    header_blue = colors.HexColor("#0d6efd")
+    alt_row_color = colors.HexColor('#D9E2F3')
+    
+    # Add Style to the Table
+    table_style = [
+        # Header Styling
+        ('BACKGROUND', (0, 0), (-1, 0), header_blue),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 11),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('TOPPADDING', (0, 0), (-1, 0), 12),
+        
+        # Body Styling
+        ('FONTNAME', (0, 1), (-1, -1), 'Courier'),  # Monospace for indentation
+        ('FONTSIZE', (0, 1), (-1, -1), 9),
+        ('TOPPADDING', (0, 1), (-1, -1), 6),
+        ('BOTTOMPADDING', (0, 1), (-1, -1), 6),
+        ('LEFTPADDING', (0, 1), (0, -1), 4),  # Less padding on Element column
+        
+        # Grid
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+        
+        # Alternating row colors
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, alt_row_color])
+    ]
+    
+    t.setStyle(TableStyle(table_style))
+    elements.append(t)
+
+    # Build PDF with page numbers
+    page_tracker = NumberedCanvas()
+    doc.build(
+        elements,
+        onFirstPage=lambda c, d: _header_footer(c, d, title, filename, page_tracker),
+        onLaterPages=lambda c, d: _header_footer(c, d, title, filename, page_tracker)
+    )
+    
+    # Rebuild with correct page count
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=landscape(A3),
+        rightMargin=30,
+        leftMargin=30,
+        topMargin=50,
+        bottomMargin=40,
+    )
+
+    elements = []
+    elements.append(Spacer(1, 12))
+    t = Table(table_data, colWidths=col_widths, repeatRows=1)
+    t.setStyle(TableStyle(table_style))
+    elements.append(t)
+
+    total_pages = page_tracker.page_count
+    doc.build(
+        elements,
+        onFirstPage=lambda c, d: _final_header_footer(c, d, title, filename, total_pages),
+        onLaterPages=lambda c, d: _final_header_footer(c, d, title, filename, total_pages)
+    )   
+
+    # Encode to base64
+    buffer.seek(0)
+    pdf_data = buffer.read()
+    encoded = base64.b64encode(pdf_data).decode('utf-8')
+        
+    return {
+        "content": encoded,
+        "filename": filename,
+        "base64": True
+    }

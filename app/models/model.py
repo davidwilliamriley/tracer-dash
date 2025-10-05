@@ -44,6 +44,7 @@ class Edge(Base):
     identifier = Column(String, nullable=True)
     source_node_id = Column(String, ForeignKey('nodes.id'), nullable=False)
     edge_type_id = Column(String, ForeignKey('edge_types.id'), nullable=False)
+    weight = Column(Integer, default=1)
     target_node_id = Column(String, ForeignKey('nodes.id'), nullable=False)
     description = Column(String, nullable=True, default=None)
 
@@ -72,6 +73,7 @@ class Edge(Base):
             'Identifier': self.identifier,
             'Source': self.source,
             'Edge Type': self.edge_type.name if self.edge_type else 'Unknown',
+            'Weight': self.weight,
             'Target': self.target,
             'Description': self.description
         }

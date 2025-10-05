@@ -44,20 +44,18 @@ class BreakdownView:
 
     def create_layout(self, breakdown_options: List[DropdownOption]) -> "dbc.Container":
         """Create the main layout for the Breakdown View"""
-        return dbc.Container(
-            [
+        return dbc.Container([
                 # Toast Notification
                 self._make_toast(),
+                dcc.Download(id="download-pdf"),
 
                 # Main Content Stack
-                dbc.Stack(
-                    [
+                dbc.Stack([
                         # Content Header
                         self._create_content_header(),
 
                         # Controls
-                        html.Div(
-                            [
+                        html.Div([
                                 self._create_breakdown_selection(breakdown_options),
                                 html.Hr(),
                                 self._create_toolbar(),
@@ -69,7 +67,7 @@ class BreakdownView:
                                 self._create_table_container(),
                             ],
                         ),
-                        html.Div(id="table-data-store", style={"display": "none"}),
+                        html.Div(id="table-data-store", style={"display": "none"}), 
                     ]
                 )
             ],
@@ -84,14 +82,11 @@ class BreakdownView:
 
     def _create_toolbar(self):
         """Create action button toolbar"""
-        return html.Div(
-            [
-                dbc.Row(
-                    [
-                        # Left Side Button Group
-                        dbc.Col(
-                            [
-                                dbc.ButtonGroup(
+        return html.Div([
+            dbc.Row([
+                # Left Side Button Group
+                dbc.Col([
+                    dbc.ButtonGroup(
                                     [
                                         dbc.Button(
                                             [
@@ -102,6 +97,7 @@ class BreakdownView:
                                             outline=True,
                                             color="primary",
                                             title="Create a new Node",
+                                            disabled=True,
                                         ),
                                         dbc.Button(
                                             [
@@ -114,6 +110,7 @@ class BreakdownView:
                                             outline=True,
                                             color="primary",
                                             title="Refresh the Nodes Table",
+                                            disabled=True,
                                         ),
                                         dbc.Button(
                                             [
@@ -132,14 +129,12 @@ class BreakdownView:
                             className="col-md-6",
                         ),
                         # Right Side Button Group
-                        dbc.Col(
-                            [
-                                dbc.ButtonGroup(
+                        dbc.Col([
+                            dbc.ButtonGroup(
                                     [
-                                        dbc.Button(
-                                            [
+                                        dbc.Button([
                                                 html.I(className="bi bi-printer me-2"),
-                                                "Print",
+                                                "Print PDF",
                                             ],
                                             id="print-nodes-btn",
                                             outline=True,
@@ -149,7 +144,7 @@ class BreakdownView:
                                         dbc.Button(
                                             [
                                                 html.I(className="bi bi-download me-2"),
-                                                "Download",
+                                                "Download CSV",
                                             ],
                                             id="download-nodes-btn",\
                                             outline=True,

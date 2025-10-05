@@ -96,10 +96,20 @@ _cached_network = None
 
 def get_network():
     global _cached_network
-    
     if _cached_network is None or _cached_network.number_of_nodes() == 0:
         _cached_network = network_utils.build_networkx_from_database()
+        roots = network_utils.get_graph_roots(_cached_network)
+        if roots:
+            logger.info(f"Identified {len(roots)} root nodes in the NetworkX graph.")
+            for root in roots:
+                logger.info(f"Root Node ID: {root}")   
+        else:
+            logger.info("No root nodes found in the NetworkX graph.")
+
         logger.info("Network was re-built from the DB.")
+
+        breakdown = network_utils.build_breakdown_from_graph(_cached_network)
+        logger.info(f"Breakdown built with {len(breakdown)} top-level items.")
     
     return _cached_network
 
