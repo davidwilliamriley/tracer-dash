@@ -11,15 +11,15 @@ Objective : ensure a Complete, Robust and Resilient Network.
 <details>
 <summary>To-Do List:</summary>
 
-- [ ] In-Work : Added Application Logging - Complete the Implementation
-- [ ] In-Work : Added Session Management - Complete the Implementation
+- [ ] In-Work : Added some Network Metrics
 
 - [ ] To-Do : Update & Test the CRUD Logic and Modals - use Test Data
 - [ ] To-Do : Update Network Filters
-- [ ] To-Do : Add Network Metrics
-- [ ] To-Do : Metrics - Completeness
-- [ ] To-Do : Metrics - Robustness
-- [ ] To-Do : Metrics - Resilience
+  
+- [ ] In-Work : Added Application Logging - Complete the Implementation
+- [ ] In-Work : Added Session Management - Complete the Implementation
+
+
 
 - [ ] To-Do : Format Toasts for enhanced Readability
 

@@ -18,7 +18,7 @@ import uuid
 
 # Import Model and View
 from models.model import Model
-from utils.pdf_generator import generate_table_pdf
+from utils.pdf_utils import generate_table_pdf
 from views.edge_type_view import EdgeTypeView
 
 # Register Page
@@ -146,7 +146,7 @@ def export_to_csv(data: List[Dict[str, Any]]) -> Tuple[str, str]:
     
     df = pd.DataFrame(data)
     csv_string = df.to_csv(index=False)
-    filename = f"edge_types_export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+    filename = f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}_edge_types.csv"
     
     return csv_string, filename
 

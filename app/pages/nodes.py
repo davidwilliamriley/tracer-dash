@@ -12,7 +12,7 @@ import uuid
 
 # Import Model and View
 from models.model import Model
-from utils.pdf_generator import generate_table_pdf
+from utils.pdf_utils import generate_table_pdf
 from views.node_view import NodeView
 
 dash.register_page(__name__, path='/nodes')
@@ -218,7 +218,7 @@ def download_csv(n_clicks, data):
         df = pd.DataFrame(data)
         return dict(
             content=df.to_csv(index=False),
-            filename=f"nodes_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+            filename=f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}_nodes.csv"
         )
 
 # Print PDF

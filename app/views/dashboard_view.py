@@ -40,28 +40,11 @@ class DashboardView:
                 html.H1([html.I(className="bi bi-speedometer me-2"), "Dashboard"], className="my-4 text-primary"),
                 html.P("Metrics for the Network", className="mb-4 text-muted"),
                 dbc.Row([
-
-                    dbc.Col([
-                        dbc.Card([
-                            dbc.CardHeader("Description of Current Network"),
-                                dbc.CardBody([
-                                    dash_table.DataTable(
-                                        id="network-description-metrics-table",
-                                        style_table={'overflowX': 'auto'},
-                                        style_cell={
-                                            'textAlign': 'left',
-                                            'padding': '10px'
-                                        },
-                                    )
-                                ])
-                        ], className="mb-4",
-                    )], md=12),
-                ]),
-                dbc.Row([
                     dbc.Col([
                         dbc.Card([
                             dbc.CardHeader("Descriptive Metrics"),
                                 dbc.CardBody([
+
                                     dash_table.DataTable(
                                         id="descriptive-metrics-table",
                                         style_table={'overflowX': 'auto'},
@@ -76,17 +59,12 @@ class DashboardView:
                                     )
                                 ])
                         ], className="mb-4",
-                    )], md=6),
-                    dbc.Col([
-                        dbc.Card([
-                            dbc.CardHeader("Descriptive Metrics"),
-                            dbc.CardBody([dcc.Graph(id="descriptive-metrics")]),
-                        ], className="mb-4",
-                    )], md=6),
+                    )], md=12),
                 ]),
 
                 dbc.Accordion([
                     dbc.AccordionItem([dcc.Graph(id="completeness-metrics")], title="Completeness Metrics"),
+                    dbc.AccordionItem([dcc.Graph(id="efficiency-metrics")], title="Efficiency Metrics"),
                     dbc.AccordionItem([dcc.Graph(id="robustness-metrics")], title="Robustness Metrics"),
                     dbc.AccordionItem([dcc.Graph(id="resilience-metrics")], title="Resilience Metrics"),
                 ],
@@ -101,3 +79,4 @@ class DashboardView:
                 "flexDirection": "column",
             },
         )
+    

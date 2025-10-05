@@ -1,3 +1,4 @@
+
 # app.py
 
 # Imports
@@ -8,9 +9,12 @@ from flask import Flask
 from flask_caching import Cache
 import logging
 from logging.handlers import RotatingFileHandler
+import networkx as nx
 import sys
 import uuid
 import os
+
+from utils import network_utils
 
 # External Scripts
 external_scripts = [
@@ -86,9 +90,37 @@ cache = Cache(app.server, config={
 
 server.static_folder = 'assets'
 
-# Import pages AFTER instantiation of the App
 import pages
 
+_cached_network = None
+
+def get_network():
+    global _cached_network
+    if _cached_network is None or _cached_network.number_of_nodes() == 0:
+        _cached_network = network_utils.build_networkx_from_database()
+        roots = network_utils.get_graph_roots(_cached_network)
+        if roots:
+            logger.info(f"Identified {len(roots)} root nodes in the NetworkX graph.")
+            for root in roots:
+                logger.info(f"Root Node ID: {root}")   
+        else:
+            logger.info("No root nodes found in the NetworkX graph.")
+
+        logger.info("Network was re-built from the DB.")
+
+        breakdown = network_utils.build_breakdown_from_graph(_cached_network)
+        logger.info(f"Breakdown built with {len(breakdown)} top-level items.")
+    
+    return _cached_network
+
+def refresh_network_cache():
+    global _cached_network
+    _cached_network = None
+    logger.info("Network was cleared from Cache.")
+
+logger.info("Initializing theNetwork Graph...")
+startup_graph = get_network()
+logger.info(f"Initial Graph has {startup_graph.number_of_edges()} Edges and {startup_graph.number_of_nodes()} Nodes.")
 
 # Page Navigation Bar
 def get_header():
@@ -113,11 +145,38 @@ def get_header():
         sticky="top"
     )
 
-# @callback(
-#     [Output(f"nav-{page}", "className") for page in 
-#      ["home", "dashboard", "reports", "network", "breakdowns", "edges", "nodes", "edge-types", "help"]],
-#     Input("_pages_location", "pathname")
-# )
+# Footer
+def get_footer():
+    return html.Footer([
+        dbc.Container([
+            dbc.Row([
+                dbc.Col([
+                    html.P("© 2025 John Holland Group Pty. Ltd. All Rights Reserved.", 
+                           className="text-muted mb-0 small")
+                ], md=6),
+                dbc.Col([
+                    html.P([
+                        html.A("Privacy", href="#", className="text-muted me-3 small text-decoration-none"),
+                        html.A("Terms", href="#", className="text-muted me-3 small text-decoration-none"),
+                    ], className="text-end mb-0")
+                ], md=6)
+            ])
+        ])
+    ], style={
+        'position': 'fixed',
+        'bottom': '0',
+        'width': '100%',
+        'backgroundColor': 'white',
+        'padding': '15px 0',
+        'borderTop': '1px solid #dee2e6',
+        'boxShadow': '0 -2px 4px rgba(0,0,0,0.05)'
+    })
+
+app.layout = html.Div([
+    get_header(),
+    html.Main([dash.page_container], className="content"),
+    get_footer()
+], style={'backgroundColor': '#f8f9fa'})
 
 @callback(
     [Output(f"nav-{page}", "className") for page in 
@@ -138,68 +197,11 @@ def update_nav_style(pathname):
     }
     
     active_page = nav_map.get(pathname, None)
-    
-    # return [
-    #     "text-white" if page == active_page else "text-white-50"
-    #     for page in ["home", "dashboard", "reports", "network", "breakdowns", "edges", "nodes", "edge-types", "help"]
-    # ]
 
     return [
         "text-white" if page == active_page else "text-white-50"
         for page in ["home", "dashboard", "network", "breakdowns", "edges", "nodes", "edge-types"]
     ]
-
-# Footer
-def get_footer():
-    return html.Footer([
-        dbc.Container([
-            dbc.Row([
-                dbc.Col([
-                    html.P("© 2025 John Holland Group Pty. Ltd. All Rights Reserved.", 
-                           className="text-muted mb-0 small")
-                ], md=6),
-                dbc.Col([
-                    html.P([
-                        html.A("Privacy", href="#", className="text-muted me-3 small text-decoration-none"),
-                        html.A("Terms", href="#", className="text-muted me-3 small text-decoration-none"),
-                        # html.A("Help", href="#", className="text-muted small text-decoration-none"),
-                    ], className="text-end mb-0")
-                ], md=6)
-            ])
-        ])
-    ], style={
-        'position': 'fixed',
-        'bottom': '0',
-        'width': '100%',
-        'backgroundColor': 'white',
-        'padding': '15px 0',
-        'borderTop': '1px solid #dee2e6',
-        'boxShadow': '0 -2px 4px rgba(0,0,0,0.05)'
-    })
-
-# To-Do : update the Footer to use the updated Template
-app.layout = html.Div([
-    dcc.Store(id='session-id', storage_type='session'),
-    get_header(),
-    html.Main([
-        dash.page_container
-    ], className="content"),
-    get_footer()
-# ], className="page-wrapper", style={'backgroundColor': '#f8f9fa'})
-], style={'backgroundColor': '#f8f9fa'})
-
-# Initialize the Session
-@callback(
-    Output('session-id', 'data'),
-    Input('session-id', 'data')
-)
-def init_session(session_id):
-    if session_id:
-        logger.info(f"Found an existing session with ID {session_id}")
-        return session_id
-    new_session = str(uuid.uuid4())
-    logger.info(f"Created a new session with ID {new_session}")
-    return new_session
 
 if __name__ == '__main__':
     logger.info("Starting the Dash Server...")
