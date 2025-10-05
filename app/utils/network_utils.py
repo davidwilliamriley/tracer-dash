@@ -1,21 +1,27 @@
-# utils / network_utils.py
+# utils/network_utils.py
 import logging
 from sqlalchemy.orm import joinedload
 import networkx as nx   
 
 from models.model import Model, Edge, Node
+from utils.cache_utils import get_network, update_network_cache
 
 logger = logging.getLogger('TracerApp')
 
-def build_networkx_from_database():
-    """
-    Build a NetworkX graph from database Nodes and Edges
-    Returns a NetworkX Graph Object
-    """
+def build_networkx_from_database(use_cache=True):
+    """Build a NetworkX graph from database Nodes and Edges"""
+    
+    # Try to get cached version first
+    if use_cache:
+        cached_graph = get_network()
+        if cached_graph and cached_graph.number_of_nodes() > 0:
+            logger.info(f"Using cached network: {cached_graph.number_of_nodes()} nodes")
+            return cached_graph
+    
     logger.info("Building NetworkX graph from Database")
-
+    
     model = Model()
-
+    
     try:
         session = model._get_session()
         
@@ -59,6 +65,10 @@ def build_networkx_from_database():
                     )
 
             print(f"Built a NetworkX graph with {G.number_of_nodes()} Nodes and {G.number_of_edges()} Edges")
+            
+            # Update the cache
+            update_network_cache(G)
+            
             return G
             
         finally:

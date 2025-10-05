@@ -534,7 +534,7 @@ def download_csv(n_clicks, data):
         df = pd.DataFrame(data)
         return dict(
             content=df.to_csv(index=False),
-            filename=f"edges_export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
+            filename=f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}_edges.csv"
         )
 
 # Print PDF

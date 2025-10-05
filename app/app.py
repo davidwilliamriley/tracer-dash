@@ -14,6 +14,8 @@ import sys
 import uuid
 import os
 
+from utils import network_utils
+
 # External Scripts
 external_scripts = [
     {"src": "https://unpkg.com/cytoscape@3.26.0/dist/cytoscape.min.js"},
@@ -89,6 +91,26 @@ cache = Cache(app.server, config={
 server.static_folder = 'assets'
 
 import pages
+
+_cached_network = None
+
+def get_network():
+    global _cached_network
+    
+    if _cached_network is None or _cached_network.number_of_nodes() == 0:
+        _cached_network = network_utils.build_networkx_from_database()
+        logger.info("Network was re-built from the DB.")
+    
+    return _cached_network
+
+def refresh_network_cache():
+    global _cached_network
+    _cached_network = None
+    logger.info("Network was cleared from Cache.")
+
+logger.info("Initializing theNetwork Graph...")
+startup_graph = get_network()
+logger.info(f"Initial Graph has {startup_graph.number_of_edges()} Edges and {startup_graph.number_of_nodes()} Nodes.")
 
 # Page Navigation Bar
 def get_header():
