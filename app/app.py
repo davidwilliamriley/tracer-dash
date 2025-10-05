@@ -1,3 +1,4 @@
+
 # app.py
 
 # Imports
@@ -12,29 +13,6 @@ import networkx as nx
 import sys
 import uuid
 import os
-
-# Initialize the Network Data on Startup
-from models.model import Model
-
-_model_instance = None
-_network_graph = None
-
-def get_model():
-    global _model_instance
-    if _model_instance is None:
-        _model_instance = Model()
-    return _model_instance
-
-def get_network():
-    global _network_graph
-    return _network_graph
-
-def set_network(G: nx.Graph):
-
-    global _network_graph
-    _network_graph = G
-
-get_model()
 
 # External Scripts
 external_scripts = [
@@ -110,7 +88,6 @@ cache = Cache(app.server, config={
 
 server.static_folder = 'assets'
 
-# Import pages AFTER instantiation of the App
 import pages
 
 # Page Navigation Bar
@@ -136,11 +113,38 @@ def get_header():
         sticky="top"
     )
 
-# @callback(
-#     [Output(f"nav-{page}", "className") for page in 
-#      ["home", "dashboard", "reports", "network", "breakdowns", "edges", "nodes", "edge-types", "help"]],
-#     Input("_pages_location", "pathname")
-# )
+# Footer
+def get_footer():
+    return html.Footer([
+        dbc.Container([
+            dbc.Row([
+                dbc.Col([
+                    html.P("© 2025 John Holland Group Pty. Ltd. All Rights Reserved.", 
+                           className="text-muted mb-0 small")
+                ], md=6),
+                dbc.Col([
+                    html.P([
+                        html.A("Privacy", href="#", className="text-muted me-3 small text-decoration-none"),
+                        html.A("Terms", href="#", className="text-muted me-3 small text-decoration-none"),
+                    ], className="text-end mb-0")
+                ], md=6)
+            ])
+        ])
+    ], style={
+        'position': 'fixed',
+        'bottom': '0',
+        'width': '100%',
+        'backgroundColor': 'white',
+        'padding': '15px 0',
+        'borderTop': '1px solid #dee2e6',
+        'boxShadow': '0 -2px 4px rgba(0,0,0,0.05)'
+    })
+
+app.layout = html.Div([
+    get_header(),
+    html.Main([dash.page_container], className="content"),
+    get_footer()
+], style={'backgroundColor': '#f8f9fa'})
 
 @callback(
     [Output(f"nav-{page}", "className") for page in 
@@ -161,84 +165,11 @@ def update_nav_style(pathname):
     }
     
     active_page = nav_map.get(pathname, None)
-    
-    # return [
-    #     "text-white" if page == active_page else "text-white-50"
-    #     for page in ["home", "dashboard", "reports", "network", "breakdowns", "edges", "nodes", "edge-types", "help"]
-    # ]
 
     return [
         "text-white" if page == active_page else "text-white-50"
         for page in ["home", "dashboard", "network", "breakdowns", "edges", "nodes", "edge-types"]
     ]
-
-# Footer
-def get_footer():
-    return html.Footer([
-        dbc.Container([
-            dbc.Row([
-                dbc.Col([
-                    html.P("© 2025 John Holland Group Pty. Ltd. All Rights Reserved.", 
-                           className="text-muted mb-0 small")
-                ], md=6),
-                dbc.Col([
-                    html.P([
-                        html.A("Privacy", href="#", className="text-muted me-3 small text-decoration-none"),
-                        html.A("Terms", href="#", className="text-muted me-3 small text-decoration-none"),
-                        # html.A("Help", href="#", className="text-muted small text-decoration-none"),
-                    ], className="text-end mb-0")
-                ], md=6)
-            ])
-        ])
-    ], style={
-        'position': 'fixed',
-        'bottom': '0',
-        'width': '100%',
-        'backgroundColor': 'white',
-        'padding': '15px 0',
-        'borderTop': '1px solid #dee2e6',
-        'boxShadow': '0 -2px 4px rgba(0,0,0,0.05)'
-    })
-
-
-
-app.layout = html.Div([
-    dcc.Store(id='session-id', storage_type='session'),
-    html.Div(id='startup-trigger', style={'display': 'none'}),
-    get_header(),
-    html.Main([dash.page_container], className="content"),
-    get_footer()
-], style={'backgroundColor': '#f8f9fa'})
-
-# Initialize the Session
-@callback(
-    Output('session-id', 'data'),
-    Input('session-id', 'data')
-)
-def init_session(session_id):
-    if session_id:
-        logger.info(f"Found an existing session with ID {session_id}")
-        return session_id
-    new_session = str(uuid.uuid4())
-    logger.info(f"Created a new session with ID {new_session}")
-    return new_session
-
-# Initialize the Network Data on Startup
-@callback(
-    Output('startup-trigger', 'children'),
-    Input('startup-trigger', 'children'),
-    prevent_initial_call=False
-)
-def load_network_on_startup(_):
-    global _network_graph
-
-    logger.info("Loading Network at Startup...")
-    from pages.networks import build_network_from_database
-
-    _network_graph = build_network_from_database()
-    logger.info(f"Successfully loaded Network: {_network_graph.number_of_nodes()} nodes, {_network_graph.number_of_edges()} edges")
-    
-    return ""
 
 if __name__ == '__main__':
     logger.info("Starting the Dash Server...")

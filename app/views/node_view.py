@@ -7,7 +7,7 @@ import dash_tabulator
 from typing import Any, Dict, List
 
 # Import Model, View and Utils
-from utils.toaster import ToastFactory
+from utils.toast_utils import ToastFactory
 
 class NodeView:
     def __init__(self):

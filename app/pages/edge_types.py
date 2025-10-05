@@ -18,7 +18,7 @@ import uuid
 
 # Import Model and View
 from models.model import Model
-from utils.pdf_generator import generate_table_pdf
+from utils.pdf_utils import generate_table_pdf
 from views.edge_type_view import EdgeTypeView
 
 # Register Page
