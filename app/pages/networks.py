@@ -57,7 +57,7 @@ def layout():
 
 @callback(
     Output('cytoscape-data-div', 'children'),
-    Input('cytoscape-data-div', 'id'),  # This works, just not elegant
+    Input('cytoscape-data-div', 'id'),
     prevent_initial_call=False
 )
 def load_cytoscape_data(_):
@@ -68,3 +68,16 @@ def load_cytoscape_data(_):
     except Exception as e:
         print(f"Error loading network: {e}")
         return json.dumps({"elements": []})
+
+# Register clientside callback to trigger Cytoscape rendering
+clientside_callback(
+    """
+    function(networkDataJson, filteredValue) {
+        return window.cytoscapeCallback(networkDataJson, filteredValue);
+    }
+    """,
+    Output('cytoscape-trigger', 'children'),
+    Input('cytoscape-data-div', 'children'),
+    State('filter-value-input', 'value'),
+    prevent_initial_call=False
+)
