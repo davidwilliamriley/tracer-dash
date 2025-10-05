@@ -45,18 +45,18 @@ class DashboardView:
                             dbc.CardHeader("Descriptive Metrics"),
                                 dbc.CardBody([
 
-                                    # dash_table.DataTable(
-                                    #     id="descriptive-metrics-table",
-                                    #     style_table={'overflowX': 'auto'},
-                                    #     style_cell={
-                                    #         'textAlign': 'left',
-                                    #         'padding': '10px'
-                                    #     },
-                                    #     style_header={
-                                    #         'backgroundColor': 'rgb(230, 230, 230)',
-                                    #         'fontWeight': 'bold'
-                                    #     }
-                                    # )
+                                    dash_table.DataTable(
+                                        id="descriptive-metrics-table",
+                                        style_table={'overflowX': 'auto'},
+                                        style_cell={
+                                            'textAlign': 'left',
+                                            'padding': '10px'
+                                        },
+                                        style_header={
+                                            'backgroundColor': 'rgb(230, 230, 230)',
+                                            'fontWeight': 'bold'
+                                        }
+                                    )
                                 ])
                         ], className="mb-4",
                     )], md=12),
