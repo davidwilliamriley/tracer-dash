@@ -9,24 +9,29 @@ from typing import Any, Dict, List
 # Import Model, View and Utils
 from utils.toast_utils import ToastFactory
 
+
 class NodeView:
     def __init__(self):
         pass
 
     def _make_toast(self) -> dbc.Toast:
         return ToastFactory.create_toast()
-    
+
     def _create_content_header(self) -> html.Div:
         return html.Div(
             [
-                html.H1([html.I(className="bi bi-plus-circle me-2"), "Nodes"], className="my-4 text-primary"),
+                html.H1(
+                    [html.I(className="bi bi-plus-circle me-2"), "Nodes"],
+                    className="my-4 text-primary",
+                ),
                 html.P("Manage the Network Nodes", className="mb-4 text-muted"),
             ],
         )
 
     def _create_toolbar(self) -> html.Div:
-        return html.Div([
-            html.Div(
+        return html.Div(
+            [
+                html.Div(
                     [
                         # Left side buttons
                         html.Div(
@@ -38,7 +43,7 @@ class NodeView:
                                                 html.I(className="bi bi-plus-lg me-2"),
                                                 "Create Node",
                                             ],
-                                            id="create-node-btn",
+                                            id="nodes-create-btn",
                                             outline=True,
                                             color="primary",
                                             title="Create a new Node",
@@ -50,7 +55,7 @@ class NodeView:
                                                 ),
                                                 "Refresh Nodes",
                                             ],
-                                            id="refresh-nodes-btn",
+                                            id="nodes-refresh-btn",
                                             outline=True,
                                             color="primary",
                                             title="Refresh the Nodes Table",
@@ -60,7 +65,7 @@ class NodeView:
                                                 html.I(className="bi bi-trash me-2"),
                                                 "Delete Node(s)",
                                             ],
-                                            id="delete-node-btn",
+                                            id="nodes-delete-btn",
                                             outline=True,
                                             color="warning",
                                             title="Delete selected Node(s)",
@@ -81,7 +86,7 @@ class NodeView:
                                                 html.I(className="bi bi-printer me-2"),
                                                 "Print PDF",
                                             ],
-                                            id="print-nodes-btn",
+                                            id="nodes-print-btn",
                                             outline=True,
                                             color="primary",
                                             title="Print the Table to PDF",
@@ -91,7 +96,7 @@ class NodeView:
                                                 html.I(className="bi bi-download me-2"),
                                                 "Download CSV",
                                             ],
-                                            id="download-nodes-btn",
+                                            id="nodes-download-btn",
                                             outline=True,
                                             color="primary",
                                             title="Download the Table as CSV",
@@ -106,41 +111,40 @@ class NodeView:
                 )
             ]
         )
-    
+
     def create_layout(self, nodes_data: List[Dict[str, Any]]) -> "dbc.Container":
         return dbc.Container(
             [
                 # Toast notification
                 ToastFactory.create_toast(),
-                    
                 # Main Content Stack
-                dbc.Stack([
-                    # Content Header
-                    self._create_content_header(),
-
-                    # Controls
-                    html.Div([
-                        self._create_toolbar(),
-                        ]
+                dbc.Stack(
+                    [
+                        # Content Header
+                        self._create_content_header(),
+                        # Controls
+                        html.Div(
+                            [
+                                self._create_toolbar(),
+                            ]
                         ),
-
                         # Main Content
                         html.Div(
                             [
                                 self._create_table(nodes_data),
                             ],
                         ),
-                        html.Div(id="table-data-store", style={"display": "none"}),
-                                                    
+                        html.Div(
+                            id="nodes-table-data-store", style={"display": "none"}
+                        ),
                         # Modals
                         self._create_create_modal(),
                         self._create_delete_modal(),
-
                         # Hidden Download Component
-                        dcc.Download(id="download-nodes-csv"),
-                        dcc.Download(id="print-nodes-pdf"),
+                        dcc.Download(id="nodes-download-csv"),
+                        dcc.Download(id="nodes-print-pdf"),
                     ]
-                )
+                ),
             ],
             style={
                 "minHeight": "calc(100vh - 120px)",
@@ -222,7 +226,7 @@ class NodeView:
                                     [
                                         dbc.Label("Identifier:", className="fw-bold"),
                                         dbc.Input(
-                                            id="new-node-identifier",
+                                            id="nodes-new-identifier",
                                             type="text",
                                             placeholder="Enter an (optional) Identifier",
                                         ),
@@ -238,7 +242,7 @@ class NodeView:
                                     [
                                         dbc.Label("Name:", className="fw-bold"),
                                         dbc.Input(
-                                            id="new-node-name",
+                                            id="nodes-new-name",
                                             type="text",
                                             placeholder="Enter a Node Name (Required)",
                                             required=True,
@@ -255,7 +259,7 @@ class NodeView:
                                     [
                                         dbc.Label("Description:", className="fw-bold"),
                                         dbc.Textarea(
-                                            id="new-node-description",
+                                            id="nodes-new-description",
                                             placeholder="Enter an (optional) Description",
                                             rows=3,
                                         ),
@@ -270,21 +274,21 @@ class NodeView:
                     [
                         dbc.Button(
                             "Create Node",
-                            id="confirm-create-node",
+                            id="nodes-confirm-create",
                             outline=True,
                             color="primary",
                             className="me-2",
                         ),
                         dbc.Button(
-                            "Cancel", 
-                            id="cancel-create-node", 
-                            outline=True, 
-                            color="secondary"
+                            "Cancel",
+                            id="nodes-cancel-create",
+                            outline=True,
+                            color="secondary",
                         ),
                     ]
                 ),
             ],
-            id="create-node-modal",
+            id="nodes-create-modal",
             is_open=False,
             backdrop="static",
         )
@@ -294,23 +298,26 @@ class NodeView:
         return dbc.Modal(
             [
                 dbc.ModalHeader(dbc.ModalTitle("Confirm Delete")),
-                dbc.ModalBody(html.Div(id="delete-modal-body")),
+                dbc.ModalBody(html.Div(id="nodes-delete-modal-body")),
                 dbc.ModalFooter(
                     [
                         dbc.Button(
                             "Delete",
-                            id="confirm-delete-node",
+                            id="nodes-confirm-delete",
                             outline=True,
                             color="danger",
                             className="me-2",
                         ),
                         dbc.Button(
-                            "Cancel", id="cancel-delete-node", outline=True, color="secondary"
+                            "Cancel",
+                            id="nodes-cancel-delete",
+                            outline=True,
+                            color="secondary",
                         ),
                     ]
                 ),
             ],
-            id="delete-node-modal",
+            id="nodes-delete-modal",
             is_open=False,
             backdrop="static",
         )
@@ -318,12 +325,8 @@ class NodeView:
     def create_delete_confirmation(self, selected_names: List[str]) -> html.Div:
         return html.Div(
             [
-                html.P(
-                    f"Confirm Deletion of {len(selected_names)} Node(s)?"
-                ),
+                html.P(f"Confirm Deletion of {len(selected_names)} Node(s)?"),
                 html.Ul([html.Li(name) for name in selected_names]),
-                html.P(
-                    "You cannot undo this Action!", className="text-danger fw-bold"
-                ),
+                html.P("You cannot undo this Action!", className="text-danger fw-bold"),
             ]
         )

@@ -37,25 +37,32 @@ class BreakdownView:
         """Create page header"""
         return html.Div(
             [
-                html.H1([html.I(className="bi bi-diagram-2 me-2"), "Breakdowns"], className="my-4 text-primary"),
-                html.P("Manage System and Subsystem Breakdowns", className="mb-4 text-muted"),
+                html.H1(
+                    [html.I(className="bi bi-diagram-2 me-2"), "Breakdowns"],
+                    className="my-4 text-primary",
+                ),
+                html.P(
+                    "Manage System and Subsystem Breakdowns",
+                    className="mb-4 text-muted",
+                ),
             ],
         )
 
     def create_layout(self, breakdown_options: List[DropdownOption]) -> "dbc.Container":
         """Create the main layout for the Breakdown View"""
-        return dbc.Container([
+        return dbc.Container(
+            [
                 # Toast Notification
                 self._make_toast(),
-                dcc.Download(id="download-pdf"),
-
+                dcc.Download(id="breakdowns-download-pdf"),
                 # Main Content Stack
-                dbc.Stack([
+                dbc.Stack(
+                    [
                         # Content Header
                         self._create_content_header(),
-
                         # Controls
-                        html.Div([
+                        html.Div(
+                            [
                                 self._create_breakdown_selection(breakdown_options),
                                 html.Hr(),
                                 self._create_toolbar(),
@@ -67,9 +74,11 @@ class BreakdownView:
                                 self._create_table_container(),
                             ],
                         ),
-                        html.Div(id="table-data-store", style={"display": "none"}), 
+                        html.Div(
+                            id="breakdowns-table-data-store", style={"display": "none"}
+                        ),
                     ]
-                )
+                ),
             ],
             style={
                 "minHeight": "calc(100vh - 120px)",
@@ -79,21 +88,23 @@ class BreakdownView:
             },
         )
 
-
     def _create_toolbar(self):
         """Create action button toolbar"""
-        return html.Div([
-            dbc.Row([
-                # Left Side Button Group
-                dbc.Col([
-                    dbc.ButtonGroup(
+        return html.Div(
+            [
+                dbc.Row(
+                    [
+                        # Left Side Button Group
+                        dbc.Col(
+                            [
+                                dbc.ButtonGroup(
                                     [
                                         dbc.Button(
                                             [
                                                 html.I(className="bi bi-plus-lg me-2"),
                                                 "Create",
                                             ],
-                                            id="create-node-btn",
+                                            id="breakdowns-create-btn",
                                             outline=True,
                                             color="primary",
                                             title="Create a new Node",
@@ -106,7 +117,7 @@ class BreakdownView:
                                                 ),
                                                 "Refresh",
                                             ],
-                                            id="refresh-nodes-btn",
+                                            id="breakdowns-refresh-btn",
                                             outline=True,
                                             color="primary",
                                             title="Refresh the Nodes Table",
@@ -117,7 +128,7 @@ class BreakdownView:
                                                 html.I(className="bi bi-trash me-2"),
                                                 "Delete",
                                             ],
-                                            id="delete-node-btn",
+                                            id="breakdowns-delete-btn",
                                             outline=True,
                                             color="warning",
                                             title="Delete a selected Node",
@@ -129,14 +140,16 @@ class BreakdownView:
                             className="col-md-6",
                         ),
                         # Right Side Button Group
-                        dbc.Col([
-                            dbc.ButtonGroup(
+                        dbc.Col(
+                            [
+                                dbc.ButtonGroup(
                                     [
-                                        dbc.Button([
+                                        dbc.Button(
+                                            [
                                                 html.I(className="bi bi-printer me-2"),
                                                 "Print PDF",
                                             ],
-                                            id="print-nodes-btn",
+                                            id="breakdowns-print-btn",
                                             outline=True,
                                             color="primary",
                                             title="Print the Table to PDF",
@@ -146,7 +159,7 @@ class BreakdownView:
                                                 html.I(className="bi bi-download me-2"),
                                                 "Download CSV",
                                             ],
-                                            id="download-nodes-btn",\
+                                            id="breakdowns-download-btn",
                                             outline=True,
                                             color="primary",
                                             title="Download the Table as CSV",
@@ -175,7 +188,7 @@ class BreakdownView:
                                 [
                                     dbc.Col(
                                         dcc.Dropdown(
-                                            id="breakdown-dropdown",
+                                            id="breakdowns-dropdown",
                                             options=breakdown_options,  # type: ignore[arg-type]
                                             value=None,  # No Default selection
                                             placeholder="Select a Breakdown...",
@@ -192,7 +205,7 @@ class BreakdownView:
                                                 ),
                                                 "Reset",
                                             ],
-                                            id="reset-filter-btn",
+                                            id="breakdowns-reset-filter-btn",
                                             outline=True,
                                             color="primary",
                                             size="md",
@@ -220,10 +233,10 @@ class BreakdownView:
                 dbc.Col(
                     [
                         html.Div(
-                            id="row-info", className="mb-2 text-muted"
+                            id="breakdowns-row-info", className="mb-2 text-muted"
                         ),  # Add this
                         html.Div(
-                            id="tabulator-table",
+                            id="breakdowns-tabulator-table",
                         ),
                     ]
                 )

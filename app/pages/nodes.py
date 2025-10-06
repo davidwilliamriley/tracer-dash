@@ -15,13 +15,14 @@ from models.model import Model
 from utils.pdf_utils import generate_table_pdf
 from views.node_view import NodeView
 
-dash.register_page(__name__, path='/nodes')
+dash.register_page(__name__, path="/nodes")
 
 # Initialize Model and View
 model = Model()
 view = NodeView()
 
 # ==================== HELPER FUNCTIONS ====================
+
 
 def get_nodes_data() -> List[Dict[str, Any]]:
     """Get nodes from database for display"""
@@ -31,78 +32,90 @@ def get_nodes_data() -> List[Dict[str, Any]]:
         print(f"Error getting nodes: {e}")
         return []
 
+
 # ==================== LAYOUT ====================
+
 
 def layout():
     """Main layout - delegates to view"""
     current_nodes = get_nodes_data()
     return view.create_layout(current_nodes)
 
+
 # ==================== CALLBACKS ====================
+
 
 # Handle changes to Table Data (Cell Edits)
 @callback(
     [
-        Output('nodes-table', 'data', allow_duplicate=True),
-        Output('toast-message', 'is_open', allow_duplicate=True),
-        Output('toast-message', 'children', allow_duplicate=True),
-        Output('toast-message', 'icon', allow_duplicate=True)
+        Output("nodes-table", "data", allow_duplicate=True),
+        Output("toast-message", "is_open", allow_duplicate=True),
+        Output("toast-message", "children", allow_duplicate=True),
+        Output("toast-message", "icon", allow_duplicate=True),
     ],
-    Input('nodes-table', 'dataChanged'),
-    State('nodes-table', 'data'),
-    prevent_initial_call=True
+    Input("nodes-table", "dataChanged"),
+    State("nodes-table", "data"),
+    prevent_initial_call=True,
 )
 def handle_cell_edit(changed_data, current_data):
     """Handle inline cell editing"""
     if not changed_data:
         return no_update, no_update, no_update, no_update
-    
+
     try:
         errors = []
         updated_count = 0
-        
+
         for row in changed_data:
-            if 'ID' in row:
-                node_id = row['ID']
+            if "ID" in row:
+                node_id = row["ID"]
                 updates = {
-                    'identifier': row.get('Identifier', ''),
-                    'name': row.get('Name', ''),
-                    'description': row.get('Description', '')
+                    "identifier": row.get("Identifier", ""),
+                    "name": row.get("Name", ""),
+                    "description": row.get("Description", ""),
                 }
-                
+
                 result = model.update_node(node_id, **updates)
-                if result.get('success'):
+                if result.get("success"):
                     updated_count += 1
                 else:
-                    errors.append(result.get('message', 'Unknown error'))
-        
+                    errors.append(result.get("message", "Unknown error"))
+
         updated_data = get_nodes_data()
-        
+
         if errors:
             message = f"Updated {updated_count} nodes. Errors: {'; '.join(errors[:2])}"
             return updated_data, True, message, "warning"
         else:
-            return updated_data, True, f"Successfully saved {updated_count} node(s)", "success"
-            
+            return (
+                updated_data,
+                True,
+                f"Successfully saved {updated_count} node(s)",
+                "success",
+            )
+
     except Exception as e:
         return no_update, True, f"Error saving changes: {str(e)}", "danger"
 
+
 # Enable/disable delete button based on selection
 @callback(
-    Output('delete-node-btn', 'disabled'),
-    Input('nodes-table', 'multiRowsClicked')
+    Output("nodes-delete-btn", "disabled"), Input("nodes-table", "multiRowsClicked")
 )
 def toggle_delete_button(selected_rows):
     """Enable delete button when rows are selected"""
     return not selected_rows or len(selected_rows) == 0
 
+
 # Toggle create modal
 @callback(
-    Output('create-node-modal', 'is_open'),
-    [Input('create-node-btn', 'n_clicks'),
-     Input('confirm-create-node', 'n_clicks'),
-     Input('cancel-create-node', 'n_clicks')],
-    State('create-node-modal', 'is_open')
+    Output("nodes-create-modal", "is_open"),
+    [
+        Input("nodes-create-btn", "n_clicks"),
+        Input("nodes-confirm-create", "n_clicks"),
+        Input("nodes-cancel-create", "n_clicks"),
+    ],
+    State("nodes-create-modal", "is_open"),
 )
 def toggle_create_modal(create_clicks, confirm_clicks, cancel_clicks, is_open):
     """Show/hide create modal"""
@@ -110,107 +123,152 @@ def toggle_create_modal(create_clicks, confirm_clicks, cancel_clicks, is_open):
         return not is_open
     return is_open
 
+
 # Toggle delete modal - FIXED: Added allow_duplicate=True
 @callback(
-    Output('delete-node-modal', 'is_open'),
-    Output('delete-modal-body', 'children', allow_duplicate=True),
-    [Input('delete-node-btn', 'n_clicks'),
-     Input('confirm-delete-node', 'n_clicks'),
-     Input('cancel-delete-node', 'n_clicks')],
-    [State('delete-node-modal', 'is_open'),
-     State('nodes-table', 'multiRowsClicked')],
-    prevent_initial_call=True
+    Output("nodes-delete-modal", "is_open"),
+    Output("nodes-delete-modal-body", "children", allow_duplicate=True),
+    [
+        Input("nodes-delete-btn", "n_clicks"),
+        Input("nodes-confirm-delete", "n_clicks"),
+        Input("nodes-cancel-delete", "n_clicks"),
+    ],
+    [State("nodes-delete-modal", "is_open"), State("nodes-table", "multiRowsClicked")],
+    prevent_initial_call=True,
 )
-def toggle_delete_modal(delete_clicks, confirm_clicks, cancel_clicks, is_open, selected_rows):
+def toggle_delete_modal(
+    delete_clicks, confirm_clicks, cancel_clicks, is_open, selected_rows
+):
     """Show/hide delete confirmation modal"""
     ctx = dash.callback_context
-    
+
     if not ctx.triggered:
         return False, ""
-    
-    button_id = ctx.triggered[0]['prop_id'].split('.')[0]
-    
-    if button_id == 'delete-node-btn' and selected_rows:
-        selected_names = [row['Name'] for row in selected_rows]
+
+    button_id = ctx.triggered[0]["prop_id"].split(".")[0]
+
+    if button_id == "nodes-delete-btn" and selected_rows:
+        selected_names = [row["Name"] for row in selected_rows]
         body = view.create_delete_confirmation(selected_names)
         return True, body
-    elif button_id in ['confirm-delete-node', 'cancel-delete-node']:
+    elif button_id in ["nodes-confirm-delete", "nodes-cancel-delete"]:
         return False, ""
-    
+
     return is_open, ""
+
 
 # Handle CRUD operations
 @callback(
-    [Output('nodes-table', 'data'),
-     Output('toast-message', 'is_open', allow_duplicate=True),
-     Output('toast-message', 'children', allow_duplicate=True),
-     Output('toast-message', 'icon', allow_duplicate=True),
-     Output('new-node-identifier', 'value'),
-     Output('new-node-name', 'value'),
-     Output('new-node-description', 'value')],
-    [Input('confirm-create-node', 'n_clicks'),
-     Input('confirm-delete-node', 'n_clicks')],
-    [State('new-node-identifier', 'value'),
-     State('new-node-name', 'value'),
-     State('new-node-description', 'value'),
-     State('nodes-table', 'data'),
-     State('nodes-table', 'multiRowsClicked')],
-    prevent_initial_call=True
+    [
+        Output("nodes-table", "data"),
+        Output("toast-message", "is_open", allow_duplicate=True),
+        Output("toast-message", "children", allow_duplicate=True),
+        Output("toast-message", "icon", allow_duplicate=True),
+        Output("nodes-new-identifier", "value"),
+        Output("nodes-new-name", "value"),
+        Output("nodes-new-description", "value"),
+    ],
+    [
+        Input("nodes-confirm-create", "n_clicks"),
+        Input("nodes-confirm-delete", "n_clicks"),
+    ],
+    [
+        State("nodes-new-identifier", "value"),
+        State("nodes-new-name", "value"),
+        State("nodes-new-description", "value"),
+        State("nodes-table", "data"),
+        State("nodes-table", "multiRowsClicked"),
+    ],
+    prevent_initial_call=True,
 )
-def handle_crud_operations(create_clicks, delete_clicks, identifier, name, 
-                           description, data, selected_rows):
+def handle_crud_operations(
+    create_clicks, delete_clicks, identifier, name, description, data, selected_rows
+):
     """Handle create and delete operations"""
     ctx = dash.callback_context
-    
+
     if not ctx.triggered:
-        return no_update, no_update, no_update, no_update, no_update, no_update, no_update
-    
-    button_id = ctx.triggered[0]['prop_id'].split('.')[0]
-    
+        return (
+            no_update,
+            no_update,
+            no_update,
+            no_update,
+            no_update,
+            no_update,
+            no_update,
+        )
+
+    button_id = ctx.triggered[0]["prop_id"].split(".")[0]
+
     # Create new node
-    if button_id == 'confirm-create-node' and name:
+    if button_id == "nodes-confirm-create" and name:
         new_node_id = str(uuid.uuid4())
         result = model.create_node(
             node_id=new_node_id,
-            identifier=identifier or '',
+            identifier=identifier or "",
             name=name,
-            description=description or ''
+            description=description or "",
         )
-        
-        if result.get('success'):
+
+        if result.get("success"):
             updated_data = get_nodes_data()
-            return updated_data, True, f"Successfully created: {name}", "success", '', '', ''
+            return (
+                updated_data,
+                True,
+                f"Successfully created: {name}",
+                "success",
+                "",
+                "",
+                "",
+            )
         else:
-            return data, True, f"Failed: {result.get('message')}", "danger", no_update, no_update, no_update
-    
+            return (
+                data,
+                True,
+                f"Failed: {result.get('message')}",
+                "danger",
+                no_update,
+                no_update,
+                no_update,
+            )
+
     # Delete selected nodes
-    elif button_id == 'confirm-delete-node' and selected_rows:
+    elif button_id == "nodes-confirm-delete" and selected_rows:
         deleted_count = 0
         errors = []
-        
+
         for row in selected_rows:
-            success, message = model.delete_node(row['ID'])
+            success, message = model.delete_node(row["ID"])
             if success:
                 deleted_count += 1
             else:
                 errors.append(f"{row['Name']}: {message}")
-        
+
         updated_data = get_nodes_data()
-        
+
         if errors:
             msg = f"Deleted {deleted_count}. Errors: {'; '.join(errors[:2])}"
             return updated_data, True, msg, "warning", no_update, no_update, no_update
         else:
-            return updated_data, True, f"Deleted {deleted_count} node(s)", "success", no_update, no_update, no_update
-    
+            return (
+                updated_data,
+                True,
+                f"Deleted {deleted_count} node(s)",
+                "success",
+                no_update,
+                no_update,
+                no_update,
+            )
+
     return no_update, no_update, no_update, no_update, no_update, no_update, no_update
+
 
 # Download CSV
 @callback(
-    Output('download-nodes-csv', 'data'),
-    Input('download-nodes-btn', 'n_clicks'),
-    State('nodes-table', 'data'),
-    prevent_initial_call=True
+    Output("nodes-download-csv", "data"),
+    Input("nodes-download-btn", "n_clicks"),
+    State("nodes-table", "data"),
+    prevent_initial_call=True,
 )
 def download_csv(n_clicks, data):
     """Export nodes to CSV"""
@@ -218,32 +276,36 @@ def download_csv(n_clicks, data):
         df = pd.DataFrame(data)
         return dict(
             content=df.to_csv(index=False),
-            filename=f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}_nodes.csv"
+            filename=f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}_nodes.csv",
         )
+
 
 # Print PDF
 @callback(
-    Output("print-nodes-pdf", "data"),
-    Input("print-nodes-btn", "n_clicks"),
+    Output("nodes-print-pdf", "data"),
+    Input("nodes-print-btn", "n_clicks"),
     State("nodes-table", "data"),
-    prevent_initial_call=True
+    prevent_initial_call=True,
 )
 def download_pdf(n_clicks, table_data):
     return generate_table_pdf(
         data=table_data,
         title="Nodes Table",
         columns_to_exclude=["ID"],
-        filename="nodes"
+        filename="nodes",
     )
+
 
 # Refresh Table
 @callback(
-    [Output('nodes-table', 'data', allow_duplicate=True),
-     Output('toast-message', 'is_open', allow_duplicate=True),
-     Output('toast-message', 'children', allow_duplicate=True),
-     Output('toast-message', 'icon', allow_duplicate=True)],
-    Input('refresh-nodes-btn', 'n_clicks'),
-    prevent_initial_call=True
+    [
+        Output("nodes-table", "data", allow_duplicate=True),
+        Output("toast-message", "is_open", allow_duplicate=True),
+        Output("toast-message", "children", allow_duplicate=True),
+        Output("toast-message", "icon", allow_duplicate=True),
+    ],
+    Input("nodes-refresh-btn", "n_clicks"),
+    prevent_initial_call=True,
 )
 def refresh_table(n_clicks):
     """Reload data from database"""
