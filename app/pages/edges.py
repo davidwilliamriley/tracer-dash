@@ -283,7 +283,7 @@ def manage_edges(
     # Create new edge
     if button_id == "confirm-create-edge" and source_id and target_id and edge_type_id:
         new_edge_id = str(uuid.uuid4())
-        success, message = model.create_edge(
+        result = model.create_edge(
             edge_id=new_edge_id,
             identifier=identifier or "",
             source_node_id=source_id,
@@ -292,14 +292,14 @@ def manage_edges(
             description=description or "",
         )
 
-        if success:
+        if result.get('success'):
             updated_data = get_edges_from_db()
-            return updated_data, True, message, "success", "", None, None, None, ""
+            return updated_data, True, result.get('message'), "success", "", None, None, None, ""
         else:
             return (
                 data,
                 True,
-                f"Failed to create Edge: {message}",
+                f"Failed to create Edge: {result.get('message')}",
                 "danger",
                 no_update,
                 no_update,
@@ -355,11 +355,11 @@ def manage_edges(
             for raw_row in raw_selected_rows:
                 edge_id = raw_row.get("ID")
                 if edge_id:
-                    success, message = model.delete_edge(edge_id)
-                    if success:
+                    result = model.delete_edge(edge_id)
+                    if result['success']:
                         deleted_count += 1
                     else:
-                        errors.append(f"Failed to delete edge: {message}")
+                        errors.append(f"Failed to delete edge: {result['message']}")
                 else:
                     errors.append("Edge missing ID")
 
@@ -502,11 +502,11 @@ def handle_data_change(changed_data, current_data):
                     updates["description"] = row["Description"] or ""
 
                 if updates:
-                    success, message = model.update_edge(edge_id, **updates)
-                    if success:
+                    result = model.update_edge(edge_id, **updates)
+                    if result['success']:
                         updated_count += 1
                     else:
-                        errors.append(f"Failed to update edge {edge_id}: {message}")
+                        errors.append(f"Failed to update edge {edge_id}: {result['message']}")
 
         updated_data = get_edges_from_db()
 

@@ -77,6 +77,7 @@ app = dash.Dash(
     __name__, 
     server=server,
     use_pages=True,
+    pages_folder="pages",
     external_scripts=external_scripts,
     external_stylesheets=external_stylesheets,
     suppress_callback_exceptions=True,
@@ -90,6 +91,7 @@ cache = Cache(app.server, config={
 
 server.static_folder = 'assets'
 
+# Import pages AFTER app creation
 import pages
 
 _cached_network = None

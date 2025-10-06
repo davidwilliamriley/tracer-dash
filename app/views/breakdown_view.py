@@ -177,7 +177,7 @@ class BreakdownView:
                                         dcc.Dropdown(
                                             id="breakdown-dropdown",
                                             options=breakdown_options,  # type: ignore[arg-type]
-                                            value="",  # No Default
+                                            value=None,  # No Default selection
                                             placeholder="Select a Breakdown...",
                                             className="mb-0",
                                             style={"width": "100%"},

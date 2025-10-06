@@ -139,8 +139,24 @@ def build_breakdown_from_graph(G: nx.MultiDiGraph, root_node: Optional[Any] = No
             }
             children_data.append(child_item)
         
-        # Sort children by weight and name
-        children_data.sort(key=lambda x: (x['weight'], x.get('identifier', ''), x.get('name', '')))
+        # Sort children by weight and identifier (natural sort for identifiers like 6.4.1, 6.4.2, 6.4.10)
+        def natural_sort_key(item):
+            import re
+            identifier = item.get('identifier', '')
+            if identifier:
+                # Split identifier into parts and convert numeric parts to integers for proper sorting
+                parts = re.split(r'(\d+)', identifier)
+                converted_parts = []
+                for part in parts:
+                    if part.isdigit():
+                        converted_parts.append(int(part))
+                    else:
+                        converted_parts.append(part)
+                return (item['weight'], converted_parts, item.get('name', ''))
+            else:
+                return (item['weight'], [item.get('name', '')], item.get('name', ''))
+        
+        children_data.sort(key=natural_sort_key)
         
         return children_data
     

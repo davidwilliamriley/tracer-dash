@@ -187,8 +187,22 @@ class BreakdownController:
 # Create the controller instance
 breakdown_controller = BreakdownController()
 
-# Create the layout variable that Dash expects for auto-discovery
-layout = breakdown_controller.get_layout()
+# Create the layout with initial options
+def get_layout():
+    """Get layout with loaded options"""
+    try:
+        breakdown_options = breakdown_controller.get_graph_options()
+        return breakdown_controller.view.create_layout(breakdown_options)
+    except Exception as e:
+        print(f"Error creating layout: {e}")
+        # Return a simple error layout
+        return html.Div([
+            html.H1("Error Loading Breakdowns"),
+            html.P(f"Error: {str(e)}")
+        ])
+
+# Create the layout variable that Dash expects for auto-discovery  
+layout = get_layout()
 
 
 # Callbacks
@@ -199,49 +213,75 @@ layout = breakdown_controller.get_layout()
 )
 def update_table_data(selected_graph: Optional[str], refresh_clicks: Optional[int]):
     """Update the data that will be used by Tabulator"""
-    print(f"update_table_data called: selected_graph={selected_graph}, refresh_clicks={refresh_clicks}")
-    
-    # If refresh button was clicked, reload the network
-    ctx = dash.callback_context
-    if ctx.triggered and 'refresh-nodes-btn' in ctx.triggered[0]['prop_id']:
-        print("Refreshing network from database...")
-        breakdown_controller.model.refresh_network()
-    
-    if not selected_graph:
-        return json.dumps([])
-    
     try:
-        filtered_data = breakdown_controller.get_breakdown_data(selected_graph)
-        print(f"Loaded {len(filtered_data)} root items for graph {selected_graph}")
+        print(f"update_table_data called: selected_graph={selected_graph}, refresh_clicks={refresh_clicks}")
         
-        # Pretty print first item for debugging
-        if filtered_data:
-            import pprint
-            print("First item structure:")
-            pprint.pprint(filtered_data[0], depth=3)
+        # If refresh button was clicked, reload the network
+        ctx = dash.callback_context
+        if ctx.triggered and 'refresh-nodes-btn' in ctx.triggered[0]['prop_id']:
+            print("Refreshing network from database...")
+            breakdown_controller.model.refresh_network()
         
-        return json.dumps(filtered_data)
+        if not selected_graph:
+            return json.dumps([])
+        
+        try:
+            filtered_data = breakdown_controller.get_breakdown_data(selected_graph)
+            print(f"Loaded {len(filtered_data)} root items for graph {selected_graph}")
+            
+            # Pretty print first item for debugging
+            if filtered_data:
+                import pprint
+                print("First item structure:")
+                pprint.pprint(filtered_data[0], depth=3)
+            
+            return json.dumps(filtered_data)
+        except Exception as e:
+            print(f"Error in update_table_data: {e}")
+            import traceback
+            traceback.print_exc()
+            return json.dumps([])
     except Exception as e:
-        print(f"Error in update_table_data: {e}")
-        import traceback
-        traceback.print_exc()
+        print(f"Callback error in update_table_data: {e}")
         return json.dumps([])
 
 
+# Temporarily disable problematic callbacks and use a simpler approach
+# @callback(
+#     Output("breakdown-dropdown", "options"), 
+#     Input("breakdown-dropdown", "id"),
+#     prevent_initial_call=False
+# )
+# def populate_graph_options(_):
+#     """Populate graph dropdown options when component loads"""
+#     try:
+#         options = breakdown_controller.get_graph_options()
+#         print(f"Loaded {len(options)} breakdown options")
+#         return options
+#     except Exception as e:
+#         print(f"Error loading breakdown options: {e}")
+#         return []
+
+
+# Safe callback that only handles refresh - no initial loading
 @callback(
-    Output("breakdown-dropdown", "options"), 
-    [Input("breakdown-dropdown", "id"), Input("refresh-nodes-btn", "n_clicks")],
+    Output("breakdown-dropdown", "options", allow_duplicate=True), 
+    Input("refresh-nodes-btn", "n_clicks"),
+    prevent_initial_call=True
 )
-def populate_graph_options(_: str, refresh_clicks: Optional[int]):
-    """Populate graph dropdown options"""
-    # If refresh button was clicked, reload options
-    ctx = dash.callback_context
-    if ctx.triggered and 'refresh-nodes-btn' in ctx.triggered[0]['prop_id']:
-        breakdown_controller.model.refresh_network()
+def refresh_breakdown_options(refresh_clicks: Optional[int]):
+    """Refresh breakdown options when refresh button is clicked"""
+    if refresh_clicks:
+        try:
+            breakdown_controller.model.refresh_network()
+            options = breakdown_controller.get_graph_options()
+            print(f"Refreshed and loaded {len(options)} breakdown options")
+            return options
+        except Exception as e:
+            print(f"Error refreshing breakdown options: {e}")
+            return dash.no_update
     
-    options = breakdown_controller.get_graph_options()
-    print(f"Loaded {len(options)} breakdown options")
-    return options
+    return dash.no_update
 
 
 @callback(
@@ -292,8 +332,7 @@ def reset_dropdown(n_clicks: Optional[int]):
 @callback(
     Output("download-pdf", "data"),
     Input("print-nodes-btn", "n_clicks"),
-    State("breakdown-dropdown", "value"),
-    State("table-data-store", "children"),
+    [State("breakdown-dropdown", "value"), State("table-data-store", "children")],
     prevent_initial_call=True,
 )
 def handle_print_pdf(n_clicks: Optional[int], selected_graph: Optional[str], table_data_json: Optional[str]):

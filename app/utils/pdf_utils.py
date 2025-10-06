@@ -270,8 +270,8 @@ def generate_breakdown_pdf(
     styles = getSampleStyleSheet()
     elements.append(Spacer(1, 12))
 
-    # Define columns
-    columns = ['Element', 'Relation', 'Weight', 'Identifier', 'Name', 'Description']
+    # Define columns (Element renamed to Item, no separate Item number column)
+    columns = ['Item', 'Relation', 'Weight', 'Identifier', 'Name', 'Description']
     header_row = columns
     
     # Prepare the Table Data with indentation
@@ -281,11 +281,11 @@ def generate_breakdown_pdf(
         level = row_data['level']
         indent = '    ' * level  # 4 spaces per level
         
-        # Add indentation to the Element column
-        element_text = indent + row_data['Element']
+        # Add indentation to the Item column (formerly Element)
+        item_text = indent + row_data['Element']
         
         row = [
-            element_text,
+            item_text,  # Item (with indentation)
             row_data['Relation'],
             row_data['Weight'],
             row_data['Identifier'],
@@ -294,44 +294,33 @@ def generate_breakdown_pdf(
         ]
         table_data.append(row)
     
-    # Calculate column widths
-    # Element: fixed width to accommodate indentation
-    # Name & Description: expandable
-    # Others: fit to content
+    # Calculate column widths for breakdown (Item column needs special handling for indentation)
     num_columns = len(columns)
+    
+    cell_padding = 20.0
     col_widths = []
     
-    # Element column - wider to show indentation
-    col_widths.append(100)
+    # Item column - wider to accommodate indentation (formerly Element column)
+    col_widths.append(120)  # Fixed width for indented items
     
-    # Relation & Weight - fit to content
-    for col_idx in [1, 2]:  # Relation, Weight
+    # Relation, Weight, Identifier - fit to content
+    for col_idx in [1, 2, 3]:  # Relation, Weight, Identifier
         max_width = 0.0
         for row in table_data:
-            text = str(row[col_idx])
-            if table_data.index(row) == 0:
-                text_width = stringWidth(text, 'Helvetica-Bold', 10)
-            else:
-                text_width = stringWidth(text, 'Helvetica', 10)
-            max_width = max(max_width, text_width)
-        col_widths.append(max_width + 20)
-    
-    # Identifier - fit to content
-    max_width = 0.0
-    for row in table_data:
-        text = str(row[3])
-        if table_data.index(row) == 0:
-            text_width = stringWidth(text, 'Helvetica-Bold', 10)
-        else:
-            text_width = stringWidth(text, 'Helvetica', 10)
-        max_width = max(max_width, text_width)
-    col_widths.append(max_width + 20)
+            if col_idx < len(row):
+                text = str(row[col_idx])
+                if table_data.index(row) == 0:
+                    text_width = stringWidth(text, 'Helvetica-Bold', 10)
+                else:
+                    text_width = stringWidth(text, 'Helvetica', 10)
+                max_width = max(max_width, text_width)
+        col_widths.append(max_width + cell_padding)
     
     # Name & Description - split remaining space
     used_width = sum(col_widths)
     remaining_width = available_width - used_width
-    col_widths.append(remaining_width * 0.4)  # Name gets 40%
-    col_widths.append(remaining_width * 0.6)  # Description gets 60%
+    col_widths.append(max(remaining_width * 0.4, 100.0))  # Name gets 40%
+    col_widths.append(max(remaining_width * 0.6, 150.0))  # Description gets 60%
 
     # Create Table
     t = Table(table_data, colWidths=col_widths, repeatRows=1)
@@ -339,29 +328,24 @@ def generate_breakdown_pdf(
     header_blue = colors.HexColor("#0d6efd")
     alt_row_color = colors.HexColor('#D9E2F3')
     
-    # Add Style to the Table
+    # Add Style to the Table (matching table report format)
     table_style = [
         # Header Styling
         ('BACKGROUND', (0, 0), (-1, 0), header_blue),
         ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
         ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
         ('FONTSIZE', (0, 0), (-1, 0), 11),
         ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
         ('TOPPADDING', (0, 0), (-1, 0), 12),
         
-        # Body Styling
-        ('FONTNAME', (0, 1), (-1, -1), 'Courier'),  # Monospace for indentation
+        # Body Styling (matching table report - use Helvetica not Courier)
+        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
         ('FONTSIZE', (0, 1), (-1, -1), 9),
         ('TOPPADDING', (0, 1), (-1, -1), 6),
         ('BOTTOMPADDING', (0, 1), (-1, -1), 6),
-        ('LEFTPADDING', (0, 1), (0, -1), 4),  # Less padding on Element column
-        
-        # Grid
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
-        
-        # Alternating row colors
+                
+        # Alternating row colors (matching table report)
         ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, alt_row_color])
     ]
     
