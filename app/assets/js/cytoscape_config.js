@@ -73,6 +73,11 @@ const CytoscapeConfig = {
         text: {
             primary: '#6c757d',
             background: 'white'
+        },
+        highlight: {
+            background: '#fff176',
+            line: '#fbc02d',
+            arrow: '#fbc02d'
         }
     },
     
@@ -100,4 +105,9 @@ const CytoscapeConfig = {
 // Export for use in other modules
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = CytoscapeConfig;
+}
+
+// Make available globally for browser use
+if (typeof window !== 'undefined') {
+    window.CytoscapeConfig = CytoscapeConfig;
 }

@@ -17,17 +17,17 @@ function getCytoscapeStyles() {
         {
             selector: 'node',
             style: {
-                'background-color': colors.node?.background || '#e3f2fd',
-                'border-color': colors.node?.border || '#0d6efd',
-                'border-width': colors.node?.borderWidth || '3px',
-                'height': nodeConfig.height || '40px',
-                'width': nodeConfig.width || '40px',
+                'background-color': colors.node?.background,
+                'border-color': colors.node?.border,
+                'border-width': colors.node?.borderWidth,
+                'height': nodeConfig.height,
+                'width': nodeConfig.width,
                 'label': 'data(label)',
                 'text-valign': 'top',
                 'text-halign': 'right',
-                'font-size': nodeConfig.fontSize || '12px',
-                'color': colors.text?.primary || '#6c757d',
-                'opacity': opacity.normal || 1
+                'font-size': nodeConfig.fontSize,
+                'color': colors.text?.primary,
+                'opacity': opacity.normal
             }
         },
         
@@ -35,8 +35,8 @@ function getCytoscapeStyles() {
         {
             selector: ':selected',
             style: {
-                'background-color': colors.node?.selected || '#0d6efd',
-                'border-color': colors.node?.selectedBorder || '#0b5ed7',
+                'background-color': colors.node?.selected,
+                'border-color': colors.node?.selectedBorder,
                 'border-width': '4px'
             }
         },
@@ -45,9 +45,9 @@ function getCytoscapeStyles() {
         {
             selector: '.connected',
             style: {
-                'background-color': colors.node?.connected || '#b3d9ff',
-                'border-color': colors.node?.border || '#0d6efd',
-                'border-width': '3px'
+                'background-color': colors.node?.connected,
+                'border-color': colors.node?.border,
+                'border-width': colors.node?.borderWidth
             }
         },
         
@@ -55,12 +55,12 @@ function getCytoscapeStyles() {
         {
             selector: 'edge',
             style: {
-                'curve-style': edgeConfig.curveStyle || 'bezier',
-                'line-color': colors.edge?.line || '#0d6efd',
-                'target-arrow-color': colors.edge?.arrow || '#0d6efd',
+                'curve-style': edgeConfig.curveStyle,
+                'line-color': colors.edge?.line,
+                'target-arrow-color': colors.edge?.arrow,
                 'target-arrow-shape': 'triangle',
-                'width': colors.edge?.width || '3px',
-                'opacity': opacity.normal || 1
+                'width': colors.edge?.width,
+                'opacity': opacity.normal
             }
         },
         
@@ -68,11 +68,11 @@ function getCytoscapeStyles() {
         {
             selector: 'edge[label]',
             style: {
-                'color': colors.text?.primary || '#6c757d',
-                'font-size': edgeConfig.fontSize || '10px',
+                'color': colors.text?.primary,
+                'font-size': edgeConfig.fontSize,
                 'label': 'data(label)',
                 'text-rotation': 'autorotate',
-                'text-background-color': colors.text?.background || 'white',
+                'text-background-color': colors.text?.background,
                 'text-background-opacity': 0.8
             }
         },
@@ -81,8 +81,8 @@ function getCytoscapeStyles() {
         {
             selector: 'edge:selected',
             style: {
-                'line-color': colors.edge?.selected || '#0b5ed7',
-                'target-arrow-color': colors.edge?.selected || '#0b5ed7',
+                'line-color': colors.edge?.selected,
+                'target-arrow-color': colors.edge?.selected,
                 'width': '4px'
             }
         },
@@ -91,9 +91,9 @@ function getCytoscapeStyles() {
         {
             selector: 'edge.connected',
             style: {
-                'line-color': colors.edge?.connected || '#4da6ff',
-                'target-arrow-color': colors.edge?.connected || '#4da6ff',
-                'width': '3px'
+                'line-color': colors.edge?.connected,
+                'target-arrow-color': colors.edge?.connected,
+                'width': colors.edge?.width
             }
         },
         
@@ -102,7 +102,7 @@ function getCytoscapeStyles() {
             selector: '.edge-creation-source',
             style: {
                 'border-width': 3,
-                'border-color': colors.edge?.creation || '#dc3545'
+                'border-color': colors.edge?.creation
             }
         },
         
@@ -110,9 +110,9 @@ function getCytoscapeStyles() {
         {
             selector: '.edge-creation-preview',
             style: {
-                'line-color': colors.edge?.creation || '#dc3545',
-                'target-arrow-color': colors.edge?.creation || '#dc3545',
-                'curve-style': 'bezier',
+                'line-color': colors.edge?.creation,
+                'target-arrow-color': colors.edge?.creation,
+                'curve-style': edgeConfig.curveStyle,
                 'target-arrow-shape': 'triangle',
                 'width': 3,
                 'line-style': 'dashed'
@@ -123,8 +123,8 @@ function getCytoscapeStyles() {
         {
             selector: '.faded',
             style: {
-                'opacity': opacity.faded || 0.2,
-                'text-opacity': opacity.faded || 0.2
+                'opacity': opacity.faded,
+                'text-opacity': opacity.faded
             }
         },
         
@@ -140,9 +140,9 @@ function getCytoscapeStyles() {
         {
             selector: '.highlighted',
             style: {
-                'background-color': '#fff176',
-                'line-color': '#fbc02d',
-                'target-arrow-color': '#fbc02d',
+                'background-color': colors.highlight?.background,
+                'line-color': colors.highlight?.line,
+                'target-arrow-color': colors.highlight?.arrow,
                 'transition-property': 'background-color, line-color',
                 'transition-duration': '0.3s'
             }
@@ -160,12 +160,12 @@ function getLayoutConfig(layoutName) {
     const layouts = config.layout || {};
     const animation = config.animation || {};
     
-    const layoutConfig = layouts[layoutName] || layouts.fcose;
+    const layoutConfig = layouts[layoutName] || layouts.fcose || {};
     
     // Add animation settings
     return {
         ...layoutConfig,
-        animationDuration: animation.layoutDuration || 1000,
-        animationEasing: animation.layoutEasing || 'ease-out'
+        animationDuration: animation.layoutDuration,
+        animationEasing: animation.layoutEasing
     };
 }

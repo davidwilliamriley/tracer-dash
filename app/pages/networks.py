@@ -19,13 +19,25 @@ def networkx_to_cytoscape(G: nx.Graph) -> dict:
     
     # Add nodes from NetworkX graph
     for node_id, node_data in G.nodes(data=True):
+        # Create label: "Identifier - Name" if identifier exists, otherwise just "Name"
+        identifier = node_data.get('identifier', '')
+        name = node_data.get('name', '')
+        if identifier and name:
+            label = f"{identifier} - {name}"
+        elif name:
+            label = name
+        elif identifier:
+            label = identifier
+        else:
+            label = "Unnamed"
+            
         elements.append({
             "group": "nodes",
             "data": {
                 "id": str(node_id),
-                "label": node_data.get('name') or node_data.get('identifier') or "Unnamed",
-                "name": node_data.get('name', ''),
-                "identifier": node_data.get('identifier', ''),
+                "label": label,
+                "name": name,
+                "identifier": identifier,
                 "description": node_data.get('description', ''),
             },
         })

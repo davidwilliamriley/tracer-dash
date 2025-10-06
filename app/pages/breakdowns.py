@@ -112,16 +112,24 @@ class BreakdownModel:
     def _transform_to_tabulator_format(self, breakdown_data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """Transform the breakdown data to Tabulator format with Element numbering"""
         
-        def add_element_numbers(items, prefix=""):
-            """Recursively add element numbers like 1.0, 1.01, 1.01.01"""
+        def add_element_numbers(items, prefix="", level=0):
+            """Recursively add element numbers like 1.0, 1.1, 1.1.1"""
             result = []
             
             for idx, item in enumerate(items, start=1):
-                # Generate element number
-                if prefix:
-                    element = f"{prefix}.{idx:01d}"  # e.g., 1.1, 1.2
+                # Generate element number based on level
+                if level == 0:
+                    # Root level: 1.0, 2.0, 3.0
+                    element = f"{idx}.0"
+                    next_prefix = str(idx)  # For children, use just "1", "2", etc.
+                elif level == 1:
+                    # Second level: 1.1, 1.2, 1.3 (children of root)
+                    element = f"{prefix}.{idx}"
+                    next_prefix = element
                 else:
-                    element = f"{idx}.0"  # e.g., 1.0, 2.0 for root items
+                    # Third level and beyond: 1.1.1, 1.1.2, etc.
+                    element = f"{prefix}.{idx}"
+                    next_prefix = element
                 
                 # Transform the item
                 transformed = {
@@ -137,7 +145,7 @@ class BreakdownModel:
                 # Process children recursively
                 children = item.get('_children', [])
                 if children:
-                    transformed['_children'] = add_element_numbers(children, element)
+                    transformed['_children'] = add_element_numbers(children, next_prefix, level + 1)
                 
                 result.append(transformed)
             
@@ -369,7 +377,7 @@ clientside_callback(
                 dataTreeStartExpanded: true,
                 dataTreeChildField: "_children",
                 dataTreeElementColumn: "Element",
-                height: "600px",
+                // height: "600px",
                 pagination: "local",
                 paginationSize: 25,
                 columns: [
