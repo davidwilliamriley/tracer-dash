@@ -1,5 +1,6 @@
 # views/breakdowns_view.py
 
+from __future__ import annotations
 from dash import html, dcc
 import dash_bootstrap_components as dbc
 from typing import List, Dict, Any, Union, TypedDict
@@ -33,7 +34,7 @@ class BreakdownView:
             },
         )
 
-    def _create_content_header(self):
+    def _create_content_header(self) -> html.Div:
         """Create page header"""
         return html.Div(
             [
@@ -48,13 +49,14 @@ class BreakdownView:
             ],
         )
 
-    def create_layout(self, breakdown_options: List[DropdownOption]) -> "dbc.Container":
+    def create_layout(self, breakdown_options: List[DropdownOption]) -> dbc.Container:
         """Create the main layout for the Breakdown View"""
         return dbc.Container(
             [
                 # Toast Notification
                 self._make_toast(),
                 dcc.Download(id="breakdowns-download-pdf"),
+                dcc.Download(id="breakdowns-download-csv"),
                 # Main Content Stack
                 dbc.Stack(
                     [
@@ -88,7 +90,7 @@ class BreakdownView:
             },
         )
 
-    def _create_toolbar(self):
+    def _create_toolbar(self) -> html.Div:
         """Create action button toolbar"""
         return html.Div(
             [
@@ -226,7 +228,7 @@ class BreakdownView:
             className="mb-4",
         )
 
-    def _create_table_container(self):
+    def _create_table_container(self) -> dbc.Row:
         """Create the table container for Tabulator"""
         return dbc.Row(
             [

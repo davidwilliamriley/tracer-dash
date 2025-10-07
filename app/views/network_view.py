@@ -3,8 +3,10 @@
 from dash import html, dcc
 import dash_bootstrap_components as dbc
 import dash_tabulator
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 import json
+
+from utils.toast_utils import ToastFactory
 
 
 class NetworkView:
@@ -14,27 +16,10 @@ class NetworkView:
         pass
 
     @staticmethod
-    def _create_toast() -> dbc.Toast:
-        return dbc.Toast(
-            id="networks-toast-message",
-            header="Notification",
-            is_open=False,
-            dismissable=True,
-            duration=4000,
-            style={
-                "position": "fixed",
-                "bottom": 20,
-                "left": 20,
-                "width": 350,
-                "z-index": 9999,
-            },
-        )
-
-    @staticmethod
     def create_layout(networks_data: Dict[str, Any]) -> dbc.Container:
         return dbc.Container(
             [
-                NetworkView._create_toast(),
+                ToastFactory.create_toast(),
 
                 html.Div(id="cytoscape-data-div",  children=json.dumps(networks_data), style={"display": "none"}),
 
@@ -54,22 +39,17 @@ class NetworkView:
     @staticmethod
     def _create_filters() -> html.Div:
         return html.Div([
-            dbc.Card([
-                dbc.CardBody([
-
+            dbc.Accordion([
+                dbc.AccordionItem([
                     # First Row - Graph Root Select
                     dbc.Row([
                         dbc.Col(
                             dbc.Select(
                                 id="filter-graph-select",
-                                options=[
-                                    {"label": "All Roots", "value": "all"},
-                                    {"label": "Root 1", "value": "root1"},
-                                    {"label": "Root 2", "value": "root2"},
-                                    {"label": "Root 3", "value": "root3"},
-                                ],
+                                options=[{"label": "All Roots", "value": "all"}],
+                                value="all",
                                 placeholder="Select a Graph Root Node...",
-                                disabled=True
+                                disabled=False
                             ),
                             width=12,
                             className="mb-3",
@@ -151,6 +131,77 @@ class NetworkView:
                         ),
                     ], className="align-items-center g-3"),
                     
+                    # Export Row
+                    dbc.Row([
+                        dbc.Col(
+                            html.Label("Export Options:", className="form-label fw-bold text-muted"),
+                            width=12,
+                            className="mt-3 mb-2",
+                        ),
+                    ]),
+                    dbc.Row([
+                        dbc.Col(
+                            dbc.Button([html.I(className="bi bi-image me-1"), "Export PNG"],
+                                id="export-png-btn",
+                                outline=True,
+                                color="success",
+                                size="sm",
+                                className="w-100",
+                            ),
+                            width=6,
+                            lg=2,
+                            className="mb-2 pe-1",
+                        ),
+                        dbc.Col(
+                            dbc.Button([html.I(className="bi bi-filetype-svg me-1"), "Export SVG"],
+                                id="export-svg-btn",
+                                outline=True,
+                                color="success",
+                                size="sm",
+                                className="w-100",
+                            ),
+                            width=6,
+                            lg=2,
+                            className="mb-2 ps-1",
+                        ),
+                        dbc.Col(
+                            dbc.Button([html.I(className="bi bi-filetype-json me-1"), "Export JSON"],
+                                id="export-json-btn",
+                                outline=True,
+                                color="info",
+                                size="sm",
+                                className="w-100",
+                            ),
+                            width=6,
+                            lg=2,
+                            className="mb-2 px-1",
+                        ),
+                        dbc.Col(
+                            dbc.Button([html.I(className="bi bi-camera me-1"), "High-Res PNG"],
+                                id="export-highres-png-btn",
+                                outline=True,
+                                color="success",
+                                size="sm",
+                                className="w-100",
+                            ),
+                            width=6,
+                            lg=2,
+                            className="mb-2 px-1",
+                        ),
+                    ], className="align-items-center g-2"),
+                    
+                    # Network Statistics Row
+                    dbc.Row([
+                        dbc.Col(
+                            html.Div(
+                                id="network-stats-display",
+                                className="text-muted small mt-2",
+                                children="Loading network statistics..."
+                            ),
+                            width=12,
+                        ),
+                    ]),
+                    
                     # Layout Algorithm Row
                     dbc.Row([
                         dbc.Col(
@@ -172,8 +223,8 @@ class NetworkView:
                             className="mt-3",
                         ),
                     ]),
-                ]),
-            ], className="mb-4"),
+                ], title="Filters & Controls", item_id="filters-accordion"),
+            ], start_collapsed=True, className="mb-3"),
             
             # Network Graph Container
             NetworkView._create_cytoscape_container(),     
@@ -189,7 +240,8 @@ class NetworkView:
                                 id="cytoscape-container",
                                 style={
                                     "width": "100%",
-                                    "height": "70vh",
+                                    "height": "calc(100vh - 465px)",
+                                    "minHeight": "400px",
                                     "border-radius": "0.375rem",
                                     "backgroundColor": "white",
                                     "position": "relative"
@@ -199,7 +251,7 @@ class NetworkView:
                             color="primary"
                         ),
                         html.Div(id="cytoscape-trigger", style={"display": "none"})
-                    ], className="p-0",  
+                    ]
                 ),
             ], className="mb-4",
         )

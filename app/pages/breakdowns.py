@@ -12,6 +12,8 @@ from dash import (
     clientside_callback,
 )
 import json
+import pandas as pd
+from datetime import datetime
 from typing import Dict, Any, List, Optional
 from views.breakdown_view import BreakdownView, DropdownOption
 
@@ -421,6 +423,95 @@ def handle_print_pdf(
 
         traceback.print_exc()
         return None
+
+
+# Add CSV download callback
+@callback(
+    Output("breakdowns-download-csv", "data"),
+    Input("breakdowns-download-btn", "n_clicks"),
+    [
+        State("breakdowns-dropdown", "value"),
+        State("breakdowns-table-data-store", "children"),
+    ],
+    prevent_initial_call=True,
+)
+def handle_download_csv(
+    n_clicks: Optional[int],
+    selected_graph: Optional[str],
+    table_data_json: Optional[str],
+):
+    """Handle CSV download button clicks"""
+    if not n_clicks or not table_data_json:
+        return None
+
+    try:
+        data = json.loads(table_data_json)
+
+        if not data:
+            return None
+
+        # Flatten the hierarchical data for CSV export
+        flattened_data = _flatten_breakdown_data(data)
+
+        if not flattened_data:
+            return None
+
+        # Convert to DataFrame
+        import pandas as pd
+        df = pd.DataFrame(flattened_data)
+
+        # Get timestamp for filename
+        from datetime import datetime
+        timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+
+        # Get the graph name for the filename
+        graph_options = breakdown_controller.get_graph_options()
+        graph_name = "breakdown"
+        for opt in graph_options:
+            if opt["value"] == selected_graph:
+                # Clean the label for filename
+                graph_name = opt["label"].replace(" - ", "_").replace(" ", "_").lower()
+                break
+
+        filename = f"{timestamp}_{graph_name}.csv"
+
+        return dict(
+            content=df.to_csv(index=False),
+            filename=filename
+        )
+
+    except Exception as e:
+        print(f"Error generating CSV: {e}")
+        import traceback
+        traceback.print_exc()
+        return None
+
+
+def _flatten_breakdown_data(data: List[Dict[str, Any]], level: int = 0) -> List[Dict[str, Any]]:
+    """
+    Flatten hierarchical breakdown data for CSV export.
+    """
+    flattened = []
+    
+    for item in data:
+        # Create flattened row
+        flat_item = {
+            "Element": item.get("Element", ""),
+            "Relation": item.get("Relation", ""),
+            "Weight": item.get("Weight", ""),
+            "Identifier": item.get("Identifier", ""),
+            "Name": item.get("Name", ""),
+            "Description": item.get("Description", ""),
+        }
+        flattened.append(flat_item)
+        
+        # Recursively process children
+        children = item.get("_children", [])
+        if children:
+            child_flattened = _flatten_breakdown_data(children, level + 1)
+            flattened.extend(child_flattened)
+    
+    return flattened
 
 
 # Clientside callback to initialize Tabulator

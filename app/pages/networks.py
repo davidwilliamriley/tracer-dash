@@ -9,7 +9,7 @@ from sqlalchemy.orm import joinedload
 # Import View and Model
 from views.network_view import NetworkView
 from models.model import Model, Node, Edge
-from utils.network_utils import build_networkx_from_database
+from utils.network_utils import build_networkx_from_database, get_graph_roots
 
 # Register the Page
 dash.register_page(__name__, path='/network')
@@ -68,6 +68,49 @@ def layout():
 # ==================== CALLBACKS ====================
 
 @callback(
+    Output('filter-graph-select', 'options'),
+    Input('cytoscape-data-div', 'id'),
+    prevent_initial_call=False
+)
+def update_root_selector_options(_):
+    """Update the root node selector options when the graph is loaded"""
+    try:
+        G = build_networkx_from_database()
+        root_nodes = get_graph_roots(G) if G else []
+        
+        # Create options list
+        options = [{"label": "All Roots", "value": "all"}]
+        
+        if root_nodes:
+            for root_id in root_nodes:
+                node_data = G.nodes.get(root_id, {})
+                identifier = node_data.get('identifier', '')
+                name = node_data.get('name', '')
+                if identifier and name:
+                    label = f"{identifier} - {name}"
+                elif name:
+                    label = name
+                elif identifier:
+                    label = identifier
+                else:
+                    label = f"Node {root_id}"
+                options.append({"label": label, "value": root_id})
+        
+        return options
+    except Exception as e:
+        print(f"Error updating root selector options: {e}")
+        return [{"label": "All Roots", "value": "all"}]
+
+@callback(
+    Output('filter-graph-select', 'disabled'),
+    Input('filter-graph-select', 'options'),
+    prevent_initial_call=False
+)
+def update_root_selector_state(options):
+    """Enable/disable the root selector based on available options"""
+    return len(options) <= 1  # Disable if only "All Roots" option available
+
+@callback(
     Output('cytoscape-data-div', 'children'),
     Input('cytoscape-data-div', 'id'),
     prevent_initial_call=False
@@ -81,6 +124,36 @@ def load_cytoscape_data(_):
         print(f"Error loading network: {e}")
         return json.dumps({"elements": []})
 
+@callback(
+    Output('cytoscape-data-div', 'children', allow_duplicate=True),
+    Input('filter-graph-select', 'value'),
+    prevent_initial_call=True
+)
+def filter_by_root_node(selected_root):
+    """Filter the network to show only the subgraph from selected root node"""
+    try:
+        G = build_networkx_from_database()
+        if not G or not selected_root or selected_root == "all":
+            # Show full graph
+            cytoscape_data = networkx_to_cytoscape(G) if G else {"elements": []}
+        else:
+            # Filter to show only the subgraph starting from the selected root
+            if selected_root in G:
+                # Get all descendants of the root node
+                descendants = nx.descendants(G, selected_root)
+                descendants.add(selected_root)  # Include the root itself
+                
+                # Create subgraph with only these nodes
+                subgraph = G.subgraph(descendants)
+                cytoscape_data = networkx_to_cytoscape(subgraph)
+            else:
+                cytoscape_data = {"elements": []}
+        
+        return json.dumps(cytoscape_data)
+    except Exception as e:
+        print(f"Error filtering by root node: {e}")
+        return json.dumps({"elements": []})
+
 # Register clientside callback to trigger Cytoscape rendering
 clientside_callback(
     """
@@ -92,4 +165,94 @@ clientside_callback(
     Input('cytoscape-data-div', 'children'),
     State('filter-value-input', 'value'),
     prevent_initial_call=False
+)
+
+@callback(
+    Output('network-stats-display', 'children'),
+    Input('cytoscape-data-div', 'children'),
+    prevent_initial_call=False
+)
+def update_network_stats(network_data_json):
+    """Update network statistics display"""
+    try:
+        if not network_data_json:
+            return "No network data available"
+        
+        network_data = json.loads(network_data_json)
+        elements = network_data.get('elements', [])
+        
+        nodes = [e for e in elements if e.get('group') == 'nodes']
+        edges = [e for e in elements if e.get('group') == 'edges']
+        
+        # Calculate some basic stats
+        node_count = len(nodes)
+        edge_count = len(edges)
+        
+        if node_count == 0:
+            return "Network: 0 nodes, 0 edges"
+        
+        # Calculate average degree (approximate)
+        avg_degree = (2 * edge_count) / node_count if node_count > 0 else 0
+        
+        return f"Network: {node_count} nodes, {edge_count} edges | Avg. degree: {avg_degree:.1f}"
+        
+    except Exception as e:
+        print(f"Error calculating network stats: {e}")
+        return "Error calculating network statistics"
+
+# Export callbacks - these use clientside callbacks to interact with the Cytoscape instance
+clientside_callback(
+    """
+    function(n_clicks) {
+        if (n_clicks && window.exportNetworkPNG) {
+            window.exportNetworkPNG();
+        }
+        return window.dash_clientside.no_update;
+    }
+    """,
+    Output('export-png-btn', 'children', allow_duplicate=True),
+    Input('export-png-btn', 'n_clicks'),
+    prevent_initial_call=True
+)
+
+clientside_callback(
+    """
+    function(n_clicks) {
+        if (n_clicks && window.exportNetworkSVG) {
+            window.exportNetworkSVG();
+        }
+        return window.dash_clientside.no_update;
+    }
+    """,
+    Output('export-svg-btn', 'children', allow_duplicate=True),
+    Input('export-svg-btn', 'n_clicks'),
+    prevent_initial_call=True
+)
+
+clientside_callback(
+    """
+    function(n_clicks) {
+        if (n_clicks && window.downloadNetworkJSON) {
+            window.downloadNetworkJSON();
+        }
+        return window.dash_clientside.no_update;
+    }
+    """,
+    Output('export-json-btn', 'children', allow_duplicate=True),
+    Input('export-json-btn', 'n_clicks'),
+    prevent_initial_call=True
+)
+
+clientside_callback(
+    """
+    function(n_clicks) {
+        if (n_clicks && window.exportNetworkHighResPNG) {
+            window.exportNetworkHighResPNG();
+        }
+        return window.dash_clientside.no_update;
+    }
+    """,
+    Output('export-highres-png-btn', 'children', allow_duplicate=True),
+    Input('export-highres-png-btn', 'n_clicks'),
+    prevent_initial_call=True
 )

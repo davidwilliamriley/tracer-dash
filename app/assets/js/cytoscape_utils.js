@@ -301,26 +301,196 @@ function downloadNetworkJSON() {
 
 /**
  * Export network as PNG image
+ * @param {Object} options - Export options
  */
-function exportNetworkPNG() {
-    if (!window.cy) return;
+function exportNetworkPNG(options = {}) {
+    if (!window.cy) {
+        console.error('Cytoscape instance not available');
+        showExportError('Network not available for export');
+        return;
+    }
     
-    const png = window.cy.png({
-        output: 'blob',
-        bg: 'white',
-        full: true,
-        scale: 2
-    });
+    try {
+        const defaultOptions = {
+            output: 'blob',
+            bg: 'white',
+            full: true,
+            scale: 2,
+            maxWidth: 2000,
+            maxHeight: 2000
+        };
+        
+        const exportOptions = { ...defaultOptions, ...options };
+        const png = window.cy.png(exportOptions);
+        
+        const url = URL.createObjectURL(png);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `network-export-${Date.now()}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        URL.revokeObjectURL(url);
+        showExportSuccess('PNG image downloaded successfully');
+    } catch (error) {
+        console.error('PNG export error:', error);
+        showExportError('Failed to export PNG image');
+    }
+}
+
+/**
+ * Export network as SVG image
+ */
+function exportNetworkSVG() {
+    if (!window.cy) {
+        console.error('Cytoscape instance not available');
+        showExportError('Network not available for export');
+        return;
+    }
     
-    const url = URL.createObjectURL(png);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `network-export-${Date.now()}.png`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    try {
+        // Check if SVG export is available
+        if (typeof window.cy.svg !== 'function') {
+            console.warn('SVG export not available, falling back to PNG');
+            showExportWarning('SVG export not available, using PNG instead');
+            exportNetworkPNG();
+            return;
+        }
+        
+        const svg = window.cy.svg({
+            output: 'blob',
+            bg: 'white',
+            full: true
+        });
+        
+        const url = URL.createObjectURL(svg);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `network-export-${Date.now()}.svg`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        URL.revokeObjectURL(url);
+        showExportSuccess('SVG image downloaded successfully');
+    } catch (error) {
+        console.error('SVG export error:', error);
+        showExportWarning('SVG export failed, using PNG instead');
+        exportNetworkPNG();
+    }
+}
+
+/**
+ * Export high-resolution PNG image
+ */
+function exportNetworkHighResPNG() {
+    if (!window.cy) {
+        console.error('Cytoscape instance not available');
+        showExportError('Network not available for export');
+        return;
+    }
     
-    URL.revokeObjectURL(url);
+    try {
+        const highResOptions = {
+            output: 'blob',
+            bg: 'white',
+            full: true,
+            scale: 4,
+            maxWidth: 4000,
+            maxHeight: 4000
+        };
+        
+        const png = window.cy.png(highResOptions);
+        
+        const url = URL.createObjectURL(png);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `network-highres-export-${Date.now()}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        URL.revokeObjectURL(url);
+        showExportSuccess('High-resolution PNG downloaded successfully');
+    } catch (error) {
+        console.error('High-res PNG export error:', error);
+        showExportError('Failed to export high-resolution PNG');
+    }
+}
+
+/**
+ * Show export success message
+ * @param {string} message - Success message
+ */
+function showExportSuccess(message) {
+    showToast(message, 'success');
+}
+
+/**
+ * Show export error message
+ * @param {string} message - Error message
+ */
+function showExportError(message) {
+    showToast(message, 'error');
+}
+
+/**
+ * Show export warning message
+ * @param {string} message - Warning message
+ */
+function showExportWarning(message) {
+    showToast(message, 'warning');
+}
+
+/**
+ * Show toast notification
+ * @param {string} message - Message to show
+ * @param {string} type - Toast type (success, error, warning, info)
+ */
+function showToast(message, type = 'info') {
+    // Try to use Dash toast if available
+    if (window.dash_clientside && window.dash_clientside.callback_context) {
+        // This would require a Dash callback to handle, so for now use browser alert
+        console.log(`${type.toUpperCase()}: ${message}`);
+    }
+    
+    // Create a simple toast notification
+    const toast = document.createElement('div');
+    toast.className = `alert alert-${getBootstrapAlertClass(type)} alert-dismissible fade show`;
+    toast.style.position = 'fixed';
+    toast.style.top = '20px';
+    toast.style.right = '20px';
+    toast.style.zIndex = '10001';
+    toast.style.minWidth = '300px';
+    toast.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        if (toast.parentElement) {
+            toast.remove();
+        }
+    }, 5000);
+}
+
+/**
+ * Get Bootstrap alert class for toast type
+ * @param {string} type - Toast type
+ * @returns {string} Bootstrap class
+ */
+function getBootstrapAlertClass(type) {
+    switch (type) {
+        case 'success': return 'success';
+        case 'error': return 'danger';
+        case 'warning': return 'warning';
+        case 'info': return 'info';
+        default: return 'info';
+    }
 }
 
 /**
