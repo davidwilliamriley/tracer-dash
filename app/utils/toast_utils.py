@@ -36,7 +36,7 @@ class ToastFactory:
             "top": 100,
             "left": 20,
             "width": 350,
-            "z-index": 9999,
+            "zindex": 9999,
         }
         
         style = position if position is not None else default_position

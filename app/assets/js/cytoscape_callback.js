@@ -7,6 +7,20 @@
 // - cytoscape_utils.js     : Utility functions (applyFilterHighlighting, showModal, etc.)
 // - cytoscape_events.js    : Event handlers (setupEventHandlers, setupContextMenus, etc.)
 
+// Register Cytoscape extensions if they're available
+if (typeof cytoscape !== 'undefined') {
+    // Register SVG extension if available
+    if (typeof window.cytoscapeSvg !== 'undefined') {
+        cytoscape.use(window.cytoscapeSvg);
+        console.log('Cytoscape SVG extension registered');
+    } else if (typeof cytoscapeSvg !== 'undefined') {
+        cytoscape.use(cytoscapeSvg);
+        console.log('Cytoscape SVG extension registered');
+    } else {
+        console.warn('Cytoscape SVG extension not found');
+    }
+}
+
 window.cytoscapeCallback = function(networkDataJson, filteredValue) {
     // Parse the JSON data
     let networkData;

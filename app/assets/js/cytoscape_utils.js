@@ -2,6 +2,20 @@
 // Utility functions for Cytoscape network visualization
 
 /**
+ * Generate a formatted date string for filenames (YYYY-MM-DD_HH-MM-SS)
+ */
+function getFormattedDateForFilename() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    return `${year}-${month}-${day}_${hours}-${minutes}-${seconds}`;
+}
+
+/**
  * Clear all highlighting and selections from the network
  */
 function clearHighlighting() {
@@ -291,7 +305,7 @@ function downloadNetworkJSON() {
     
     const link = document.createElement('a');
     link.href = url;
-    link.download = `network-export-${Date.now()}.json`;
+    link.download = `${getFormattedDateForFilename()}-network-export.json`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -326,7 +340,7 @@ function exportNetworkPNG(options = {}) {
         const url = URL.createObjectURL(png);
         const link = document.createElement('a');
         link.href = url;
-        link.download = `network-export-${Date.now()}.png`;
+        link.download = `${getFormattedDateForFilename()}-network-export.png`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -350,24 +364,38 @@ function exportNetworkSVG() {
     }
     
     try {
+        // Debug: Check what SVG methods are available
+        console.log('Checking SVG export capabilities...');
+        console.log('window.cy.svg type:', typeof window.cy.svg);
+        console.log('Available cy methods:', Object.getOwnPropertyNames(window.cy).filter(name => name.includes('svg')));
+        
         // Check if SVG export is available
         if (typeof window.cy.svg !== 'function') {
             console.warn('SVG export not available, falling back to PNG');
+            console.warn('Available methods on cy:', Object.getOwnPropertyNames(window.cy));
             showExportWarning('SVG export not available, using PNG instead');
             exportNetworkPNG();
             return;
         }
         
-        const svg = window.cy.svg({
-            output: 'blob',
+        console.log('SVG export function found, attempting export...');
+        
+        // Get SVG as string (most cytoscape-svg extensions return string, not blob)
+        const svgString = window.cy.svg({
             bg: 'white',
             full: true
         });
         
-        const url = URL.createObjectURL(svg);
+        console.log('SVG generated, type:', typeof svgString);
+        console.log('SVG length:', svgString ? svgString.length : 'null');
+        
+        // Convert SVG string to Blob
+        const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+        
+        const url = URL.createObjectURL(svgBlob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = `network-export-${Date.now()}.svg`;
+        link.download = `${getFormattedDateForFilename()}-network-export.svg`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -406,7 +434,7 @@ function exportNetworkHighResPNG() {
         const url = URL.createObjectURL(png);
         const link = document.createElement('a');
         link.href = url;
-        link.download = `network-highres-export-${Date.now()}.png`;
+        link.download = `${getFormattedDateForFilename()}-network-highres-export.png`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -444,52 +472,25 @@ function showExportWarning(message) {
 }
 
 /**
- * Show toast notification
+ * Show toast notification using Dash toast system
  * @param {string} message - Message to show
  * @param {string} type - Toast type (success, error, warning, info)
  */
 function showToast(message, type = 'info') {
-    // Try to use Dash toast if available
-    if (window.dash_clientside && window.dash_clientside.callback_context) {
-        // This would require a Dash callback to handle, so for now use browser alert
+    // Use Dash store to trigger toast
+    const toastStore = document.getElementById('toast-store');
+    if (toastStore) {
+        // Update the store data to trigger the toast callback
+        window.dash_clientside.set_props('toast-store', {
+            data: {
+                message: message,
+                type: type,
+                timestamp: Date.now() // Add timestamp to ensure updates trigger
+            }
+        });
+    } else {
+        // Fallback to console log if store not found
         console.log(`${type.toUpperCase()}: ${message}`);
-    }
-    
-    // Create a simple toast notification
-    const toast = document.createElement('div');
-    toast.className = `alert alert-${getBootstrapAlertClass(type)} alert-dismissible fade show`;
-    toast.style.position = 'fixed';
-    toast.style.top = '20px';
-    toast.style.right = '20px';
-    toast.style.zIndex = '10001';
-    toast.style.minWidth = '300px';
-    toast.innerHTML = `
-        ${message}
-        <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
-    `;
-    
-    document.body.appendChild(toast);
-    
-    // Auto-remove after 5 seconds
-    setTimeout(() => {
-        if (toast.parentElement) {
-            toast.remove();
-        }
-    }, 5000);
-}
-
-/**
- * Get Bootstrap alert class for toast type
- * @param {string} type - Toast type
- * @returns {string} Bootstrap class
- */
-function getBootstrapAlertClass(type) {
-    switch (type) {
-        case 'success': return 'success';
-        case 'error': return 'danger';
-        case 'warning': return 'warning';
-        case 'info': return 'info';
-        default: return 'info';
     }
 }
 
