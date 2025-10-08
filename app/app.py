@@ -137,7 +137,7 @@ def get_header():
         dbc.Container(
             [
                 dbc.NavbarBrand(
-                    [html.I(className="bi bi-node-plus me-2"), "Tracer"],
+                    [html.I(className="bi bi-node-plus me-2"), html.Span(id="navbar-brand-text", children="Tracer")],
                     href="/",
                     className="fw-light fs-2",
                 ),
@@ -292,7 +292,7 @@ app.layout = html.Div(
             "nodes",
             "edge-types",
         ]
-    ],
+    ] + [Output("navbar-brand-text", "children")],
     Input("_pages_location", "pathname"),
 )
 def update_nav_style(pathname):
@@ -307,10 +307,22 @@ def update_nav_style(pathname):
         "/edge-types": "edge-types",
         # "/help": "help"
     }
+    
+    # Page name mapping for navbar brand
+    page_names = {
+        "/": "Tracer",
+        "/dashboard": "Tracer - Dashboard",
+        "/network": "Tracer - Network",
+        "/breakdowns": "Tracer - Breakdowns", 
+        "/edges": "Tracer - Edges",
+        "/nodes": "Tracer - Nodes",
+        "/edge-types": "Tracer - Edge Types",
+    }
 
     active_page = nav_map.get(pathname, None)
+    brand_text = page_names.get(pathname, "Tracer")
 
-    return [
+    nav_classes = [
         "text-white" if page == active_page else "text-white-50"
         for page in [
             "home",
@@ -322,6 +334,8 @@ def update_nav_style(pathname):
             "edge-types",
         ]
     ]
+    
+    return nav_classes + [brand_text]
 
 
 if __name__ == "__main__":

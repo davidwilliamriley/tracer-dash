@@ -26,18 +26,18 @@ class NetworkView:
                     children=json.dumps(networks_data),
                     style={"display": "none"},
                 ),
-                html.H1(
-                    [html.I(className="bi bi-bezier2 me-2"), "Network"],
-                    className="my-4 text-primary",
-                ),
-                html.P(
-                    "Visualise and Analyse the Network.", className="mb-4 text-muted"
-                ),
+                # html.H1(
+                #     [html.I(className="bi bi-bezier2 me-2"), "Network"],
+                #     className="my-4 text-primary",
+                # ),
+                # html.P(
+                #     "Visualise and Analyse the Network.", className="mb-4 text-muted"
+                # ),
                 NetworkView._create_filters(),
             ],
             style={
                 "minHeight": "calc(100vh - 120px)",
-                "paddingBottom": "100px",
+                "paddingBottom": "20px",
                 "display": "flex",
                 "flexDirection": "column",
             },
@@ -347,7 +347,7 @@ class NetworkView:
                         ),
                     ],
                     start_collapsed=True,
-                    className="mb-3",
+                    className="mb-3 mt-3",
                 ),
                 # Network Graph Container
                 NetworkView._create_cytoscape_container(),
@@ -366,7 +366,7 @@ class NetworkView:
                                 id="cytoscape-container",
                                 style={
                                     "width": "100%",
-                                    "height": "calc(100vh - 465px)",
+                                    "height": "calc(100vh - 340px)",
                                     "minHeight": "400px",
                                     "borderRadius": "0.375rem",
                                     "backgroundColor": "white",
@@ -380,7 +380,6 @@ class NetworkView:
                     ]
                 ),
             ],
-            className="mb-4",
         )
 
     @staticmethod

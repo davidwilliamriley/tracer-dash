@@ -107,7 +107,7 @@ class NodeView:
                             className="col-md-6 d-flex justify-content-end",
                         ),
                     ],
-                    className="row justify-content-between mb-3",
+                    className="row justify-content-between mt-3 mb-3",
                 )
             ]
         )
@@ -121,7 +121,7 @@ class NodeView:
                 dbc.Stack(
                     [
                         # Content Header
-                        self._create_content_header(),
+                        # self._create_content_header(),
                         # Controls
                         html.Div(
                             [

@@ -82,7 +82,7 @@ class EdgeTypeView:
                         ),
                     ]),
                 ], className="col-md-6 d-flex justify-content-end"),    
-        ], className="row justify-content-between mb-3 edge-types-toolbar"),
+        ], className="row justify-content-between mb-3 mt-3 edge-types-toolbar"),
     ])
 
     def create_layout(self, edge_types: List[Dict[str, Any]]) -> "dbc.Container":
@@ -92,7 +92,7 @@ class EdgeTypeView:
                 
                 dbc.Stack(
                     [
-                        self._create_content_header(), 
+                        # self._create_content_header(), 
 
                         html.Div(
                             [

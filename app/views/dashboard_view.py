@@ -37,8 +37,8 @@ class DashboardView:
             [
                 self._make_toast(),
                 
-                html.H1([html.I(className="bi bi-speedometer me-2"), "Dashboard"], className="my-4 text-primary"),
-                html.P("Metrics for the Network", className="mb-4 text-muted"),
+                # html.H1([html.I(className="bi bi-speedometer me-2"), "Dashboard"], className="my-4 text-primary"),
+                # html.P("Metrics for the Network", className="mb-4 text-muted"),
                 dbc.Row([
                     dbc.Col([
                         dbc.Card([
@@ -58,7 +58,7 @@ class DashboardView:
                                         }
                                     )
                                 ])
-                        ], className="mb-4",
+                        ], className="mb-3 mt-3",
                     )], md=12),
                 ]),
 

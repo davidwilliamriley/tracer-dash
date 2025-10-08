@@ -61,7 +61,7 @@ class BreakdownView:
                 dbc.Stack(
                     [
                         # Content Header
-                        self._create_content_header(),
+                        # self._create_content_header(),
                         # Controls
                         html.Div(
                             [
@@ -101,17 +101,17 @@ class BreakdownView:
                             [
                                 dbc.ButtonGroup(
                                     [
-                                        dbc.Button(
-                                            [
-                                                html.I(className="bi bi-plus-lg me-2"),
-                                                "Create",
-                                            ],
-                                            id="breakdowns-create-btn",
-                                            outline=True,
-                                            color="primary",
-                                            title="Create a new Node",
-                                            disabled=True,
-                                        ),
+                                        # dbc.Button(
+                                        #     [
+                                        #         html.I(className="bi bi-plus-lg me-2"),
+                                        #         "Create",
+                                        #     ],
+                                        #     id="breakdowns-create-btn",
+                                        #     outline=True,
+                                        #     color="primary",
+                                        #     title="Create a new Node",
+                                        #     disabled=True,
+                                        # ),
                                         dbc.Button(
                                             [
                                                 html.I(
@@ -125,17 +125,17 @@ class BreakdownView:
                                             title="Refresh the Nodes Table",
                                             disabled=True,
                                         ),
-                                        dbc.Button(
-                                            [
-                                                html.I(className="bi bi-trash me-2"),
-                                                "Delete",
-                                            ],
-                                            id="breakdowns-delete-btn",
-                                            outline=True,
-                                            color="warning",
-                                            title="Delete a selected Node",
-                                            disabled=True,
-                                        ),
+                                        # dbc.Button(
+                                        #     [
+                                        #         html.I(className="bi bi-trash me-2"),
+                                        #         "Delete",
+                                        #     ],
+                                        #     id="breakdowns-delete-btn",
+                                        #     outline=True,
+                                        #     color="warning",
+                                        #     title="Delete a selected Node",
+                                        #     disabled=True,
+                                        # ),
                                     ]
                                 )
                             ],
@@ -172,7 +172,7 @@ class BreakdownView:
                             className="col-md-6 d-flex justify-content-end",
                         ),
                     ],
-                    className="row justify-content-between mb-3",
+                    className="row justify-content-between mb-3 mt-3",
                 )
             ]
         )
@@ -225,7 +225,7 @@ class BreakdownView:
                     style={"border": "none"},
                 ),
             ],
-            className="mb-4",
+            className="mb-4 mt-3",
         )
 
     def _create_table_container(self) -> dbc.Row:
@@ -235,8 +235,10 @@ class BreakdownView:
                 dbc.Col(
                     [
                         html.Div(
-                            id="breakdowns-row-info", className="mb-2 text-muted"
-                        ),  # Add this
+                            id="breakdowns-row-info", 
+                            className="mb-2 text-muted",
+                            style={"display": "none"}
+                        ),  # Hidden - Tabulator shows similar text
                         html.Div(
                             id="breakdowns-tabulator-table",
                         ),

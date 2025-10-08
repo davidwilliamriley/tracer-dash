@@ -590,20 +590,4 @@ clientside_callback(
 )
 
 
-@callback(
-    [
-        Output("toast-message", "is_open"),
-        Output("toast-message", "children"),
-        Output("toast-message", "header"),
-    ],
-    Input("breakdowns-create-btn", "n_clicks"),
-    prevent_initial_call=True,
-)
-def handle_create_click(n_clicks: Optional[int]):
-    """Handle create button clicks"""
-    if n_clicks and n_clicks > 0:
-        result = breakdown_controller.model.create_new_item()
-        if result.get("status") == "success":
-            return True, result.get("message"), "Success"
-        return True, result.get("message", "An error occurred"), "Error"
-    return False, "", ""
+
