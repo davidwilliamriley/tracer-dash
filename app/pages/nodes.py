@@ -13,6 +13,7 @@ import uuid
 # Import Model and View
 from models.model import Model
 from utils.pdf_utils import generate_table_pdf
+from utils.toast_utils import ToastFactory
 from views.node_view import NodeView
 
 dash.register_page(__name__, path="/nodes")
@@ -51,7 +52,8 @@ def layout():
         Output("nodes-table", "data", allow_duplicate=True),
         Output("toast-message", "is_open", allow_duplicate=True),
         Output("toast-message", "children", allow_duplicate=True),
-        Output("toast-message", "icon", allow_duplicate=True),
+        Output("toast-message", "header", allow_duplicate=True),
+        Output("toast-message", "className", allow_duplicate=True),
     ],
     Input("nodes-table", "dataChanged"),
     State("nodes-table", "data"),
@@ -60,7 +62,7 @@ def layout():
 def handle_cell_edit(changed_data, current_data):
     """Handle inline cell editing"""
     if not changed_data:
-        return no_update, no_update, no_update, no_update
+        return no_update, no_update, no_update, no_update, no_update
 
     try:
         errors = []
@@ -85,17 +87,21 @@ def handle_cell_edit(changed_data, current_data):
 
         if errors:
             message = f"Updated {updated_count} nodes. Errors: {'; '.join(errors[:2])}"
-            return updated_data, True, message, "warning"
+            header_component = ToastFactory.get_header_by_type("warning")
+            return updated_data, True, message, header_component, "toast-warning"
         else:
+            header_component = ToastFactory.get_header_by_type("success")
             return (
                 updated_data,
                 True,
                 f"Successfully saved {updated_count} node(s)",
-                "success",
+                header_component,
+                "toast-success",
             )
 
     except Exception as e:
-        return no_update, True, f"Error saving changes: {str(e)}", "danger"
+        header_component = ToastFactory.get_header_by_type("danger")
+        return no_update, True, f"Error saving changes: {str(e)}", header_component, "toast-danger"
 
 
 # Enable/disable delete button based on selection
@@ -163,7 +169,8 @@ def toggle_delete_modal(
         Output("nodes-table", "data"),
         Output("toast-message", "is_open", allow_duplicate=True),
         Output("toast-message", "children", allow_duplicate=True),
-        Output("toast-message", "icon", allow_duplicate=True),
+        Output("toast-message", "header", allow_duplicate=True),
+        Output("toast-message", "className", allow_duplicate=True),
         Output("nodes-new-identifier", "value"),
         Output("nodes-new-name", "value"),
         Output("nodes-new-description", "value"),
@@ -248,7 +255,9 @@ def handle_crud_operations(
 
         if errors:
             msg = f"Deleted {deleted_count}. Errors: {'; '.join(errors[:2])}"
-            return updated_data, True, msg, "warning", no_update, no_update, no_update
+            header_component = ToastFactory.get_header_by_type("warning")
+            css_class = "toast-warning"
+            return updated_data, True, msg, header_component, css_class, no_update, no_update, no_update
         else:
             return (
                 updated_data,
@@ -302,7 +311,8 @@ def download_pdf(n_clicks, table_data):
         Output("nodes-table", "data", allow_duplicate=True),
         Output("toast-message", "is_open", allow_duplicate=True),
         Output("toast-message", "children", allow_duplicate=True),
-        Output("toast-message", "icon", allow_duplicate=True),
+        Output("toast-message", "header", allow_duplicate=True),
+        Output("toast-message", "className", allow_duplicate=True),
     ],
     Input("nodes-refresh-btn", "n_clicks"),
     prevent_initial_call=True,
@@ -312,7 +322,9 @@ def refresh_table(n_clicks):
     if n_clicks:
         try:
             refreshed_data = get_nodes_data()
-            return refreshed_data, True, f"Loaded {len(refreshed_data)} nodes", "info"
+            header_component = ToastFactory.get_header_by_type("info")
+            return refreshed_data, True, f"Loaded {len(refreshed_data)} nodes", header_component, "toast-info"
         except Exception as e:
-            return no_update, True, f"Error: {str(e)}", "danger"
-    return no_update, no_update, no_update, no_update
+            header_component = ToastFactory.get_header_by_type("danger")
+            return no_update, True, f"Error: {str(e)}", header_component, "toast-danger"
+    return no_update, no_update, no_update, no_update, no_update

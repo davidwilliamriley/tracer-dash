@@ -19,6 +19,7 @@ import uuid
 # Import Model and View
 from models.model import Model
 from utils.pdf_utils import generate_table_pdf
+from utils.toast_utils import ToastFactory
 from views.edge_type_view import EdgeTypeView
 
 # Register Page
@@ -171,7 +172,8 @@ def layout():
         Output('edge-types-table', 'data', allow_duplicate=True),
         Output('toast-message', 'is_open', allow_duplicate=True),
         Output('toast-message', 'children', allow_duplicate=True),
-        Output('toast-message', 'icon', allow_duplicate=True)
+        Output('toast-message', 'header', allow_duplicate=True),
+        Output('toast-message', 'className', allow_duplicate=True)
     ],
     Input('edge-types-table', 'dataChanged'),
     State('edge-types-table', 'data'),
@@ -180,7 +182,7 @@ def layout():
 def handle_data_change(changed_data, current_data):
     """Handle table data changes including cell edits"""
     if not changed_data:
-        return no_update, no_update, no_update, no_update
+        return no_update, no_update, no_update, no_update, no_update
     
     print(f"DEBUG: Data Changed Event fired with {changed_data}")
     
@@ -189,18 +191,23 @@ def handle_data_change(changed_data, current_data):
     
     # Always return a list to the table, never None
     if updated_data is not None:
-        icon = "success" if success else "warning"
-        return updated_data, True, message, icon
+        header_type = "success" if success else "warning"
+        header_component = ToastFactory.get_header_by_type(header_type)
+        css_class = f"toast-{header_type}"
+        return updated_data, True, message, header_component, css_class
     else:
         # Return current data if update failed
-        return current_data or [], True, message, "danger"
+        header_component = ToastFactory.get_header_by_type("danger")
+        css_class = "toast-danger"
+        return current_data or [], True, message, header_component, css_class
 
 
 @callback(
     [
         Output('toast-message', 'is_open', allow_duplicate=True),
         Output('toast-message', 'children', allow_duplicate=True),
-        Output('toast-message', 'icon', allow_duplicate=True)
+        Output('toast-message', 'header', allow_duplicate=True),
+        Output('toast-message', 'className', allow_duplicate=True)
     ],
     [Input('edge-types-table', 'cellEdited'),
      Input('edge-types-table', 'rowClicked'),
@@ -212,7 +219,7 @@ def debug_tabulator_events(cell_edited, row_clicked, data_changed, data_edited):
     """Debug callback to see which events are firing"""
     ctx = dash.callback_context
     if not ctx.triggered:
-        return no_update, no_update, no_update
+        return no_update, no_update, no_update, no_update
     
     trigger = ctx.triggered[0]
     prop_id = trigger['prop_id']
@@ -222,20 +229,26 @@ def debug_tabulator_events(cell_edited, row_clicked, data_changed, data_edited):
     
     # Don't show toasts for dataChanged since we handle that elsewhere
     if 'dataChanged' in prop_id:
-        return no_update, no_update, no_update
+        return no_update, no_update, no_update, no_update
     
     if 'cellEdited' in prop_id:
         print(f"DEBUG: Cell edited data: {cell_edited}")
-        return True, f"Cell edited event detected: {cell_edited}", "info"
+        header_component = ToastFactory.get_header_by_type("info")
+        css_class = "toast-info"
+        return True, f"Cell edited event detected: {cell_edited}", header_component, css_class
     
     elif 'dataEdited' in prop_id:
         print(f"DEBUG: Data edited: {data_edited}")
-        return True, f"Data edited event detected: {data_edited}", "success"
+        header_component = ToastFactory.get_header_by_type("success")
+        css_class = "toast-success"
+        return True, f"Data edited event detected: {data_edited}", header_component, css_class
     
     elif 'rowClicked' in prop_id:
-        return True, f"Row clicked: {row_clicked}", "info"
+        header_component = ToastFactory.get_header_by_type("info")
+        css_class = "toast-info"
+        return True, f"Row clicked: {row_clicked}", header_component, css_class
     
-    return no_update, no_update, no_update
+    return no_update, no_update, no_update, no_update
 
 
 @callback(
@@ -295,7 +308,8 @@ def toggle_delete_modal(delete_clicks, confirm_clicks, cancel_clicks, is_open, s
     [Output('edge-types-table', 'data'),
      Output('toast-message', 'is_open', allow_duplicate=True),
      Output('toast-message', 'children', allow_duplicate=True),
-     Output('toast-message', 'icon', allow_duplicate=True),
+     Output('toast-message', 'header', allow_duplicate=True),
+     Output('toast-message', 'className', allow_duplicate=True),
      Output('new-edge-type-identifier', 'value'),
      Output('new-edge-type-name', 'value'),
      Output('new-edge-type-description', 'value')],
@@ -322,20 +336,28 @@ def manage_edge_types(create_clicks, delete_clicks, identifier, name, descriptio
         success, message, updated_data = create_edge_type(identifier, name, description)
         
         if updated_data is not None:
-            icon = "success" if success else "warning"
-            return updated_data, True, message, icon, '', '', ''
+            header_type = "success" if success else "warning"
+            header_component = ToastFactory.get_header_by_type(header_type)
+            css_class = f"toast-{header_type}"
+            return updated_data, True, message, header_component, css_class, '', '', ''
         else:
-            return data or [], True, message, "danger", no_update, no_update, no_update
+            header_component = ToastFactory.get_header_by_type("danger")
+            css_class = "toast-danger"
+            return data or [], True, message, header_component, css_class, no_update, no_update, no_update
 
     # Delete selected Edge Types
     elif button_id == 'confirm-delete-edge-type':
         success, message, updated_data = delete_edge_types(selected_rows)
         
         if updated_data is not None:
-            icon = "success" if success else "warning"
-            return updated_data, True, message, icon, no_update, no_update, no_update
+            header_type = "success" if success else "warning"
+            header_component = ToastFactory.get_header_by_type(header_type)
+            css_class = f"toast-{header_type}"
+            return updated_data, True, message, header_component, css_class, no_update, no_update, no_update
         else:
-            return data or [], True, message, "danger", no_update, no_update, no_update
+            header_component = ToastFactory.get_header_by_type("danger")
+            css_class = "toast-danger"
+            return data or [], True, message, header_component, css_class, no_update, no_update, no_update
     
     return no_update, no_update, no_update, no_update, no_update, no_update, no_update
 
@@ -374,7 +396,8 @@ def download_pdf(n_clicks, table_data):
         Output('edge-types-table', 'data', allow_duplicate=True),
         Output('toast-message', 'is_open', allow_duplicate=True),
         Output('toast-message', 'children', allow_duplicate=True),
-        Output('toast-message', 'icon', allow_duplicate=True)
+        Output('toast-message', 'header', allow_duplicate=True),
+        Output('toast-message', 'className', allow_duplicate=True)
     ],
     Input('refresh-edge-types-btn', 'n_clicks'),
     prevent_initial_call=True
@@ -385,8 +408,12 @@ def refresh_table(n_clicks):
         try:
             refreshed_data = get_edge_types_from_db()
             message = f"Table refreshed successfully - loaded {len(refreshed_data)} Edge Types"
-            return refreshed_data, True, message, "info"
+            header_component = ToastFactory.get_header_by_type("info")
+            css_class = "toast-info"
+            return refreshed_data, True, message, header_component, css_class
         except Exception as e:
             message = f"Error refreshing data: {str(e)}"
-            return [], True, message, "danger"
-    return no_update, no_update, no_update, no_update
+            header_component = ToastFactory.get_header_by_type("danger")
+            css_class = "toast-danger"
+            return [], True, message, header_component, css_class
+    return no_update, no_update, no_update, no_update, no_update

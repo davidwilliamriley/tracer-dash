@@ -13,6 +13,7 @@ import uuid
 # Import Model and View
 from models.model import Model
 from utils.pdf_utils import generate_table_pdf
+from utils.toast_utils import ToastFactory
 from views.edge_view import EdgeView
 
 dash.register_page(__name__, path="/edges")
@@ -229,7 +230,8 @@ def toggle_delete_modal(
         Output("edges-table", "data"),
         Output("toast-message", "is_open", allow_duplicate=True),
         Output("toast-message", "children", allow_duplicate=True),
-        Output("toast-message", "icon", allow_duplicate=True),
+        Output("toast-message", "header", allow_duplicate=True),
+        Output("toast-message", "className", allow_duplicate=True),
         Output("new-edge-identifier", "value"),
         Output("new-edge-source", "value"),
         Output("new-edge-target", "value"),
@@ -276,6 +278,7 @@ def manage_edges(
             no_update,
             no_update,
             no_update,
+            no_update,
         )
 
     button_id = ctx.triggered[0]["prop_id"].split(".")[0]
@@ -294,13 +297,16 @@ def manage_edges(
 
         if result.get('success'):
             updated_data = get_edges_from_db()
-            return updated_data, True, result.get('message'), "success", "", None, None, None, ""
+            header_component = ToastFactory.get_header_by_type("success")
+            return updated_data, True, result.get('message'), header_component, "toast-success", "", None, None, None, ""
         else:
+            header_component = ToastFactory.get_header_by_type("danger")
             return (
                 data,
                 True,
                 f"Failed to create Edge: {result.get('message')}",
-                "danger",
+                header_component,
+                "toast-danger",
                 no_update,
                 no_update,
                 no_update,
@@ -426,7 +432,8 @@ def manage_edges(
         Output("edges-table", "data", allow_duplicate=True),
         Output("toast-message", "is_open", allow_duplicate=True),
         Output("toast-message", "children", allow_duplicate=True),
-        Output("toast-message", "icon", allow_duplicate=True),
+        Output("toast-message", "header", allow_duplicate=True),
+        Output("toast-message", "className", allow_duplicate=True),
     ],
     Input("edges-table", "dataChanged"),
     State("edges-table", "data"),
@@ -435,7 +442,7 @@ def manage_edges(
 def handle_data_change(changed_data, current_data):
     """Handle table data changes using hidden UUID fields"""
     if not changed_data:
-        return no_update, no_update, no_update, no_update
+        return no_update, no_update, no_update, no_update, no_update
 
     try:
         nodes_for_dropdown = get_nodes_for_dropdown()
@@ -512,13 +519,16 @@ def handle_data_change(changed_data, current_data):
 
         if errors:
             message = f"Updated {updated_count} edges. Errors: {'; '.join(errors[:2])}"
-            return updated_data, True, message, "warning"
+            header_component = ToastFactory.get_header_by_type("warning")
+            return updated_data, True, message, header_component, "toast-warning"
         else:
             message = f"Successfully saved changes to {updated_count} edge(s)"
-            return updated_data, True, message, "success"
+            header_component = ToastFactory.get_header_by_type("success")
+            return updated_data, True, message, header_component, "toast-success"
 
     except Exception as e:
-        return no_update, True, f"Error saving changes: {str(e)}", "danger"
+        header_component = ToastFactory.get_header_by_type("danger")
+        return no_update, True, f"Error saving changes: {str(e)}", header_component, "toast-danger"
 
 
 # Download CSV
@@ -558,7 +568,8 @@ def download_pdf(n_clicks, table_data):
         Output("edges-table", "data", allow_duplicate=True),
         Output("toast-message", "is_open", allow_duplicate=True),
         Output("toast-message", "children", allow_duplicate=True),
-        Output("toast-message", "icon", allow_duplicate=True),
+        Output("toast-message", "header", allow_duplicate=True),
+        Output("toast-message", "className", allow_duplicate=True),
     ],
     Input("refresh-edges-btn", "n_clicks"),
     prevent_initial_call=True,
@@ -568,12 +579,15 @@ def refresh_table(n_clicks):
     if n_clicks:
         try:
             refreshed_data = get_edges_from_db()
+            header_component = ToastFactory.get_header_by_type("info")
             return (
                 refreshed_data,
                 True,
                 f"Table refreshed successfully - loaded {len(refreshed_data)} edges",
-                "info",
+                header_component,
+                "toast-info",
             )
         except Exception as e:
-            return no_update, True, f"Error refreshing data: {str(e)}", "danger"
-    return no_update, no_update, no_update, no_update
+            header_component = ToastFactory.get_header_by_type("danger")
+            return no_update, True, f"Error refreshing data: {str(e)}", header_component, "toast-danger"
+    return no_update, no_update, no_update, no_update, no_update

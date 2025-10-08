@@ -27,9 +27,7 @@ external_scripts = [
     {"src": "/assets/js/cytoscape_callback.js"},
     {"src": "https://unpkg.com/tabulator-tables@6.3.1/dist/js/tabulator.min.js"},
     {"src": "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"},
-    {
-        "src": "https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"
-    },
+    {"src": "https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"},
 ]
 
 # External Stylesheets
@@ -37,7 +35,8 @@ external_stylesheets = [
     dbc.themes.BOOTSTRAP,
     "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css",
     "https://unpkg.com/tabulator-tables@6.3.1/dist/css/tabulator_bootstrap5.min.css",
-    "/assets/css/tabulator.css",
+    "/assets/css/app.css",
+    "/assets/css/tabulator.css"
 ]
 
 
