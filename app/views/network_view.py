@@ -26,13 +26,6 @@ class NetworkView:
                     children=json.dumps(networks_data),
                     style={"display": "none"},
                 ),
-                # html.H1(
-                #     [html.I(className="bi bi-bezier2 me-2"), "Network"],
-                #     className="my-4 text-primary",
-                # ),
-                # html.P(
-                #     "Visualise and Analyse the Network.", className="mb-4 text-muted"
-                # ),
                 NetworkView._create_filters(),
             ],
             style={
@@ -47,43 +40,39 @@ class NetworkView:
     def _create_filters() -> html.Div:
         return html.Div(
             [
-                # Search Section - Clean and simple
+                # Search Section - Clean and Simple
                 dbc.Row(
                     [
                         dbc.Col(
                             dbc.Input(
                                 id="filter-value-input",
-                                placeholder="Search nodes and edges by name, identifier, description...",
+                                placeholder="Search Nodes and Edges by Identifier, Name, Description...",
                                 disabled=False,
-                                size="lg",
+                                size="md",
+                                className="mt-3",
                             ),
                             width=12,
-                            lg=10,
-                            className="mb-3",
+                            md=11,
                         ),
                         dbc.Col(
                             dbc.Button(
                                 [
-                                    html.I(
-                                        className="bi bi-x-circle me-1"
-                                    ),
-                                    "Clear",
+                                    html.I(className="bi bi-x-circle me-1"),
+                                    "Reset",
                                 ],
                                 id="reset-element-btn",
                                 outline=True,
-                                color="secondary",
-                                size="lg",
-                                className="w-100",
+                                color="primary",
+                                size="md",
+                                className="w-100 mt-3",
                                 disabled=False,
                             ),
                             width=12,
-                            lg=2,
-                            className="mb-3",
+                            md=1,
                         ),
                     ],
-                    className="align-items-center g-3 mb-3 mt-3",
+                    className="align-items-center g-3 mb-3",
                 ),
-                
                 # Filters & Controls Accordion
                 dbc.Accordion(
                     [
@@ -108,77 +97,117 @@ class NetworkView:
                                             width=12,
                                             className="mb-3",
                                         ),
+                                        # dbc.Col(
+                                        #     dbc.Button(
+                                        #         [
+                                        #             html.I(
+                                        #                 className="bi bi-x-circle me-1"
+                                        #             ),
+                                        #             "Reset",
+                                        #         ],
+                                        #         id="reset-graph-filter-btn",
+                                        #         outline=True,
+                                        #         color="primary",
+                                        #         size="md",
+                                        #         className="w-100",
+                                        #         disabled=False,
+                                        #     ),
+                                        #     width=1,
+                                        #     lg=1,
+                                        # ),
                                     ]
                                 ),
-                                # Filter Row - Element, EdgeType, Property (removed search input)
+                                # Filter Row - Elements, Edge Type, and Labels
                                 dbc.Row(
                                     [
                                         dbc.Col(
-                                            dbc.Select(
-                                                id="filter-element-select",
-                                                options=[
-                                                    {
-                                                        "label": "All Elements",
-                                                        "value": "all",
-                                                    },
-                                                    {
-                                                        "label": "Edges",
-                                                        "value": "edges",
-                                                    },
-                                                    {
-                                                        "label": "Nodes",
-                                                        "value": "nodes",
-                                                    },
-                                                ],
-                                                value="all",
-                                                disabled=True,
-                                            ),
+                                            [
+                                                dbc.Select(
+                                                    id="filter-element-select",
+                                                    options=[
+                                                        {
+                                                            "label": "Show All Elements",
+                                                            "value": "all",
+                                                        },
+                                                        {
+                                                            "label": "Edges Only",
+                                                            "value": "edges",
+                                                        },
+                                                        {
+                                                            "label": "Nodes Only",
+                                                            "value": "nodes",
+                                                        },
+                                                    ],
+                                                    value="all",
+                                                    disabled=False,
+                                                    size="md",
+                                                ),
+                                            ],
                                             width=12,
                                             lg=4,
                                             className="mb-3 mb-lg-0",
                                         ),
                                         dbc.Col(
-                                            dbc.Select(
-                                                id="filter-edgetype-select",
-                                                options=[
-                                                    {
-                                                        "label": "All Edge Types",
-                                                        "value": "all",
-                                                    },
-                                                    {
-                                                        "label": "Directed",
-                                                        "value": "directed",
-                                                    },
-                                                    {
-                                                        "label": "Undirected",
-                                                        "value": "undirected",
-                                                    },
-                                                ],
-                                                value="all",
-                                                disabled=True,
-                                            ),
+                                            [
+                                                # dbc.Label(
+                                                #     "Edge Type Filter:",
+                                                #     className="form-label fw-bold small",
+                                                # ),
+                                                dbc.Select(
+                                                    id="filter-edgetype-select",
+                                                    options=[
+                                                        {
+                                                            "label": "All Edge Types",
+                                                            "value": "all",
+                                                        },
+                                                        # Dynamic options will be populated via callback
+                                                    ],
+                                                    value="all",
+                                                    disabled=False,
+                                                    size="md",
+                                                ),
+                                            ],
                                             width=12,
                                             lg=4,
                                             className="mb-3 mb-lg-0",
                                         ),
                                         dbc.Col(
-                                            dbc.Select(
-                                                id="filter-property-select",
-                                                options=[
-                                                    {
-                                                        "label": "All Properties",
-                                                        "value": "all",
-                                                    }
-                                                ],
-                                                value="all",
-                                                disabled=True,
-                                            ),
+                                            [
+                                                # dbc.Label(
+                                                #     "Show Labels:",
+                                                #     className="form-label fw-bold small",
+                                                # ),
+                                                dbc.Select(
+                                                    id="filter-labels-select",
+                                                    options=[
+                                                        {
+                                                            "label": "Show All Labels",
+                                                            "value": "all",
+                                                        },
+                                                        {
+                                                            "label": "Node Labels Only",
+                                                            "value": "nodes",
+                                                        },
+                                                        {
+                                                            "label": "Edge Labels Only",
+                                                            "value": "edges",
+                                                        },
+                                                        {
+                                                            "label": "Hide Labels",
+                                                            "value": "none",
+                                                        },
+                                                    ],
+                                                    value="all",
+                                                    disabled=False,
+                                                    size="md",
+                                                ),
+                                            ],
                                             width=12,
                                             lg=4,
                                             className="mb-3 mb-lg-0",
                                         ),
                                     ],
-                                    className="align-items-center g-3",
+                                    className="align-items-end g-3",
                                 ),
                                 # Network Statistics Row
                                 # dbc.Row(
@@ -193,7 +222,7 @@ class NetworkView:
                                 #         ),
                                 #     ]
                                 # ),
-                                # Layout Algorithm Row
+                                # Layout Algorithm Row with Reset Button
                                 dbc.Row(
                                     [
                                         dbc.Col(
@@ -228,10 +257,7 @@ class NetworkView:
                                                         "label": "fCoSE (Force-directed)",
                                                         "value": "fcose",
                                                     },
-                                                    {
-                                                        "label": "Grid",
-                                                        "value": "grid"
-                                                    },
+                                                    {"label": "Grid", "value": "grid"},
                                                     {
                                                         "label": "Klay (Layered) - Experimental",
                                                         "value": "klay",
@@ -246,9 +272,30 @@ class NetworkView:
                                                 disabled=False,
                                             ),
                                             width=12,
+                                            lg=10,
                                             className="mt-3",
                                         ),
-                                    ]
+                                        dbc.Col(
+                                            dbc.Button(
+                                                [
+                                                    html.I(
+                                                        className="bi bi-arrow-clockwise me-1"
+                                                    ),
+                                                    "Reset All Filters",
+                                                ],
+                                                id="reset-all-filters-btn",
+                                                outline=True,
+                                                color="secondary",
+                                                size="md",
+                                                className="w-100 mt-3",
+                                                title="Reset all filters to default values",
+                                            ),
+                                            width=12,
+                                            lg=2,
+                                            className="mt-3",
+                                        ),
+                                    ],
+                                    className="align-items-end g-3",
                                 ),
                             ],
                             title=[
@@ -378,7 +425,7 @@ class NetworkView:
                                 id="cytoscape-container",
                                 style={
                                     "width": "100%",
-                                    "height": "calc(100vh - 340px)",
+                                    "height": "calc(100vh - 395px)",
                                     "minHeight": "400px",
                                     "borderRadius": "0.375rem",
                                     "backgroundColor": "white",

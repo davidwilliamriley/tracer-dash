@@ -580,5 +580,100 @@ function highlightPath(path) {
     path.removeClass('faded').addClass('highlighted');
 }
 
+/**
+ * Apply visual filters to control which elements are grayed out
+ * @param {string} elementFilter - Filter type: 'all', 'nodes', 'edges'
+ * @param {string} edgeTypeFilter - Edge type ID to filter by, or 'all'
+ */
+function applyVisualFilters(elementFilter, edgeTypeFilter) {
+    if (!window.cy) return;
+    
+    console.log('Applying visual filters:', { elementFilter, edgeTypeFilter });
+    
+    // Clear existing filter classes first
+    window.cy.elements().removeClass('filtered-out');
+    
+    // Apply element type filtering
+    if (elementFilter === 'nodes') {
+        // Gray out edges when showing only nodes
+        window.cy.edges().addClass('filtered-out');
+    } else if (elementFilter === 'edges') {
+        // Gray out nodes when showing only edges
+        window.cy.nodes().addClass('filtered-out');
+    }
+    
+    // Apply edge type filtering
+    if (edgeTypeFilter && edgeTypeFilter !== 'all') {
+        // Get the selected edge type name from the dropdown
+        const edgeTypeSelect = document.getElementById('filter-edgetype-select');
+        let selectedEdgeTypeName = '';
+        
+        if (edgeTypeSelect) {
+            const selectedOption = edgeTypeSelect.options[edgeTypeSelect.selectedIndex];
+            if (selectedOption) {
+                // Extract the edge type name from the label
+                const labelText = selectedOption.text;
+                // Handle both "Identifier - Name" and "Name" formats
+                if (labelText.includes(' - ')) {
+                    selectedEdgeTypeName = labelText.split(' - ')[1];
+                } else if (labelText !== 'All Edge Types') {
+                    selectedEdgeTypeName = labelText;
+                }
+            }
+        }
+        
+        console.log('Filtering edges by type:', selectedEdgeTypeName);
+        
+        // Gray out edges that don't match the selected edge type
+        if (selectedEdgeTypeName) {
+            window.cy.edges().forEach(function(edge) {
+                const edgeLabel = edge.data('label') || '';
+                
+                // If the edge label doesn't contain the selected edge type name, gray it out
+                if (!edgeLabel.includes(selectedEdgeTypeName)) {
+                    edge.addClass('filtered-out');
+                }
+            });
+        }
+    }
+    
+    console.log('Visual filters applied successfully');
+}
+
+/**
+ * Apply label filtering to control which labels are visible
+ * @param {string} labelFilter - Filter type: 'all', 'nodes', 'edges', 'none'
+ */
+function applyLabelFilter(labelFilter) {
+    if (!window.cy) return;
+    
+    console.log('Applying label filter:', labelFilter);
+    
+    // Default to 'all' if no filter specified
+    labelFilter = labelFilter || 'all';
+    
+    switch (labelFilter) {
+        case 'nodes':
+            // Show only node labels
+            window.cy.nodes().style('text-opacity', 1);
+            window.cy.edges().style('text-opacity', 0);
+            break;
+        case 'edges':
+            // Show only edge labels
+            window.cy.nodes().style('text-opacity', 0);
+            window.cy.edges().style('text-opacity', 1);
+            break;
+        case 'none':
+            // Hide all labels
+            window.cy.elements().style('text-opacity', 0);
+            break;
+        case 'all':
+        default:
+            // Show all labels
+            window.cy.elements().style('text-opacity', 1);
+            break;
+    }
+}
+
 // Click anywhere to hide context menu
 document.addEventListener('click', hideContextMenu);

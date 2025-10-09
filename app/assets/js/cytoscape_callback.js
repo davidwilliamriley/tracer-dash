@@ -84,7 +84,7 @@ if (typeof clearHighlighting === 'undefined') {
     };
 }
 
-window.cytoscapeCallback = function(networkDataJson, filteredValue, layoutAlgorithm) {
+window.cytoscapeCallback = function(networkDataJson, filteredValue, layoutAlgorithm, labelFilter, elementFilter, edgeTypeFilter) {
     // Parse the JSON data
     let networkData;
     try {
@@ -440,6 +440,12 @@ window.cytoscapeCallback = function(networkDataJson, filteredValue, layoutAlgori
             duration: 1000,
             easing: 'ease-in'
         });
+        
+        // Apply label filtering and visual filtering after animations complete
+        setTimeout(() => {
+            applyLabelFilter(labelFilter);
+            applyVisualFilters(elementFilter, edgeTypeFilter);
+        }, 1100);
     }, 100);
     
     // For initial layout, don't apply any search filtering - let the search system handle it

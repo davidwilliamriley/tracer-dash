@@ -128,6 +128,23 @@ function getCytoscapeStyles() {
             }
         },
         
+        // Filtered out elements (grayed out but still visible)
+        {
+            selector: '.filtered-out',
+            style: {
+                'opacity': 0.5,
+                'text-opacity': 0.3,
+                'background-color': '#f5f5f5',
+                'border-color': '#e0e0e0',
+                'line-color': '#e0e0e0',
+                'target-arrow-color': '#e0e0e0',
+                'source-arrow-color': '#e0e0e0',
+                'color': '#bbbbbb',
+                'transition-property': 'opacity, background-color, line-color, border-color',
+                'transition-duration': '0.3s'
+            }
+        },
+        
         // Hidden elements
         {
             selector: '.hidden',

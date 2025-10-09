@@ -166,17 +166,20 @@ def filter_by_root_node(selected_root):
         return json.dumps({"elements": []})
 
 
-# Register clientside callback to trigger Cytoscape rendering
+# Register clientside callback to trigger Cytoscape rendering with filter information
 clientside_callback(
     """
-    function(networkDataJson, filteredValue, layoutAlgorithm) {
-        return window.cytoscapeCallback(networkDataJson, filteredValue, layoutAlgorithm);
+    function(networkDataJson, filteredValue, layoutAlgorithm, labelFilter, elementFilter, edgeTypeFilter) {
+        return window.cytoscapeCallback(networkDataJson, filteredValue, layoutAlgorithm, labelFilter, elementFilter, edgeTypeFilter);
     }
     """,
     Output("cytoscape-trigger", "children"),
     Input("cytoscape-data-div", "children"),
     State("filter-value-input", "value"),
     State("layout-algorithm-select", "value"),
+    State("filter-labels-select", "value"),
+    State("filter-element-select", "value"),
+    State("filter-edgetype-select", "value"),
     prevent_initial_call=False,
 )
 
@@ -184,18 +187,23 @@ clientside_callback(
 # Add callback to re-render when layout algorithm changes
 clientside_callback(
     """
-    function(layoutAlgorithm, networkDataJson, filteredValue) {
+    function(layoutAlgorithm, networkDataJson, filteredValue, labelFilter, elementFilter, edgeTypeFilter) {
         if (layoutAlgorithm && networkDataJson) {
             // Layout changes always require full recreation
-            return window.cytoscapeCallback(networkDataJson, filteredValue, layoutAlgorithm);
+            return window.cytoscapeCallback(networkDataJson, filteredValue, layoutAlgorithm, labelFilter, elementFilter, edgeTypeFilter);
         }
         return window.dash_clientside.no_update;
     }
     """,
     Output("cytoscape-trigger", "children", allow_duplicate=True),
     Input("layout-algorithm-select", "value"),
-    State("cytoscape-data-div", "children"),
-    State("filter-value-input", "value"),
+    [
+        State("cytoscape-data-div", "children"),
+        State("filter-value-input", "value"),
+        State("filter-labels-select", "value"),
+        State("filter-element-select", "value"),
+        State("filter-edgetype-select", "value"),
+    ],
     prevent_initial_call=True,
 )
 
@@ -253,10 +261,41 @@ def reset_search_filter(n_clicks, network_data_json, layout_algorithm):
     return no_update, no_update
 
 
+# Reset all filters callback - reset all controls to default values
+@callback(
+    [
+        Output("filter-value-input", "value", allow_duplicate=True),
+        Output("filter-graph-select", "value"),
+        Output("filter-element-select", "value"),
+        Output("filter-edgetype-select", "value"),
+        Output("filter-labels-select", "value"),
+        Output("layout-algorithm-select", "value", allow_duplicate=True),
+        Output("cytoscape-trigger", "children", allow_duplicate=True),
+    ],
+    Input("reset-all-filters-btn", "n_clicks"),
+    State("cytoscape-data-div", "children"),
+    prevent_initial_call=True,
+)
+def reset_all_filters(n_clicks, network_data_json):
+    """Reset all filters and controls to their default values"""
+    if n_clicks:
+        # Return default values for all controls
+        return (
+            "",  # filter-value-input (empty search)
+            "all",  # filter-graph-select (all roots)
+            "all",  # filter-element-select (show all elements)
+            "all",  # filter-edgetype-select (all edge types)
+            "all",  # filter-labels-select (show all labels)
+            "fcose",  # layout-algorithm-select (default layout)
+            "",  # cytoscape-trigger (refresh network)
+        )
+    return no_update, no_update, no_update, no_update, no_update, no_update, no_update
+
+
 # Callback to refresh network when filter is reset (clientside)
 clientside_callback(
     """
-    function(filterValue, networkDataJson, layoutAlgorithm) {
+    function(filterValue, networkDataJson, layoutAlgorithm, labelFilter, elementFilter, edgeTypeFilter) {
         if (networkDataJson) {
             // Use the smart callback that chooses between search-only and full recreation
             if (window.smartCytoscapeCallback) {
@@ -267,13 +306,13 @@ clientside_callback(
                 
                 return new Promise((resolve) => {
                     window.searchTimeout = setTimeout(() => {
-                        const result = window.smartCytoscapeCallback(networkDataJson, filterValue || "", layoutAlgorithm);
+                        const result = window.smartCytoscapeCallback(networkDataJson, filterValue || "", layoutAlgorithm, labelFilter, elementFilter, edgeTypeFilter);
                         resolve(result);
                     }, 300); // Reduced to 300ms for faster response
                 });
             } else {
                 // Fallback to original callback if smart callback not available
-                return window.cytoscapeCallback(networkDataJson, filterValue || "", layoutAlgorithm);
+                return window.cytoscapeCallback(networkDataJson, filterValue || "", layoutAlgorithm, labelFilter, elementFilter, edgeTypeFilter);
             }
         }
         return window.dash_clientside.no_update;
@@ -281,8 +320,13 @@ clientside_callback(
     """,
     Output("cytoscape-trigger", "children", allow_duplicate=True),
     Input("filter-value-input", "value"),
-    State("cytoscape-data-div", "children"),
-    State("layout-algorithm-select", "value"),
+    [
+        State("cytoscape-data-div", "children"),
+        State("layout-algorithm-select", "value"),
+        State("filter-labels-select", "value"),
+        State("filter-element-select", "value"),
+        State("filter-edgetype-select", "value"),
+    ],
     prevent_initial_call=True,
 )
 
@@ -385,3 +429,92 @@ def update_toast(toast_data):
         header_map.get(message_type, "Notification"),
         icon_map.get(message_type, None),
     )
+
+
+# ==================== FILTER CALLBACKS ====================
+
+
+@callback(
+    Output("filter-edgetype-select", "options"),
+    Input("cytoscape-data-div", "id"),
+    prevent_initial_call=False,
+)
+def update_edge_type_filter_options(_):
+    """Populate edge type filter with available edge types from database"""
+    try:
+        model = Model()
+        edge_types = model.get_edge_types()
+
+        options = [{"label": "All Edge Types", "value": "all"}]
+
+        for edge_type in edge_types:
+            identifier_str = (
+                str(edge_type.identifier) if edge_type.identifier is not None else ""
+            )
+            if identifier_str.strip():
+                label = f"{identifier_str} - {edge_type.name}"
+            else:
+                label = str(edge_type.name)
+            options.append({"label": label, "value": str(edge_type.id)})
+
+        # Sort the options alphabetically by label (excluding the first "All Edge Types" option)
+        if len(options) > 1:
+            all_edge_types_option = options[0]  # Keep "All Edge Types" at the top
+            edge_type_options = options[1:]  # Get the rest of the options
+            edge_type_options.sort(
+                key=lambda x: x["label"].lower()
+            )  # Sort alphabetically (case-insensitive)
+            options = [all_edge_types_option] + edge_type_options  # Combine them back
+
+        return options
+    except Exception as e:
+        print(f"Error loading edge types: {e}")
+        return [{"label": "All Edge Types", "value": "all"}]
+
+
+# Add callback for filter changes to apply visual styling
+clientside_callback(
+    """
+    function(elementFilter, edgeTypeFilter, networkDataJson, filteredValue, layoutAlgorithm, labelFilter) {
+        if (networkDataJson) {
+            return window.cytoscapeCallback(networkDataJson, filteredValue, layoutAlgorithm, labelFilter, elementFilter, edgeTypeFilter);
+        }
+        return window.dash_clientside.no_update;
+    }
+    """,
+    Output("cytoscape-trigger", "children", allow_duplicate=True),
+    [
+        Input("filter-element-select", "value"),
+        Input("filter-edgetype-select", "value"),
+    ],
+    [
+        State("cytoscape-data-div", "children"),
+        State("filter-value-input", "value"),
+        State("layout-algorithm-select", "value"),
+        State("filter-labels-select", "value"),
+    ],
+    prevent_initial_call=True,
+)
+
+
+# Add callback for label filter changes
+clientside_callback(
+    """
+    function(labelFilter, networkDataJson, filteredValue, layoutAlgorithm, elementFilter, edgeTypeFilter) {
+        if (labelFilter !== null && networkDataJson) {
+            return window.cytoscapeCallback(networkDataJson, filteredValue, layoutAlgorithm, labelFilter, elementFilter, edgeTypeFilter);
+        }
+        return window.dash_clientside.no_update;
+    }
+    """,
+    Output("cytoscape-trigger", "children", allow_duplicate=True),
+    Input("filter-labels-select", "value"),
+    [
+        State("cytoscape-data-div", "children"),
+        State("filter-value-input", "value"),
+        State("layout-algorithm-select", "value"),
+        State("filter-element-select", "value"),
+        State("filter-edgetype-select", "value"),
+    ],
+    prevent_initial_call=True,
+)
