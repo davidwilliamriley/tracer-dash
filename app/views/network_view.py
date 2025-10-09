@@ -208,16 +208,16 @@ class NetworkView:
                                                 id="layout-algorithm-select",
                                                 options=[
                                                     {
-                                                        "label": "fCoSE (Force-directed)",
-                                                        "value": "fcose",
-                                                    },
-                                                    {
                                                         "label": "Breadthfirst",
                                                         "value": "breadthfirst",
                                                     },
                                                     {
                                                         "label": "Circle",
                                                         "value": "circle",
+                                                    },
+                                                    {
+                                                        "label": "COLA (Constraint-based)",
+                                                        "value": "cola",
                                                     },
                                                     {
                                                         "label": "Concentric",
@@ -231,7 +231,19 @@ class NetworkView:
                                                         "label": "Dagre (Hierarchical)",
                                                         "value": "dagre",
                                                     },
+                                                    {
+                                                        "label": "fCoSE (Force-directed)",
+                                                        "value": "fcose",
+                                                    },
                                                     {"label": "Grid", "value": "grid"},
+                                                    {
+                                                        "label": "Klay (Layered) - Experimental",
+                                                        "value": "klay",
+                                                    },
+                                                    {
+                                                        "label": "Random",
+                                                        "value": "random",
+                                                    },
                                                 ],
                                                 placeholder="Select a Layout Algorithm...",
                                                 value="fcose",
@@ -390,10 +402,10 @@ class NetworkView:
     def get_cytoscape_client_callback() -> str:
         """Return a simple JavaScript function that delegates to the external callback"""
         return """
-        function(networkDataJson, filteredValue) {
+        function(networkDataJson, filteredValue, layoutAlgorithm) {
             // Delegate to the external callback function loaded from cytoscape_callback.js
             if (typeof window.cytoscapeCallback === 'function') {
-                return window.cytoscapeCallback(networkDataJson, filteredValue);
+                return window.cytoscapeCallback(networkDataJson, filteredValue, layoutAlgorithm);
             } else {
                 console.error('cytoscapeCallback function not found. Make sure cytoscape_callback.js is loaded.');
                 return window.dash_clientside.no_update;

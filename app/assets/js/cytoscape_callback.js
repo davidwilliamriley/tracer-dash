@@ -19,9 +19,41 @@ if (typeof cytoscape !== 'undefined') {
     } else {
         console.warn('Cytoscape SVG extension not found');
     }
+
+    // Register Dagre extension
+    if (typeof window.cytoscapeDagre !== 'undefined') {
+        cytoscape.use(window.cytoscapeDagre);
+        console.log('Cytoscape Dagre extension registered');
+    } else if (typeof cytoscapeDagre !== 'undefined') {
+        cytoscape.use(cytoscapeDagre);
+        console.log('Cytoscape Dagre extension registered');
+    }
+
+    // Register Klay extension
+    if (typeof window.cytoscapeKlay !== 'undefined') {
+        cytoscape.use(window.cytoscapeKlay);
+        console.log('Cytoscape Klay extension registered');
+    } else if (typeof cytoscapeKlay !== 'undefined') {
+        cytoscape.use(cytoscapeKlay);
+        console.log('Cytoscape Klay extension registered');
+    }
+
+    // Register COLA extension
+    if (typeof window.cytoscapeCola !== 'undefined') {
+        cytoscape.use(window.cytoscapeCola);
+        console.log('Cytoscape COLA extension registered');
+    } else if (typeof cytoscapeCola !== 'undefined') {
+        cytoscape.use(cytoscapeCola);
+        console.log('Cytoscape COLA extension registered');
+    }
+
+    // Log available layouts for debugging
+    console.log('Available Cytoscape layouts:', cytoscape.default ? 
+        Object.keys(cytoscape.default.use._extensions?.layout || {}) : 
+        'Unable to detect layouts');
 }
 
-window.cytoscapeCallback = function(networkDataJson, filteredValue) {
+window.cytoscapeCallback = function(networkDataJson, filteredValue, layoutAlgorithm) {
     // Parse the JSON data
     let networkData;
     try {
@@ -34,6 +66,10 @@ window.cytoscapeCallback = function(networkDataJson, filteredValue) {
     if (!networkData || !networkData.elements) {
         return window.dash_clientside.no_update;
     }
+    
+    // Default to fcose if no algorithm specified
+    layoutAlgorithm = layoutAlgorithm || 'fcose';
+    console.log('Applying layout algorithm:', layoutAlgorithm);
         
     // Initialize or update Cytoscape
     const container = document.getElementById('cytoscape-container');
@@ -104,30 +140,236 @@ window.cytoscapeCallback = function(networkDataJson, filteredValue) {
         }
     });
 
-    // Then run fcose after initialization
+    // Then run the selected layout after initialization
     setTimeout(() => {
-        const layoutConfig = {
-            name: 'fcose',
-            quality: 'default',
-            randomize: true,
-            animate: true,
-            animationDuration: 1000,
-            animationEasing: 'ease-out',
-            fit: true,
-            padding: 30,
-            nodeSeparation: 75,
-            idealEdgeLength: 100,
-            edgeElasticity: 0.45,
-            nestingFactor: 0.1,
-            gravity: 0.25,
-            numIter: 2500,
-            initialTemp: 200,
-            coolingFactor: 0.95,
-            minTemp: 1.0
-        };
+        let layoutConfig;
         
-        const layout = window.cy.layout(layoutConfig);
-        layout.run();
+        console.log('Attempting to apply layout:', layoutAlgorithm);
+        
+        switch(layoutAlgorithm) {
+            case 'dagre':
+                layoutConfig = {
+                    name: 'dagre',
+                    animate: true,
+                    animationDuration: 1000,
+                    animationEasing: 'ease-out',
+                    fit: true,
+                    padding: 30,
+                    nodeSep: 50,
+                    edgeSep: 10,
+                    rankSep: 50,
+                    rankDir: 'TB',
+                    ranker: 'longest-path'
+                };
+                break;
+            case 'breadthfirst':
+                layoutConfig = {
+                    name: 'breadthfirst',
+                    animate: true,
+                    animationDuration: 1000,
+                    animationEasing: 'ease-out',
+                    fit: true,
+                    padding: 30,
+                    directed: true,
+                    spacingFactor: 1.75
+                };
+                break;
+            case 'circle':
+                layoutConfig = {
+                    name: 'circle',
+                    animate: true,
+                    animationDuration: 1000,
+                    animationEasing: 'ease-out',
+                    fit: true,
+                    padding: 30,
+                    radius: Math.min(containerRect.width, containerRect.height) / 3
+                };
+                break;
+            case 'cola':
+                // Check if COLA extension is available
+                try {
+                    layoutConfig = {
+                        name: 'cola',
+                        animate: true,
+                        animationDuration: 1000,
+                        animationEasing: 'ease-out',
+                        fit: true,
+                        padding: 30,
+                        nodeSpacing: 50,
+                        edgeLength: 100,
+                        edgeSymDiffLength: 100,
+                        jaccardLinkLengths: true,
+                        edgeJaccardLengthRatio: 0.7,
+                        unconstrIter: 30,
+                        userConstIter: 0,
+                        allConstIter: 5,
+                        infinite: false
+                    };
+                    console.log('Using COLA layout');
+                } catch (e) {
+                    console.warn('COLA layout not available, using cose alternative');
+                    layoutConfig = {
+                        name: 'cose',
+                        animate: true,
+                        animationDuration: 1000,
+                        animationEasing: 'ease-out',
+                        fit: true,
+                        padding: 30,
+                        nodeSeparation: 75,
+                        idealEdgeLength: 100,
+                        edgeElasticity: 100,
+                        nestingFactor: 5,
+                        gravity: 250,
+                        numIter: 100,
+                        initialTemp: 200,
+                        coolingFactor: 0.95,
+                        minTemp: 1.0
+                    };
+                }
+                break;
+            case 'concentric':
+                layoutConfig = {
+                    name: 'concentric',
+                    animate: true,
+                    animationDuration: 1000,
+                    animationEasing: 'ease-out',
+                    fit: true,
+                    padding: 30,
+                    concentric: function(node) {
+                        return node.degree();
+                    },
+                    levelWidth: function(nodes) {
+                        return 2;
+                    }
+                };
+                break;
+            case 'cose':
+                layoutConfig = {
+                    name: 'cose',
+                    animate: true,
+                    animationDuration: 1000,
+                    animationEasing: 'ease-out',
+                    fit: true,
+                    padding: 30,
+                    nodeSeparation: 75,
+                    idealEdgeLength: 100,
+                    edgeElasticity: 100,
+                    nestingFactor: 5,
+                    gravity: 250,
+                    numIter: 100,
+                    initialTemp: 200,
+                    coolingFactor: 0.95,
+                    minTemp: 1.0
+                };
+                break;
+            case 'grid':
+                layoutConfig = {
+                    name: 'grid',
+                    animate: true,
+                    animationDuration: 1000,
+                    animationEasing: 'ease-out',
+                    fit: true,
+                    padding: 30,
+                    rows: Math.ceil(Math.sqrt(networkData.elements.filter(e => e.group === 'nodes').length)),
+                    cols: undefined
+                };
+                break;
+            case 'klay':
+                // Check if Klay extension is available, otherwise use breadthfirst as alternative
+                try {
+                    // Test if klay layout is available
+                    const testLayout = window.cy.layout({name: 'klay'});
+                    layoutConfig = {
+                        name: 'klay',
+                        animate: true,
+                        animationDuration: 1000,
+                        animationEasing: 'ease-out',
+                        fit: true,
+                        padding: 30,
+                        nodePlacement: 'BRANDES_KOEPF',
+                        nodeLayering: 'NETWORK_SIMPLEX',
+                        edgeRouting: 'ORTHOGONAL',
+                        edgeSpacingFactor: 0.5,
+                        inLayerSpacingFactor: 1.0,
+                        layoutHierarchy: true,
+                        intCoordinates: true,
+                        thoroughness: 7,
+                        direction: 'DOWN'
+                    };
+                    console.log('Using Klay layout');
+                } catch (e) {
+                    console.warn('Klay layout not available, using breadthfirst alternative');
+                    layoutConfig = {
+                        name: 'breadthfirst',
+                        animate: true,
+                        animationDuration: 1000,
+                        animationEasing: 'ease-out',
+                        fit: true,
+                        padding: 30,
+                        directed: true,
+                        spacingFactor: 2.0,
+                        circle: false,
+                        grid: false,
+                        avoidOverlap: true
+                    };
+                }
+                break;
+            case 'random':
+                layoutConfig = {
+                    name: 'random',
+                    animate: true,
+                    animationDuration: 1000,
+                    animationEasing: 'ease-out',
+                    fit: true,
+                    padding: 30
+                };
+                break;
+            case 'fcose':
+            default:
+                layoutConfig = {
+                    name: 'fcose',
+                    quality: 'default',
+                    randomize: true,
+                    animate: true,
+                    animationDuration: 1000,
+                    animationEasing: 'ease-out',
+                    fit: true,
+                    padding: 30,
+                    nodeSeparation: 75,
+                    idealEdgeLength: 100,
+                    edgeElasticity: 0.45,
+                    nestingFactor: 0.1,
+                    gravity: 0.25,
+                    numIter: 2500,
+                    initialTemp: 200,
+                    coolingFactor: 0.95,
+                    minTemp: 1.0
+                };
+                break;
+        }
+        
+        console.log('Layout config:', layoutConfig);
+        
+        try {
+            const layout = window.cy.layout(layoutConfig);
+            layout.run();
+            console.log('Layout applied successfully:', layoutAlgorithm);
+        } catch (error) {
+            console.error('Error applying layout:', layoutAlgorithm, error);
+            // Fallback to fcose if the layout fails
+            const fallbackLayout = window.cy.layout({
+                name: 'fcose',
+                quality: 'default',
+                randomize: true,
+                animate: true,
+                animationDuration: 1000,
+                animationEasing: 'ease-out',
+                fit: true,
+                padding: 30
+            });
+            fallbackLayout.run();
+            console.log('Applied fallback fcose layout');
+        }
             
         // Fade in elements as they animate to position
         window.cy.nodes().animate({

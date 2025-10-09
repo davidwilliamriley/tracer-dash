@@ -169,14 +169,33 @@ def filter_by_root_node(selected_root):
 # Register clientside callback to trigger Cytoscape rendering
 clientside_callback(
     """
-    function(networkDataJson, filteredValue) {
-        return window.cytoscapeCallback(networkDataJson, filteredValue);
+    function(networkDataJson, filteredValue, layoutAlgorithm) {
+        return window.cytoscapeCallback(networkDataJson, filteredValue, layoutAlgorithm);
     }
     """,
     Output("cytoscape-trigger", "children"),
     Input("cytoscape-data-div", "children"),
     State("filter-value-input", "value"),
+    State("layout-algorithm-select", "value"),
     prevent_initial_call=False,
+)
+
+
+# Add callback to re-render when layout algorithm changes
+clientside_callback(
+    """
+    function(layoutAlgorithm, networkDataJson, filteredValue) {
+        if (layoutAlgorithm && networkDataJson) {
+            return window.cytoscapeCallback(networkDataJson, filteredValue, layoutAlgorithm);
+        }
+        return window.dash_clientside.no_update;
+    }
+    """,
+    Output("cytoscape-trigger", "children", allow_duplicate=True),
+    Input("layout-algorithm-select", "value"),
+    State("cytoscape-data-div", "children"),
+    State("filter-value-input", "value"),
+    prevent_initial_call=True,
 )
 
 

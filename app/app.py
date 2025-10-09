@@ -19,6 +19,14 @@ from utils import network_utils
 external_scripts = [
     {"src": "https://unpkg.com/cytoscape@3.26.0/dist/cytoscape.min.js"},
     {"src": "https://unpkg.com/cytoscape-fcose@2.2.0/cytoscape-fcose.js"},
+    {"src": "https://unpkg.com/cytoscape-dagre@2.5.0/cytoscape-dagre.js"},
+    {"src": "https://unpkg.com/dagre@0.8.5/dist/dagre.min.js"},
+    # Try to load Klay but don't fail if it doesn't work
+    {"src": "https://unpkg.com/cytoscape-klay@3.1.4/cytoscape-klay.js"},
+    {"src": "https://unpkg.com/klayjs@0.4.1/klay.js"},
+    # COLA layout extension
+    {"src": "https://unpkg.com/cytoscape-cola@2.4.0/cytoscape-cola.js"},
+    {"src": "https://unpkg.com/webcola@3.4.0/WebCola/cola.min.js"},
     {"src": "https://cdn.jsdelivr.net/npm/cytoscape-svg@0.4.0/cytoscape-svg.js"},
     {"src": "/assets/js/cytoscape_config.js"},
     {"src": "/assets/js/cytoscape_utils.js"},
