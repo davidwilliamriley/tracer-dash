@@ -47,6 +47,44 @@ class NetworkView:
     def _create_filters() -> html.Div:
         return html.Div(
             [
+                # Search Section - Clean and simple
+                dbc.Row(
+                    [
+                        dbc.Col(
+                            dbc.Input(
+                                id="filter-value-input",
+                                placeholder="Search nodes and edges by name, identifier, description...",
+                                disabled=False,
+                                size="lg",
+                            ),
+                            width=12,
+                            lg=10,
+                            className="mb-3",
+                        ),
+                        dbc.Col(
+                            dbc.Button(
+                                [
+                                    html.I(
+                                        className="bi bi-x-circle me-1"
+                                    ),
+                                    "Clear",
+                                ],
+                                id="reset-element-btn",
+                                outline=True,
+                                color="secondary",
+                                size="lg",
+                                className="w-100",
+                                disabled=False,
+                            ),
+                            width=12,
+                            lg=2,
+                            className="mb-3",
+                        ),
+                    ],
+                    className="align-items-center g-3 mb-3 mt-3",
+                ),
+                
+                # Filters & Controls Accordion
                 dbc.Accordion(
                     [
                         dbc.AccordionItem(
@@ -72,7 +110,7 @@ class NetworkView:
                                         ),
                                     ]
                                 ),
-                                # Filter Row - Element, "include", Property, Value, Apply, Reset
+                                # Filter Row - Element, EdgeType, Property (removed search input)
                                 dbc.Row(
                                     [
                                         dbc.Col(
@@ -96,7 +134,7 @@ class NetworkView:
                                                 disabled=True,
                                             ),
                                             width=12,
-                                            lg=2,
+                                            lg=4,
                                             className="mb-3 mb-lg-0",
                                         ),
                                         dbc.Col(
@@ -120,7 +158,7 @@ class NetworkView:
                                                 disabled=True,
                                             ),
                                             width=12,
-                                            lg=2,
+                                            lg=4,
                                             className="mb-3 mb-lg-0",
                                         ),
                                         dbc.Col(
@@ -136,53 +174,8 @@ class NetworkView:
                                                 disabled=True,
                                             ),
                                             width=12,
-                                            lg=2,
-                                            className="mb-3 mb-lg-0",
-                                        ),
-                                        dbc.Col(
-                                            dbc.Input(
-                                                id="filter-value-input",
-                                                placeholder="Search Values...",
-                                            ),
-                                            width=12,
                                             lg=4,
                                             className="mb-3 mb-lg-0",
-                                        ),
-                                        dbc.Col(
-                                            dbc.Button(
-                                                [
-                                                    html.I(
-                                                        className="bi bi-filter me-1"
-                                                    ),
-                                                    "Apply",
-                                                ],
-                                                id="apply-element-btn",
-                                                outline=True,
-                                                color="primary",
-                                                size="md",
-                                                className="w-100",
-                                            ),
-                                            width=6,
-                                            lg=1,
-                                            className="mb-3 mb-lg-0 pe-1",
-                                        ),
-                                        dbc.Col(
-                                            dbc.Button(
-                                                [
-                                                    html.I(
-                                                        className="bi bi-arrow-clockwise me-1"
-                                                    ),
-                                                    "Reset",
-                                                ],
-                                                id="reset-element-btn",
-                                                outline=True,
-                                                color="secondary",
-                                                size="md",
-                                                className="w-100",
-                                            ),
-                                            width=6,
-                                            lg=1,
-                                            className="ps-1",
                                         ),
                                     ],
                                     className="align-items-center g-3",
@@ -235,7 +228,10 @@ class NetworkView:
                                                         "label": "fCoSE (Force-directed)",
                                                         "value": "fcose",
                                                     },
-                                                    {"label": "Grid", "value": "grid"},
+                                                    {
+                                                        "label": "Grid",
+                                                        "value": "grid"
+                                                    },
                                                     {
                                                         "label": "Klay (Layered) - Experimental",
                                                         "value": "klay",
@@ -357,7 +353,7 @@ class NetworkView:
                             ],
                             title=[
                                 html.I(className="bi bi-download me-2"),
-                                "Graph Export Options",
+                                "Graph Export",
                             ],
                             item_id="export-accordion",
                         ),

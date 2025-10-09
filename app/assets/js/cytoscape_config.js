@@ -78,6 +78,13 @@ const CytoscapeConfig = {
             background: '#fff176',
             line: '#fbc02d',
             arrow: '#fbc02d'
+        },
+        search: {
+            matchBackground: '#ffeb3b',
+            matchBorder: '#ff9800',
+            matchLine: '#ff9800',
+            matchArrow: '#ff9800',
+            textBackground: '#fff'
         }
     },
     

@@ -14,6 +14,7 @@ import uuid
 import os
 
 from utils import network_utils
+from pkg.config import LOG_DIR
 
 # External Scripts
 external_scripts = [
@@ -21,10 +22,10 @@ external_scripts = [
     {"src": "https://unpkg.com/cytoscape-fcose@2.2.0/cytoscape-fcose.js"},
     {"src": "https://unpkg.com/cytoscape-dagre@2.5.0/cytoscape-dagre.js"},
     {"src": "https://unpkg.com/dagre@0.8.5/dist/dagre.min.js"},
-    # Try to load Klay but don't fail if it doesn't work
+    # Klay Layout
     {"src": "https://unpkg.com/cytoscape-klay@3.1.4/cytoscape-klay.js"},
     {"src": "https://unpkg.com/klayjs@0.4.1/klay.js"},
-    # COLA layout extension
+    # COLA Layout
     {"src": "https://unpkg.com/cytoscape-cola@2.4.0/cytoscape-cola.js"},
     {"src": "https://unpkg.com/webcola@3.4.0/WebCola/cola.min.js"},
     {"src": "https://cdn.jsdelivr.net/npm/cytoscape-svg@0.4.0/cytoscape-svg.js"},
@@ -32,6 +33,7 @@ external_scripts = [
     {"src": "/assets/js/cytoscape_utils.js"},
     {"src": "/assets/js/cytoscape_styles.js"},
     {"src": "/assets/js/cytoscape_events.js"},
+    {"src": "/assets/js/cytoscape_search.js"},
     {"src": "/assets/js/cytoscape_callback.js"},
     {"src": "https://unpkg.com/tabulator-tables@6.3.1/dist/js/tabulator.min.js"},
     {"src": "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"},
@@ -65,11 +67,8 @@ def setup_logging(app_name="TracerApp", log_level=logging.INFO):
     console_handler.setFormatter(detailed_formatter)
     logger.addHandler(console_handler)
 
-    os.makedirs("logs", exist_ok=True)
-
-    file_handler = RotatingFileHandler(
-        "logs/app.log", maxBytes=10 * 1024 * 1024, backupCount=5
-    )
+    log_file_path = LOG_DIR / "app.log"
+    file_handler = RotatingFileHandler(str(log_file_path), maxBytes=10 * 1024 * 1024, backupCount=5)
 
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(detailed_formatter)
@@ -77,9 +76,8 @@ def setup_logging(app_name="TracerApp", log_level=logging.INFO):
 
     return logger
 
-
 logger = setup_logging()
-logger.info("Dash Application is starting...")
+logger.info("Tracer Application is starting...")
 
 server = Flask(__name__)
 app = dash.Dash(
@@ -93,13 +91,11 @@ app = dash.Dash(
     title="Tracer",
 )
 
-cache = Cache(
-    app.server, config={"CACHE_TYPE": "SimpleCache", "CACHE_DEFAULT_TIMEOUT": 3600}
-)
+cache = Cache(app.server, config={"CACHE_TYPE": "SimpleCache", "CACHE_DEFAULT_TIMEOUT": 3600})
 
 server.static_folder = "assets"
 
-# Import pages AFTER app creation
+# Import pages AFTER creating the App
 import pages
 
 _cached_network = None
@@ -111,16 +107,16 @@ def get_network():
         _cached_network = network_utils.build_networkx_from_database()
         roots = network_utils.get_graph_roots(_cached_network)
         if roots:
-            logger.info(f"Identified {len(roots)} root nodes in the NetworkX graph.")
+            logger.info(f"Identified {len(roots)} Root Nodes in the NetworkX Graph")
             for root in roots:
                 logger.info(f"Root Node ID: {root}")
         else:
-            logger.info("No root nodes found in the NetworkX graph.")
+            logger.info("No Root Nodes found in the NetworkX Graph")
 
         logger.info("Network was re-built from the DB.")
 
         breakdown = network_utils.build_breakdown_from_graph(_cached_network)
-        logger.info(f"Breakdown built with {len(breakdown)} top-level items.")
+        logger.info(f"Breakdown built with {len(breakdown)} Top-level Items.")
 
     return _cached_network
 
@@ -128,10 +124,10 @@ def get_network():
 def refresh_network_cache():
     global _cached_network
     _cached_network = None
-    logger.info("Network was cleared from Cache.")
+    logger.info("Network cleared from Cache.")
 
 
-logger.info("Initializing theNetwork Graph...")
+logger.info("Initializing the Network Graph...")
 startup_graph = get_network()
 logger.info(
     f"Initial Graph has {startup_graph.number_of_edges()} Edges and {startup_graph.number_of_nodes()} Nodes."

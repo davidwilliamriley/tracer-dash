@@ -21,8 +21,19 @@ function getFormattedDateForFilename() {
 function clearHighlighting() {
     if (!window.cy) return;
     
+    // Unselect all elements
     window.cy.elements().unselect();
-    window.cy.elements().removeClass('connected faded highlighted');
+    
+    // Remove all highlighting classes
+    window.cy.elements().removeClass('connected faded highlighted search-match');
+    
+    // Ensure all elements are visible with normal opacity
+    window.cy.elements().style({
+        'opacity': 1,
+        'text-opacity': 1
+    });
+    
+    console.log('Cleared all highlighting and selections');
 }
 
 /**
@@ -32,20 +43,40 @@ function clearHighlighting() {
 function applyFilterHighlighting(filteredElementIds) {
     if (!window.cy) return;
     
-    window.cy.elements().removeClass('connected faded');
+    // Clear existing highlighting
+    window.cy.elements().removeClass('connected faded highlighted search-match');
+    
+    if (filteredElementIds.size === 0) {
+        // No filter applied, show all elements normally
+        return;
+    }
     
     const filteredElements = window.cy.elements().filter(ele => {
         return filteredElementIds.has(ele.id());
     });
     
     if (filteredElements.length > 0) {
+        // Highlight matching elements and their immediate neighbors
         const neighborhood = filteredElements.neighborhood();
         const allConnectedElements = filteredElements.union(neighborhood);
         
-        filteredElements.addClass('connected');
+        // Mark direct matches
+        filteredElements.addClass('search-match connected');
+        
+        // Mark connected elements (neighbors)
         neighborhood.addClass('connected');
+        
+        // Fade everything else
         window.cy.elements().difference(allConnectedElements).addClass('faded');
+        
+        // Select the matching elements for better visibility
         filteredElements.select();
+        
+        console.log(`Highlighted ${filteredElements.length} matching elements and ${neighborhood.length} connected elements`);
+    } else {
+        // No matches found, fade everything
+        window.cy.elements().addClass('faded');
+        console.log('No matching elements found for search filter');
     }
 }
 

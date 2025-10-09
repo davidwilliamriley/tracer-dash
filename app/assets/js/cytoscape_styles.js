@@ -146,6 +146,22 @@ function getCytoscapeStyles() {
                 'transition-property': 'background-color, line-color',
                 'transition-duration': '0.3s'
             }
+        },
+        
+        // Search match elements (direct matches from search)
+        {
+            selector: '.search-match',
+            style: {
+                'background-color': colors.search?.matchBackground || '#ffeb3b',
+                'border-color': colors.search?.matchBorder || '#ff9800',
+                'border-width': '3px',
+                'line-color': colors.search?.matchLine || '#ff9800',
+                'target-arrow-color': colors.search?.matchArrow || '#ff9800',
+                'text-background-color': colors.search?.textBackground || '#fff',
+                'text-background-opacity': 0.9,
+                'transition-property': 'background-color, border-color, line-color',
+                'transition-duration': '0.3s'
+            }
         }
     ];
 }

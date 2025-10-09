@@ -24,7 +24,7 @@ from typing import Optional, List, Dict, Any, Union
 from datetime import datetime
 
 # Dash-specific Logging
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('TracerApp')
 
 try:
     from pkg.config import DATABASE_CONFIG

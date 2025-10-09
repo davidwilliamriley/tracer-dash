@@ -53,6 +53,37 @@ if (typeof cytoscape !== 'undefined') {
         'Unable to detect layouts');
 }
 
+// Utility functions that might not be loaded from cytoscape_utils.js
+if (typeof showToast === 'undefined') {
+    window.showToast = function(message, type = 'info') {
+        const toastStore = document.getElementById('toast-store');
+        if (toastStore && window.dash_clientside) {
+            window.dash_clientside.set_props('toast-store', {
+                data: {
+                    message: message,
+                    type: type,
+                    timestamp: Date.now()
+                }
+            });
+        } else {
+            console.log(`${type.toUpperCase()}: ${message}`);
+        }
+    };
+}
+
+if (typeof clearHighlighting === 'undefined') {
+    window.clearHighlighting = function() {
+        if (!window.cy) return;
+        window.cy.elements().unselect();
+        window.cy.elements().removeClass('connected faded highlighted search-match');
+        window.cy.elements().style({
+            'opacity': 1,
+            'text-opacity': 1
+        });
+        console.log('Cleared all highlighting (fallback function)');
+    };
+}
+
 window.cytoscapeCallback = function(networkDataJson, filteredValue, layoutAlgorithm) {
     // Parse the JSON data
     let networkData;
@@ -89,22 +120,27 @@ window.cytoscapeCallback = function(networkDataJson, filteredValue, layoutAlgori
     if (filteredValue && filteredValue.trim()) {
         const filterValue = filteredValue.toLowerCase();
         
-        // Find matching nodes
+        // Find matching nodes - search in multiple fields
         const matchingNodes = networkData.elements.filter(ele => {
             if (ele.group === 'nodes') {
-                return (ele.data.label && ele.data.label.toLowerCase().includes(filterValue)) ||
-                       (ele.data.name && ele.data.name.toLowerCase().includes(filterValue)) ||
-                       (ele.data.identifier && ele.data.identifier.toLowerCase().includes(filterValue));
+                const data = ele.data;
+                return (data.label && data.label.toLowerCase().includes(filterValue)) ||
+                       (data.name && data.name.toLowerCase().includes(filterValue)) ||
+                       (data.identifier && data.identifier.toLowerCase().includes(filterValue)) ||
+                       (data.description && data.description.toLowerCase().includes(filterValue));
             }
             return false;
         });
         
-        // Find matching edges
+        // Find matching edges - search in multiple fields  
         const matchingEdges = networkData.elements.filter(ele => {
             if (ele.group === 'edges') {
-                return (ele.data.label && ele.data.label.toLowerCase().includes(filterValue)) ||
-                       (ele.data.name && ele.data.name.toLowerCase().includes(filterValue)) ||
-                       (ele.data.type && ele.data.type.toLowerCase().includes(filterValue));
+                const data = ele.data;
+                return (data.label && data.label.toLowerCase().includes(filterValue)) ||
+                       (data.name && data.name.toLowerCase().includes(filterValue)) ||
+                       (data.type && data.type.toLowerCase().includes(filterValue)) ||
+                       (data.identifier && data.identifier.toLowerCase().includes(filterValue)) ||
+                       (data.description && data.description.toLowerCase().includes(filterValue));
             }
             return false;
         });
@@ -112,6 +148,27 @@ window.cytoscapeCallback = function(networkDataJson, filteredValue, layoutAlgori
         // Collect IDs of all matching elements
         matchingNodes.forEach(node => filteredElementIds.add(node.data.id));
         matchingEdges.forEach(edge => filteredElementIds.add(edge.data.id));
+        
+        // Also include connected nodes/edges for better context
+        const connectedElements = new Set();
+        matchingNodes.forEach(node => {
+            networkData.elements.forEach(edge => {
+                if (edge.group === 'edges' && 
+                    (edge.data.source === node.data.id || edge.data.target === node.data.id)) {
+                    connectedElements.add(edge.data.id);
+                    // Add the other connected node
+                    const connectedNodeId = edge.data.source === node.data.id ? 
+                        edge.data.target : edge.data.source;
+                    connectedElements.add(connectedNodeId);
+                }
+            });
+        });
+        
+        // Add connected elements to filtered set for better visualization context
+        connectedElements.forEach(id => filteredElementIds.add(id));
+        
+        console.log(`Search for "${filterValue}" found ${matchingNodes.length} nodes and ${matchingEdges.length} edges`);
+        console.log(`Total highlighted elements (including connections): ${filteredElementIds.size}`);
     }
     
     // Get container center position
@@ -385,11 +442,10 @@ window.cytoscapeCallback = function(networkDataJson, filteredValue, layoutAlgori
         });
     }, 100);
     
-    // Apply filter highlighting after layout completes
+    // For initial layout, don't apply any search filtering - let the search system handle it
+    // This prevents conflicts between layout and search highlighting
     setTimeout(() => {
-        if (filteredValue && filteredValue.trim() && filteredElementIds.size > 0) {
-            applyFilterHighlighting(filteredElementIds);
-        }
+        console.log('Layout completed, ready for search operations');
     }, 1200);
     
     // Setup event handlers

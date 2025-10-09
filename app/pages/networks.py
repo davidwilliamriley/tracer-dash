@@ -186,6 +186,7 @@ clientside_callback(
     """
     function(layoutAlgorithm, networkDataJson, filteredValue) {
         if (layoutAlgorithm && networkDataJson) {
+            // Layout changes always require full recreation
             return window.cytoscapeCallback(networkDataJson, filteredValue, layoutAlgorithm);
         }
         return window.dash_clientside.no_update;
@@ -231,6 +232,59 @@ def update_network_stats(network_data_json):
     except Exception as e:
         print(f"Error calculating network stats: {e}")
         return "Error calculating network statistics"
+
+
+# Reset filters callback - clear the search input and refresh the network
+@callback(
+    [
+        Output("filter-value-input", "value"),
+        Output("cytoscape-trigger", "children", allow_duplicate=True),
+    ],
+    Input("reset-element-btn", "n_clicks"),
+    State("cytoscape-data-div", "children"),
+    State("layout-algorithm-select", "value"),
+    prevent_initial_call=True,
+)
+def reset_search_filter(n_clicks, network_data_json, layout_algorithm):
+    """Reset the search filter input and refresh network when reset button is clicked"""
+    if n_clicks:
+        # Return empty string for input and trigger network refresh with no filter
+        return "", ""
+    return no_update, no_update
+
+
+# Callback to refresh network when filter is reset (clientside)
+clientside_callback(
+    """
+    function(filterValue, networkDataJson, layoutAlgorithm) {
+        if (networkDataJson) {
+            // Use the smart callback that chooses between search-only and full recreation
+            if (window.smartCytoscapeCallback) {
+                // Debounce the search to avoid too many re-renders while typing
+                if (window.searchTimeout) {
+                    clearTimeout(window.searchTimeout);
+                }
+                
+                return new Promise((resolve) => {
+                    window.searchTimeout = setTimeout(() => {
+                        const result = window.smartCytoscapeCallback(networkDataJson, filterValue || "", layoutAlgorithm);
+                        resolve(result);
+                    }, 300); // Reduced to 300ms for faster response
+                });
+            } else {
+                // Fallback to original callback if smart callback not available
+                return window.cytoscapeCallback(networkDataJson, filterValue || "", layoutAlgorithm);
+            }
+        }
+        return window.dash_clientside.no_update;
+    }
+    """,
+    Output("cytoscape-trigger", "children", allow_duplicate=True),
+    Input("filter-value-input", "value"),
+    State("cytoscape-data-div", "children"),
+    State("layout-algorithm-select", "value"),
+    prevent_initial_call=True,
+)
 
 
 # Export callbacks - these use clientside callbacks to interact with the Cytoscape instance
