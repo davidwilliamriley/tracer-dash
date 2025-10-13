@@ -54,8 +54,8 @@ if %errorlevel% neq 0 (
 :: Check if Dash is installed in the .venv
 "%VENV_PYTHON%" -c "import dash" >nul 2>&1
 if %errorlevel% neq 0 (
-    echo WARNING: Dash is not installed in Virtual Environment
-    echo Installing Dash and required packages...
+    echo WARNING: Dash is not installed in the Virtual Environment
+    echo Installing Dash and the Required Packages...
     echo.
     "%VENV_PYTHON%" -m pip install dash pandas plotly
     if %errorlevel% neq 0 (

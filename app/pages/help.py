@@ -11,7 +11,7 @@ help_sections = [
         {
             'icon': 'bi bi-search',
             'title': 'Tracer',
-            'description': 'Read about the background, and purpose Tracer.',
+            'description': 'Read about the background, and purpose of Tracer.',
             # 'link': '/help/about',
             'link': '#'
         }
