@@ -52,7 +52,7 @@ class NetworkView:
                                 className="mt-3",
                             ),
                             width=12,
-                            md=11,
+                            md=10,
                         ),
                         dbc.Col(
                             dbc.Button(
@@ -68,7 +68,7 @@ class NetworkView:
                                 disabled=False,
                             ),
                             width=12,
-                            md=1,
+                            md=2,
                         ),
                     ],
                     className="align-items-center g-3 mb-3",
@@ -285,7 +285,7 @@ class NetworkView:
                                                 ],
                                                 id="reset-all-filters-btn",
                                                 outline=True,
-                                                color="secondary",
+                                                color="primary",
                                                 size="md",
                                                 className="w-100 mt-3",
                                                 title="Reset all filters to default values",
