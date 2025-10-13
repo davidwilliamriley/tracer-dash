@@ -210,7 +210,13 @@ def get_header():
                                 id="nav-nodes",
                             )
                         ),
-                        # dbc.NavItem(dbc.NavLink([html.I(className="bi bi-question-circle me-2"), "Help"], href="/help", id="nav-help")),
+                        dbc.NavItem(
+                            dbc.NavLink(
+                                [html.I(className="bi bi-question-circle me-2"), "Help"], 
+                                href="/help", 
+                                id="nav-help"
+                            )
+                        ),
                     ],
                     navbar=True,
                     className="ms-auto",
@@ -294,8 +300,9 @@ app.layout = html.Div(
             "network",
             "breakdowns",
             "edges",
-            "nodes",
             "edge-types",
+            "nodes",
+            "help"
         ]
     ] + [Output("navbar-brand-text", "children")],
     Input("_pages_location", "pathname"),
@@ -308,9 +315,9 @@ def update_nav_style(pathname):
         "/network": "network",
         "/breakdowns": "breakdowns",
         "/edges": "edges",
-        "/nodes": "nodes",
         "/edge-types": "edge-types",
-        # "/help": "help"
+        "/nodes": "nodes",
+        "/help": "help"
     }
     
     # Page name mapping for navbar brand
@@ -322,6 +329,7 @@ def update_nav_style(pathname):
         "/edges": "Tracer - Edges",
         "/nodes": "Tracer - Nodes",
         "/edge-types": "Tracer - Edge Types",
+        "/help": "Tracer - Help"
     }
 
     active_page = nav_map.get(pathname, None)
@@ -335,8 +343,9 @@ def update_nav_style(pathname):
             "network",
             "breakdowns",
             "edges",
-            "nodes",
             "edge-types",
+            "nodes",
+            "help"
         ]
     ]
     
