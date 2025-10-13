@@ -1,11 +1,11 @@
-# pages/modelling.py
+# pages/help/schema.py
 
 import dash
 from dash import html, dcc
 import dash_bootstrap_components as dbc
 
-# Register this page
-dash.register_page(__name__, path="/help/modelling", name="Data Modelling")
+# # Register this page
+# dash.register_page(__name__, path="/help/modelling", name="Data Modelling")
 
 def create_info_card(title, content, icon_class="bi bi-info-circle"):
     """Create an information card with icon"""
@@ -104,10 +104,13 @@ def layout():
     return dbc.Container([
         # Page Header with breadcrumb
         html.Div([
-            dbc.Breadcrumb([
-                {"label": "Help", "href": "/help", "external_link": True},
-                {"label": "Data Modelling", "active": True}
-            ], className="mb-3"),
+            dbc.Breadcrumb(
+                items=[
+                    {"label": "Help", "href": "/help", "external_link": True},
+                    {"label": "Data Modelling", "active": True}
+                ], 
+                className="mb-3"
+            ),
             
             html.Div([
                 html.I(className="bi bi-diagram-3 text-primary me-3", style={"fontSize": "2rem"}),
