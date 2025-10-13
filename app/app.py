@@ -169,16 +169,18 @@ def get_header():
                         # dbc.NavItem(dbc.NavLink([html.I(className="bi bi-file-earmark-richtext me-2"), "Reports"], href="/reports", id="nav-reports")),
                         dbc.NavItem(
                             dbc.NavLink(
-                                [html.I(className="bi bi-bezier2 me-2"), "Network"],
+                                # Update to Graphs
+                                [html.I(className="bi bi-bezier2 me-2"), "Graphs"],
                                 href="/network",
                                 id="nav-network",
                             )
                         ),
                         dbc.NavItem(
                             dbc.NavLink(
+                                # Update to Components
                                 [
                                     html.I(className="bi bi-diagram-2 me-2"),
-                                    "Breakdowns",
+                                    "Components",
                                 ],
                                 href="/breakdowns",
                                 id="nav-breakdowns",
@@ -193,19 +195,19 @@ def get_header():
                         ),
                         dbc.NavItem(
                             dbc.NavLink(
-                                [html.I(className="bi bi-plus-circle me-2"), "Nodes"],
-                                href="/nodes",
-                                id="nav-nodes",
-                            )
-                        ),
-                        dbc.NavItem(
-                            dbc.NavLink(
                                 [
                                     html.I(className="bi bi-link-45deg me-2"),
                                     "Edge Types",
                                 ],
                                 href="/edge-types",
                                 id="nav-edge-types",
+                            )
+                        ),
+                        dbc.NavItem(
+                            dbc.NavLink(
+                                [html.I(className="bi bi-plus-circle me-2"), "Nodes"],
+                                href="/nodes",
+                                id="nav-nodes",
                             )
                         ),
                         # dbc.NavItem(dbc.NavLink([html.I(className="bi bi-question-circle me-2"), "Help"], href="/help", id="nav-help")),
@@ -315,8 +317,8 @@ def update_nav_style(pathname):
     page_names = {
         "/": "Tracer",
         "/dashboard": "Tracer - Dashboard",
-        "/network": "Tracer - Network",
-        "/breakdowns": "Tracer - Breakdowns", 
+        "/network": "Tracer - Graphs",
+        "/breakdowns": "Tracer - Components", 
         "/edges": "Tracer - Edges",
         "/nodes": "Tracer - Nodes",
         "/edge-types": "Tracer - Edge Types",
