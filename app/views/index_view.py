@@ -46,9 +46,9 @@ class IndexView:
                     dbc.Card([
                         dbc.CardBody([
                             html.I(className="bi bi-bezier2 display-3 text-primary mb-3"),
-                            html.H5("Networks", className="card-title"),
-                            html.P("Interactive visualisation of the Network", className="card-text mb-4"),
-                            html.A("Explore Networks", href="/network", className="btn btn-outline-primary btn-fixed-width")
+                            html.H5("Graphs", className="card-title"),
+                            html.P("Interactive visualisation of the Graphs", className="card-text mb-4"),
+                            html.A("Explore Graphs", href="/network", className="btn btn-outline-primary btn-fixed-width")
                         ], className="text-center")
                     ], className="h-100 shadow-sm")
                 ], className="col-lg-3 col-md-6"),
@@ -58,9 +58,9 @@ class IndexView:
                     dbc.Card([
                         dbc.CardBody([
                             html.I(className="bi bi-diagram-2 display-3 text-primary mb-3"),
-                            html.H5("Breakdowns", className="card-title"),
-                            html.P("Navigate available Breakdowns", className="card-text mb-4"),
-                            html.A("View Breakdowns", href="/breakdowns", className="btn btn-outline-primary btn-fixed-width")
+                            html.H5("Components", className="card-title"),
+                            html.P("Navigate available Components", className="card-text mb-4"),
+                            html.A("View Components", href="/breakdowns", className="btn btn-outline-primary btn-fixed-width")
                         ], className="text-center")
                     ], className="h-100 shadow-sm")
                 ], className="col-lg-3 col-md-6"),
