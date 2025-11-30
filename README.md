@@ -1,4 +1,4 @@
-# Tracer
+# WorkBench
 
 **A Plotly Dash-based Network Graph Visualisation and Data Editing Application**
 
