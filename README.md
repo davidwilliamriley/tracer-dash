@@ -1,4 +1,4 @@
-# WorkBench
+# CheckPoint
 
 **A Plotly Dash-based Technical Project Management and Systems Engineering Management Application**
 
