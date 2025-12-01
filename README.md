@@ -1,4 +1,4 @@
-# CheckPoint
+# Prism
 
 **A Plotly Dash-based Systems Life Cycle Process Management Application**
 
