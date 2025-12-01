@@ -1,6 +1,6 @@
 # CheckPoint
 
-**A Plotly Dash-based Technical Project Management and Systems Engineering Management Application**
+**A Plotly Dash-based Systems Life Cycle Process Management Application**
 
 ## Project Description
 Objective is to provide a Complete, Efficient, Robust and Resilient Network.
