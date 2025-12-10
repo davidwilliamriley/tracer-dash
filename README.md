@@ -1,6 +1,6 @@
-# Tracer
+# Prism
 
-**A Plotly Dash-based Network Graph Visualisation and Data Editing Application**
+**A Plotly Dash-based Systems Life Cycle Process Management Application**
 
 ## Project Description
 Objective is to provide a Complete, Efficient, Robust and Resilient Network.
