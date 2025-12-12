@@ -123,8 +123,8 @@ def create_schema_content():
             ], md=6),
             dbc.Col([
                 create_info_card(
-                    "Configuration Information",
-                    "Configuration Information provides additional context and details for the Configuration Items, enriching them with relevant metadata and descriptive information.",
+                    "Information Items",
+                    "Information Items provide additional context and details for the Configuration Items, enriching them with relevant metadata and descriptive information.",
                     "bi bi-info-square"
                 )
             ], md=6)
@@ -134,7 +134,7 @@ def create_schema_content():
             dbc.Col([
                 create_info_card(
                     "Properties",
-                    "Properties are used to provide structured attributes for Configuration Items and Configuration Information, enabling flexible data modeling.",
+                    "Properties are used to provide structured attributes for Configuration Items and Information Items, enabling flexible data modeling.",
                     "bi bi-tags"
                 )
             ], md=6),
@@ -216,7 +216,7 @@ class HelpView:
                 #         ], className="breadcrumb mb-2 mt-2")
                 #     ]),
                 html.H1([html.I(className="bi bi-question-circle me-2"), "Help & Resources"], className="my-4 text-primary"),
-                html.P("Resources to assist you working with Tracer", className="text-muted mb-4")
+                # html.P("Resources to assist you working with Tracer", className="text-muted mb-4")
             ]),
             dbc.Row([
                 dbc.Col([

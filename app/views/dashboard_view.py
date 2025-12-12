@@ -67,6 +67,7 @@ class DashboardView:
                     dbc.AccordionItem([dcc.Graph(id="efficiency-metrics")], title="Efficiency Metrics"),
                     dbc.AccordionItem([dcc.Graph(id="robustness-metrics")], title="Robustness Metrics"),
                     dbc.AccordionItem([dcc.Graph(id="resilience-metrics")], title="Resilience Metrics"),
+                    dbc.AccordionItem([dcc.Graph(id="burndown-chart")],title="Burndown Charts"),
                 ],
                     start_collapsed=True,
                     always_open=False,
