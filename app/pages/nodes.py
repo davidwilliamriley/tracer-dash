@@ -203,6 +203,7 @@ def handle_crud_operations(
             no_update,
             no_update,
             no_update,
+            no_update,
         )
 
     button_id = ctx.triggered[0]["prop_id"].split(".")[0]
@@ -224,6 +225,7 @@ def handle_crud_operations(
                 True,
                 f"Successfully created: {name}",
                 "success",
+                "",
                 "",
                 "",
                 "",
@@ -264,12 +266,13 @@ def handle_crud_operations(
                 True,
                 f"Deleted {deleted_count} node(s)",
                 "success",
+                "",
                 no_update,
                 no_update,
                 no_update,
             )
 
-    return no_update, no_update, no_update, no_update, no_update, no_update, no_update
+    return no_update, no_update, no_update, no_update, no_update, no_update, no_update, no_update
 
 
 # Download CSV
