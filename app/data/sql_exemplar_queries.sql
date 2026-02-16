@@ -1,0 +1,98 @@
+-- ============================================================================
+-- VIEWS: Convenient queries
+-- ============================================================================
+
+-- -- View: Complete node information with properties
+-- CREATE VIEW v_NodesWithProperties AS
+-- SELECT 
+--     Node.id AS node_id,
+--     Node.node_name,
+--     NodeType.node_type_name,
+--     NodeType.node_type_identifier,
+--     NodePropertyDefinition.node_property_definition_name,
+--     NodePropertyDefinition.node_property_definition_type,
+--     NodePropertyValue.node_property_value,
+--     Node.modified_by,
+--     Node.modified_on
+-- FROM Node
+-- JOIN NodeType ON Node.node_type_id_fk = NodeType.id
+-- LEFT JOIN NodePropertyValue ON NodePropertyValue.node_id_fk = Node.id
+-- LEFT JOIN NodePropertyDefinition ON NodePropertyValue.node_property_definition_id_fk = NodePropertyDefinition.id;
+
+-- -- View: Complete edge information with properties
+-- CREATE VIEW v_EdgesWithProperties AS
+-- SELECT 
+--     Edge.id AS edge_id,
+--     EdgeType.edge_type_name,
+--     EdgeType.edge_type_identifier,
+--     SourceNode.node_name AS source_node_name,
+--     TargetNode.node_name AS target_node_name,
+--     EdgePropertyDefinition.edge_property_definition_name,
+--     EdgePropertyDefinition.edge_property_definition_type,
+--     EdgePropertyValue.edge_property_value,
+--     Edge.modified_by,
+--     Edge.modified_on
+-- FROM Edge
+-- JOIN EdgeType ON Edge.edge_type_id_fk = EdgeType.id
+-- JOIN Node AS SourceNode ON Edge.source_node_id_fk = SourceNode.id
+-- JOIN Node AS TargetNode ON Edge.target_node_id_fk = TargetNode.id
+-- LEFT JOIN EdgePropertyValue ON EdgePropertyValue.edge_id_fk = Edge.id
+-- LEFT JOIN EdgePropertyDefinition ON EdgePropertyValue.edge_property_definition_id_fk = EdgePropertyDefinition.id;
+
+-- -- View: Node type schemas (what properties each type has)
+-- CREATE VIEW v_NodeTypeSchema AS
+-- SELECT 
+--     NodeType.node_type_identifier,
+--     NodeType.node_type_name,
+--     NodePropertyDefinition.node_property_definition_name,
+--     NodePropertyDefinition.node_property_definition_type,
+--     NodePropertyDefinition.node_property_definition_is_required,
+--     NodePropertyDefinition.node_property_definition_default_value,
+--     NodePropertyDefinition.node_property_definition_description
+-- FROM NodeType
+-- LEFT JOIN NodePropertyDefinition ON NodePropertyDefinition.node_type_id_fk = NodeType.id
+-- ORDER BY NodeType.node_type_name, NodePropertyDefinition.node_property_definition_name;
+
+-- -- View: Edge type schemas
+-- CREATE VIEW v_EdgeTypeSchema AS
+-- SELECT 
+--     EdgeType.edge_type_identifier,
+--     EdgeType.edge_type_name,
+--     EdgePropertyDefinition.edge_property_definition_name,
+--     EdgePropertyDefinition.edge_property_definition_type,
+--     EdgePropertyDefinition.edge_property_definition_is_required,
+--     EdgePropertyDefinition.edge_property_definition_default_value,
+--     EdgePropertyDefinition.edge_property_definition_description
+-- FROM EdgeType
+-- LEFT JOIN EdgePropertyDefinition ON EdgePropertyDefinition.edge_type_id_fk = EdgeType.id
+-- ORDER BY EdgeType.edge_type_name, EdgePropertyDefinition.edge_property_definition_name;
+
+-- -- View: NetworkX export format (nodes)
+-- CREATE VIEW v_NetworkX_Nodes AS
+-- SELECT 
+--     Node.node_name,
+--     NodeType.node_type_identifier,
+--     GROUP_CONCAT(NodePropertyDefinition.node_property_definition_name || '=' || COALESCE(NodePropertyValue.node_property_value, ''), '|') AS properties
+-- FROM Node
+-- JOIN NodeType ON Node.node_type_id_fk = NodeType.id
+-- LEFT JOIN NodePropertyValue ON NodePropertyValue.node_id_fk = Node.id
+-- LEFT JOIN NodePropertyDefinition ON NodePropertyValue.node_property_definition_id_fk = NodePropertyDefinition.id
+-- GROUP BY Node.id, Node.node_name, NodeType.node_type_identifier;
+
+-- -- View: NetworkX export format (edges)
+-- CREATE VIEW v_NetworkX_Edges AS
+-- SELECT 
+--     SourceNode.node_name AS source,
+--     TargetNode.node_name AS target,
+--     EdgeType.edge_type_identifier AS edge_type,
+--     GROUP_CONCAT(
+--         EdgePropertyDefinition.edge_property_definition_name || '=' || COALESCE(EdgePropertyValue.edge_property_value, ''),
+--         '|'
+--     ) AS properties
+-- FROM Edge
+-- JOIN EdgeType ON Edge.edge_type_id_fk = EdgeType.id
+-- JOIN Node AS SourceNode ON Edge.source_node_id_fk = SourceNode.id
+-- JOIN Node AS TargetNode ON Edge.target_node_id_fk = TargetNode.id
+-- LEFT JOIN EdgePropertyValue ON EdgePropertyValue.edge_id_fk = Edge.id
+-- LEFT JOIN EdgePropertyDefinition ON EdgePropertyValue.edge_property_definition_id_fk = EdgePropertyDefinition.id
+-- GROUP BY Edge.id, SourceNode.node_name, TargetNode.node_name, EdgeType.edge_type_identifier;

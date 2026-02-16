@@ -1,6 +1,6 @@
 -- ============================================================================
 -- TRACER: Graph Database Schema
--- SQLite Implementation
+-- SQLite Implementation of SACM Graph Data Model
 -- ============================================================================
 
 PRAGMA foreign_keys = ON;
@@ -58,7 +58,7 @@ CREATE TABLE NodePropertyDefinition (
     UNIQUE(node_type_id_fk, node_property_definition_name)
 );
 
-CREATE INDEX idx_node_property_definition_type ON NodePropertyDefinition(node_type_id_fk);
+CREATE INDEX idx_node_property_definition_node_type ON NodePropertyDefinition(node_type_id_fk);
 CREATE INDEX idx_node_property_definition_name ON NodePropertyDefinition(node_property_definition_name);
 
 CREATE TABLE EdgePropertyDefinition (
@@ -78,7 +78,7 @@ CREATE TABLE EdgePropertyDefinition (
     UNIQUE(edge_type_id_fk, edge_property_definition_name)
 );
 
-CREATE INDEX idx_edge_property_definition_type ON EdgePropertyDefinition(edge_type_id_fk);
+CREATE INDEX idx_edge_property_definition_edge_type ON EdgePropertyDefinition(edge_type_id_fk);
 CREATE INDEX idx_edge_property_definition_name ON EdgePropertyDefinition(edge_property_definition_name);
 
 -- ============================================================================
@@ -89,13 +89,14 @@ CREATE TABLE Node (
     id TEXT PRIMARY KEY,
     node_type_id_fk TEXT NOT NULL,
     node_identifier TEXT NOT NULL UNIQUE,
-    node_name TEXT NOT NULL UNIQUE,
+    node_name TEXT NOT NULL,
     created_by TEXT,
     created_on TEXT DEFAULT (datetime('now')),
     modified_by TEXT,
     modified_on TEXT DEFAULT (datetime('now')),
     
-    FOREIGN KEY (node_type_id_fk) REFERENCES NodeType(id) ON DELETE RESTRICT
+    FOREIGN KEY (node_type_id_fk) REFERENCES NodeType(id) ON DELETE RESTRICT,
+    UNIQUE(node_type_id_fk, node_name)
 );
 
 CREATE INDEX idx_node_type ON Node(node_type_id_fk);
@@ -175,6 +176,98 @@ BEGIN
     );
 END;
 
+-- Trigger to validate Node Property Value Types against Definitions (INSERT)
+CREATE TRIGGER validate_node_property_value_type_insert
+BEFORE INSERT ON NodePropertyValue
+WHEN NEW.node_property_value IS NOT NULL
+BEGIN
+    SELECT RAISE(ABORT, 'Property value does not match expected type (integer)')
+    WHERE (
+        SELECT node_property_definition_type FROM NodePropertyDefinition
+        WHERE id = NEW.node_property_definition_id_fk
+    ) = 'integer'
+    AND typeof(NEW.node_property_value) != 'integer'
+    AND CAST(NEW.node_property_value AS INTEGER) != NEW.node_property_value;
+
+    SELECT RAISE(ABORT, 'Property value does not match expected type (float)')
+    WHERE (
+        SELECT node_property_definition_type FROM NodePropertyDefinition
+        WHERE id = NEW.node_property_definition_id_fk
+    ) = 'float'
+    AND typeof(NEW.node_property_value) NOT IN ('integer', 'real')
+    AND NOT (CAST(NEW.node_property_value AS REAL) IS NOT NULL
+             AND CAST(NEW.node_property_value AS REAL) != 0.0
+             OR NEW.node_property_value = '0'
+             OR NEW.node_property_value = '0.0');
+
+    SELECT RAISE(ABORT, 'Property value does not match expected type (boolean)')
+    WHERE (
+        SELECT node_property_definition_type FROM NodePropertyDefinition
+        WHERE id = NEW.node_property_definition_id_fk
+    ) = 'boolean'
+    AND NEW.node_property_value NOT IN ('0', '1', 'true', 'false');
+
+    SELECT RAISE(ABORT, 'Property value does not match expected type (date - expected YYYY-MM-DD)')
+    WHERE (
+        SELECT node_property_definition_type FROM NodePropertyDefinition
+        WHERE id = NEW.node_property_definition_id_fk
+    ) = 'date'
+    AND NEW.node_property_value NOT GLOB '[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]';
+
+    SELECT RAISE(ABORT, 'Property value does not match expected type (datetime - expected YYYY-MM-DD HH:MM:SS)')
+    WHERE (
+        SELECT node_property_definition_type FROM NodePropertyDefinition
+        WHERE id = NEW.node_property_definition_id_fk
+    ) = 'datetime'
+    AND NEW.node_property_value NOT GLOB '[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9]';
+END;
+
+-- Trigger to validate Node Property Value Types against Definitions (UPDATE)
+CREATE TRIGGER validate_node_property_value_type_update
+BEFORE UPDATE ON NodePropertyValue
+WHEN NEW.node_property_value IS NOT NULL
+BEGIN
+    SELECT RAISE(ABORT, 'Property value does not match expected type (integer)')
+    WHERE (
+        SELECT node_property_definition_type FROM NodePropertyDefinition
+        WHERE id = NEW.node_property_definition_id_fk
+    ) = 'integer'
+    AND typeof(NEW.node_property_value) != 'integer'
+    AND CAST(NEW.node_property_value AS INTEGER) != NEW.node_property_value;
+
+    SELECT RAISE(ABORT, 'Property value does not match expected type (float)')
+    WHERE (
+        SELECT node_property_definition_type FROM NodePropertyDefinition
+        WHERE id = NEW.node_property_definition_id_fk
+    ) = 'float'
+    AND typeof(NEW.node_property_value) NOT IN ('integer', 'real')
+    AND NOT (CAST(NEW.node_property_value AS REAL) IS NOT NULL
+             AND CAST(NEW.node_property_value AS REAL) != 0.0
+             OR NEW.node_property_value = '0'
+             OR NEW.node_property_value = '0.0');
+
+    SELECT RAISE(ABORT, 'Property value does not match expected type (boolean)')
+    WHERE (
+        SELECT node_property_definition_type FROM NodePropertyDefinition
+        WHERE id = NEW.node_property_definition_id_fk
+    ) = 'boolean'
+    AND NEW.node_property_value NOT IN ('0', '1', 'true', 'false');
+
+    SELECT RAISE(ABORT, 'Property value does not match expected type (date - expected YYYY-MM-DD)')
+    WHERE (
+        SELECT node_property_definition_type FROM NodePropertyDefinition
+        WHERE id = NEW.node_property_definition_id_fk
+    ) = 'date'
+    AND NEW.node_property_value NOT GLOB '[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]';
+
+    SELECT RAISE(ABORT, 'Property value does not match expected type (datetime - expected YYYY-MM-DD HH:MM:SS)')
+    WHERE (
+        SELECT node_property_definition_type FROM NodePropertyDefinition
+        WHERE id = NEW.node_property_definition_id_fk
+    ) = 'datetime'
+    AND NEW.node_property_value NOT GLOB '[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9]';
+END;
+
 CREATE TABLE EdgePropertyValue (
     id TEXT PRIMARY KEY,
     edge_id_fk TEXT NOT NULL,
@@ -208,7 +301,6 @@ BEGIN
     );
 END;
 
--- Trigger to ensure Property Definition matches Edge Type (UPDATE)
 CREATE TRIGGER validate_edge_property_type_update
 BEFORE UPDATE ON EdgePropertyValue
 BEGIN
@@ -222,9 +314,127 @@ BEGIN
     );
 END;
 
+CREATE TRIGGER validate_edge_property_value_type_insert
+BEFORE INSERT ON EdgePropertyValue
+WHEN NEW.edge_property_value IS NOT NULL
+BEGIN
+    SELECT RAISE(ABORT, 'Property value does not match expected type (integer)')
+    WHERE (
+        SELECT edge_property_definition_type FROM EdgePropertyDefinition
+        WHERE id = NEW.edge_property_definition_id_fk
+    ) = 'integer'
+    AND typeof(NEW.edge_property_value) != 'integer'
+    AND CAST(NEW.edge_property_value AS INTEGER) != NEW.edge_property_value;
+
+    SELECT RAISE(ABORT, 'Property value does not match expected type (float)')
+    WHERE (
+        SELECT edge_property_definition_type FROM EdgePropertyDefinition
+        WHERE id = NEW.edge_property_definition_id_fk
+    ) = 'float'
+    AND typeof(NEW.edge_property_value) NOT IN ('integer', 'real')
+    AND NOT (CAST(NEW.edge_property_value AS REAL) IS NOT NULL
+             AND CAST(NEW.edge_property_value AS REAL) != 0.0
+             OR NEW.edge_property_value = '0'
+             OR NEW.edge_property_value = '0.0');
+
+    SELECT RAISE(ABORT, 'Property value does not match expected type (boolean)')
+    WHERE (
+        SELECT edge_property_definition_type FROM EdgePropertyDefinition
+        WHERE id = NEW.edge_property_definition_id_fk
+    ) = 'boolean'
+    AND NEW.edge_property_value NOT IN ('0', '1', 'true', 'false');
+
+    SELECT RAISE(ABORT, 'Property value does not match expected type (date - expected YYYY-MM-DD)')
+    WHERE (
+        SELECT edge_property_definition_type FROM EdgePropertyDefinition
+        WHERE id = NEW.edge_property_definition_id_fk
+    ) = 'date'
+    AND NEW.edge_property_value NOT GLOB '[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]';
+
+    SELECT RAISE(ABORT, 'Property value does not match expected type (datetime - expected YYYY-MM-DD HH:MM:SS)')
+    WHERE (
+        SELECT edge_property_definition_type FROM EdgePropertyDefinition
+        WHERE id = NEW.edge_property_definition_id_fk
+    ) = 'datetime'
+    AND NEW.edge_property_value NOT GLOB '[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9]';
+END;
+
+CREATE TRIGGER validate_edge_property_value_type_update
+BEFORE UPDATE ON EdgePropertyValue
+WHEN NEW.edge_property_value IS NOT NULL
+BEGIN
+    SELECT RAISE(ABORT, 'Property value does not match expected type (integer)')
+    WHERE (
+        SELECT edge_property_definition_type FROM EdgePropertyDefinition
+        WHERE id = NEW.edge_property_definition_id_fk
+    ) = 'integer'
+    AND typeof(NEW.edge_property_value) != 'integer'
+    AND CAST(NEW.edge_property_value AS INTEGER) != NEW.edge_property_value;
+
+    SELECT RAISE(ABORT, 'Property value does not match expected type (float)')
+    WHERE (
+        SELECT edge_property_definition_type FROM EdgePropertyDefinition
+        WHERE id = NEW.edge_property_definition_id_fk
+    ) = 'float'
+    AND typeof(NEW.edge_property_value) NOT IN ('integer', 'real')
+    AND NOT (CAST(NEW.edge_property_value AS REAL) IS NOT NULL
+             AND CAST(NEW.edge_property_value AS REAL) != 0.0
+             OR NEW.edge_property_value = '0'
+             OR NEW.edge_property_value = '0.0');
+
+    SELECT RAISE(ABORT, 'Property value does not match expected type (boolean)')
+    WHERE (
+        SELECT edge_property_definition_type FROM EdgePropertyDefinition
+        WHERE id = NEW.edge_property_definition_id_fk
+    ) = 'boolean'
+    AND NEW.edge_property_value NOT IN ('0', '1', 'true', 'false');
+
+    SELECT RAISE(ABORT, 'Property value does not match expected type (date - expected YYYY-MM-DD)')
+    WHERE (
+        SELECT edge_property_definition_type FROM EdgePropertyDefinition
+        WHERE id = NEW.edge_property_definition_id_fk
+    ) = 'date'
+    AND NEW.edge_property_value NOT GLOB '[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]';
+
+    SELECT RAISE(ABORT, 'Property value does not match expected type (datetime - expected YYYY-MM-DD HH:MM:SS)')
+    WHERE (
+        SELECT edge_property_definition_type FROM EdgePropertyDefinition
+        WHERE id = NEW.edge_property_definition_id_fk
+    ) = 'datetime'
+    AND NEW.edge_property_value NOT GLOB '[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9]';
+END;
+
 -- ============================================================================
 -- AUTO-UPDATE TRIGGERS: Set modified_on on UPDATE
 -- ============================================================================
+
+CREATE TRIGGER update_nodetype_modified_on
+AFTER UPDATE ON NodeType
+WHEN NEW.modified_on = OLD.modified_on
+BEGIN
+    UPDATE NodeType SET modified_on = datetime('now') WHERE id = NEW.id;
+END;
+
+CREATE TRIGGER update_edgetype_modified_on
+AFTER UPDATE ON EdgeType
+WHEN NEW.modified_on = OLD.modified_on
+BEGIN
+    UPDATE EdgeType SET modified_on = datetime('now') WHERE id = NEW.id;
+END;
+
+CREATE TRIGGER update_node_property_definition_modified_on
+AFTER UPDATE ON NodePropertyDefinition
+WHEN NEW.modified_on = OLD.modified_on
+BEGIN
+    UPDATE NodePropertyDefinition SET modified_on = datetime('now') WHERE id = NEW.id;
+END;
+
+CREATE TRIGGER update_edge_property_definition_modified_on
+AFTER UPDATE ON EdgePropertyDefinition
+WHEN NEW.modified_on = OLD.modified_on
+BEGIN
+    UPDATE EdgePropertyDefinition SET modified_on = datetime('now') WHERE id = NEW.id;
+END;
 
 CREATE TRIGGER update_node_modified_on
 AFTER UPDATE ON Node
@@ -253,156 +463,3 @@ WHEN NEW.modified_on = OLD.modified_on
 BEGIN
     UPDATE EdgePropertyValue SET modified_on = datetime('now') WHERE id = NEW.id;
 END;
-
--- ============================================================================
--- VIEWS: Convenient queries
--- ============================================================================
-
--- -- View: Complete node information with properties
--- CREATE VIEW v_NodesWithProperties AS
--- SELECT 
---     Node.id AS node_id,
---     Node.node_name,
---     NodeType.node_type_name,
---     NodeType.node_type_identifier,
---     NodePropertyDefinition.node_property_definition_name,
---     NodePropertyDefinition.node_property_definition_type,
---     NodePropertyValue.node_property_value,
---     Node.modified_by,
---     Node.modified_on
--- FROM Node
--- JOIN NodeType ON Node.node_type_id_fk = NodeType.id
--- LEFT JOIN NodePropertyValue ON NodePropertyValue.node_id_fk = Node.id
--- LEFT JOIN NodePropertyDefinition ON NodePropertyValue.node_property_definition_id_fk = NodePropertyDefinition.id;
-
--- -- View: Complete edge information with properties
--- CREATE VIEW v_EdgesWithProperties AS
--- SELECT 
---     Edge.id AS edge_id,
---     EdgeType.edge_type_name,
---     EdgeType.edge_type_identifier,
---     SourceNode.node_name AS source_node_name,
---     TargetNode.node_name AS target_node_name,
---     EdgePropertyDefinition.edge_property_definition_name,
---     EdgePropertyDefinition.edge_property_definition_type,
---     EdgePropertyValue.edge_property_value,
---     Edge.modified_by,
---     Edge.modified_on
--- FROM Edge
--- JOIN EdgeType ON Edge.edge_type_id_fk = EdgeType.id
--- JOIN Node AS SourceNode ON Edge.source_node_id_fk = SourceNode.id
--- JOIN Node AS TargetNode ON Edge.target_node_id_fk = TargetNode.id
--- LEFT JOIN EdgePropertyValue ON EdgePropertyValue.edge_id_fk = Edge.id
--- LEFT JOIN EdgePropertyDefinition ON EdgePropertyValue.edge_property_definition_id_fk = EdgePropertyDefinition.id;
-
--- -- View: Node type schemas (what properties each type has)
--- CREATE VIEW v_NodeTypeSchema AS
--- SELECT 
---     NodeType.node_type_identifier,
---     NodeType.node_type_name,
---     NodePropertyDefinition.node_property_definition_name,
---     NodePropertyDefinition.node_property_definition_type,
---     NodePropertyDefinition.node_property_definition_is_required,
---     NodePropertyDefinition.node_property_definition_default_value,
---     NodePropertyDefinition.node_property_definition_description
--- FROM NodeType
--- LEFT JOIN NodePropertyDefinition ON NodePropertyDefinition.node_type_id_fk = NodeType.id
--- ORDER BY NodeType.node_type_name, NodePropertyDefinition.node_property_definition_name;
-
--- -- View: Edge type schemas
--- CREATE VIEW v_EdgeTypeSchema AS
--- SELECT 
---     EdgeType.edge_type_identifier,
---     EdgeType.edge_type_name,
---     EdgePropertyDefinition.edge_property_definition_name,
---     EdgePropertyDefinition.edge_property_definition_type,
---     EdgePropertyDefinition.edge_property_definition_is_required,
---     EdgePropertyDefinition.edge_property_definition_default_value,
---     EdgePropertyDefinition.edge_property_definition_description
--- FROM EdgeType
--- LEFT JOIN EdgePropertyDefinition ON EdgePropertyDefinition.edge_type_id_fk = EdgeType.id
--- ORDER BY EdgeType.edge_type_name, EdgePropertyDefinition.edge_property_definition_name;
-
--- -- View: NetworkX export format (nodes)
--- CREATE VIEW v_NetworkX_Nodes AS
--- SELECT 
---     Node.node_name,
---     NodeType.node_type_identifier,
---     GROUP_CONCAT(NodePropertyDefinition.node_property_definition_name || '=' || COALESCE(NodePropertyValue.node_property_value, ''), '|') AS properties
--- FROM Node
--- JOIN NodeType ON Node.node_type_id_fk = NodeType.id
--- LEFT JOIN NodePropertyValue ON NodePropertyValue.node_id_fk = Node.id
--- LEFT JOIN NodePropertyDefinition ON NodePropertyValue.node_property_definition_id_fk = NodePropertyDefinition.id
--- GROUP BY Node.id, Node.node_name, NodeType.node_type_identifier;
-
--- -- View: NetworkX export format (edges)
--- CREATE VIEW v_NetworkX_Edges AS
--- SELECT 
---     SourceNode.node_name AS source,
---     TargetNode.node_name AS target,
---     EdgeType.edge_type_identifier AS edge_type,
---     GROUP_CONCAT(
---         EdgePropertyDefinition.edge_property_definition_name || '=' || COALESCE(EdgePropertyValue.edge_property_value, ''),
---         '|'
---     ) AS properties
--- FROM Edge
--- JOIN EdgeType ON Edge.edge_type_id_fk = EdgeType.id
--- JOIN Node AS SourceNode ON Edge.source_node_id_fk = SourceNode.id
--- JOIN Node AS TargetNode ON Edge.target_node_id_fk = TargetNode.id
--- LEFT JOIN EdgePropertyValue ON EdgePropertyValue.edge_id_fk = Edge.id
--- LEFT JOIN EdgePropertyDefinition ON EdgePropertyValue.edge_property_definition_id_fk = EdgePropertyDefinition.id
--- GROUP BY Edge.id, SourceNode.node_name, TargetNode.node_name, EdgeType.edge_type_identifier;
-
--- ============================================================================
--- SEED DATA: SACM Types
--- ============================================================================
-
--- SACM Node Types
-INSERT INTO NodeType (id, node_type_identifier, node_type_name, node_type_description, created_by) VALUES
-    ('sacm:Claim', 'Claim', 'An assertion about system properties that must be supported', 'system'),
-    ('sacm:Evidence', 'Evidence', 'Supporting information, artifacts, or test results', 'system'),
-    ('sacm:Strategy', 'Strategy', 'Reasoning approach connecting claims (ArgumentReasoning)', 'system'),
-    ('sacm:Context', 'Context', 'Contextual information about the argument', 'system'),
-    ('sacm:Assumption', 'Assumption', 'Assumed claim that does not require support', 'system'),
-    ('sacm:Justification', 'Justification', 'Explanation of reasoning or decision', 'system');
-
--- SACM Edge Types
-INSERT INTO EdgeType (edge_type_identifier, edge_type_name, edge_type_description, created_by) VALUES
-    ('sacm:SupportedBy', 'SupportedBy', 'Target supports source (AssertedInference)', 'system'),
-    ('sacm:InContextOf', 'InContextOf', 'Provides contextual information (AssertedContext)', 'system'),
-    ('sacm:Assumes', 'Assumes', 'Source assumes target', 'system');
-
--- Properties for Claim
-INSERT INTO NodePropertyDefinition (node_type_id_fk, node_property_name, node_property_type, node_property_description, created_by)
-SELECT id, 'content', 'text', 'Main statement of the claim', 'system'
-FROM NodeType WHERE node_type_identifier = 'sacm:Claim';
-
-INSERT INTO NodePropertyDefinition (node_type_id_fk, node_property_name, node_property_type, node_property_description, created_by)
-SELECT id, 'assumed', 'boolean', 'Whether this claim is assumed without support', 'system'
-FROM NodeType WHERE node_type_identifier = 'sacm:Claim';
-
-INSERT INTO NodePropertyDefinition (node_type_id_fk, node_property_name, node_property_type, node_property_description, created_by)
-SELECT id, 'toBeSupported', 'boolean', 'Whether this claim requires supporting evidence', 'system'
-FROM NodeType WHERE node_type_identifier = 'sacm:Claim';
-
--- Properties for Evidence
-INSERT INTO NodePropertyDefinition (node_type_id_fk, node_property_name, node_property_type, node_property_description, created_by)
-SELECT id, 'content', 'text', 'Description of the evidence', 'system'
-FROM NodeType WHERE node_type_identifier = 'sacm:Evidence';
-
-INSERT INTO NodePropertyDefinition (node_type_id_fk, node_property_name, node_property_type, node_property_description, created_by)
-SELECT id, 'reference', 'string', 'Reference to evidence artifact (document ID, URL, etc.)', 'system'
-FROM NodeType WHERE node_type_identifier = 'sacm:Evidence';
-
--- Properties for Strategy
-INSERT INTO NodePropertyDefinition (node_type_id_fk, node_property_name, node_property_type, node_property_description, created_by)
-SELECT id, 'content', 'text', 'Description of the reasoning strategy', 'system'
-FROM NodeType WHERE node_type_identifier = 'sacm:Strategy';
-
--- Properties for Context
-INSERT INTO NodePropertyDefinition (node_type_id_fk, node_property_name, node_property_type, node_property_description, created_by)
-SELECT id, 'content', 'text', 'Contextual information', 'system'
-FROM NodeType WHERE node_type_identifier = 'sacm:Context';
-
--- Properties for Artefact
-
