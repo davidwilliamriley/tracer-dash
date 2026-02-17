@@ -81,6 +81,174 @@ CREATE TABLE EdgePropertyDefinition (
 CREATE INDEX idx_edge_property_definition_edge_type ON EdgePropertyDefinition(edge_type_id_fk);
 CREATE INDEX idx_edge_property_definition_name ON EdgePropertyDefinition(edge_property_definition_name);
 
+-- Trigger to validate Node Property Definition default value types (INSERT)
+CREATE TRIGGER validate_node_property_definition_default_value_insert
+BEFORE INSERT ON NodePropertyDefinition
+WHEN NEW.node_property_definition_default_value IS NOT NULL
+BEGIN
+    SELECT RAISE(ABORT, 'Default value does not match expected type (integer)')
+    WHERE NEW.node_property_definition_type = 'integer'
+    AND NOT (
+        (TRIM(NEW.node_property_definition_default_value) NOT GLOB '*[^0-9]*' AND LENGTH(TRIM(NEW.node_property_definition_default_value)) > 0)
+        OR
+        (substr(TRIM(NEW.node_property_definition_default_value), 1, 1) = '-'
+         AND LENGTH(TRIM(NEW.node_property_definition_default_value)) > 1
+         AND substr(TRIM(NEW.node_property_definition_default_value), 2) NOT GLOB '*[^0-9]*')
+    );
+
+    SELECT RAISE(ABORT, 'Default value does not match expected type (float)')
+    WHERE NEW.node_property_definition_type = 'float'
+    AND typeof(NEW.node_property_definition_default_value) NOT IN ('integer', 'real')
+    AND NOT (CAST(NEW.node_property_definition_default_value AS REAL) IS NOT NULL
+             AND CAST(NEW.node_property_definition_default_value AS REAL) != 0.0
+             OR NEW.node_property_definition_default_value = '0'
+             OR NEW.node_property_definition_default_value = '0.0');
+
+    SELECT RAISE(ABORT, 'Default value does not match expected type (boolean)')
+    WHERE NEW.node_property_definition_type = 'boolean'
+    AND NEW.node_property_definition_default_value NOT IN ('0', '1', 'true', 'false');
+
+    SELECT RAISE(ABORT, 'Default value does not match expected type (date - expected YYYY-MM-DD)')
+    WHERE NEW.node_property_definition_type = 'date'
+    AND (
+        date(NEW.node_property_definition_default_value) IS NULL
+        OR strftime('%Y-%m-%d', NEW.node_property_definition_default_value) != NEW.node_property_definition_default_value
+    );
+
+    SELECT RAISE(ABORT, 'Default value does not match expected type (datetime - expected YYYY-MM-DD HH:MM:SS)')
+    WHERE NEW.node_property_definition_type = 'datetime'
+    AND (
+        datetime(NEW.node_property_definition_default_value) IS NULL
+        OR strftime('%Y-%m-%d %H:%M:%S', NEW.node_property_definition_default_value) != NEW.node_property_definition_default_value
+    );
+END;
+
+-- Trigger to validate Node Property Definition default value types (UPDATE)
+CREATE TRIGGER validate_node_property_definition_default_value_update
+BEFORE UPDATE ON NodePropertyDefinition
+WHEN NEW.node_property_definition_default_value IS NOT NULL
+BEGIN
+    SELECT RAISE(ABORT, 'Default value does not match expected type (integer)')
+    WHERE NEW.node_property_definition_type = 'integer'
+    AND NOT (
+        (TRIM(NEW.node_property_definition_default_value) NOT GLOB '*[^0-9]*' AND LENGTH(TRIM(NEW.node_property_definition_default_value)) > 0)
+        OR
+        (substr(TRIM(NEW.node_property_definition_default_value), 1, 1) = '-'
+         AND LENGTH(TRIM(NEW.node_property_definition_default_value)) > 1
+         AND substr(TRIM(NEW.node_property_definition_default_value), 2) NOT GLOB '*[^0-9]*')
+    );
+
+    SELECT RAISE(ABORT, 'Default value does not match expected type (float)')
+    WHERE NEW.node_property_definition_type = 'float'
+    AND typeof(NEW.node_property_definition_default_value) NOT IN ('integer', 'real')
+    AND NOT (CAST(NEW.node_property_definition_default_value AS REAL) IS NOT NULL
+             AND CAST(NEW.node_property_definition_default_value AS REAL) != 0.0
+             OR NEW.node_property_definition_default_value = '0'
+             OR NEW.node_property_definition_default_value = '0.0');
+
+    SELECT RAISE(ABORT, 'Default value does not match expected type (boolean)')
+    WHERE NEW.node_property_definition_type = 'boolean'
+    AND NEW.node_property_definition_default_value NOT IN ('0', '1', 'true', 'false');
+
+    SELECT RAISE(ABORT, 'Default value does not match expected type (date - expected YYYY-MM-DD)')
+    WHERE NEW.node_property_definition_type = 'date'
+    AND (
+        date(NEW.node_property_definition_default_value) IS NULL
+        OR strftime('%Y-%m-%d', NEW.node_property_definition_default_value) != NEW.node_property_definition_default_value
+    );
+
+    SELECT RAISE(ABORT, 'Default value does not match expected type (datetime - expected YYYY-MM-DD HH:MM:SS)')
+    WHERE NEW.node_property_definition_type = 'datetime'
+    AND (
+        datetime(NEW.node_property_definition_default_value) IS NULL
+        OR strftime('%Y-%m-%d %H:%M:%S', NEW.node_property_definition_default_value) != NEW.node_property_definition_default_value
+    );
+END;
+
+-- Trigger to validate Edge Property Definition default value types (INSERT)
+CREATE TRIGGER validate_edge_property_definition_default_value_insert
+BEFORE INSERT ON EdgePropertyDefinition
+WHEN NEW.edge_property_definition_default_value IS NOT NULL
+BEGIN
+    SELECT RAISE(ABORT, 'Default value does not match expected type (integer)')
+    WHERE NEW.edge_property_definition_type = 'integer'
+    AND NOT (
+        (TRIM(NEW.edge_property_definition_default_value) NOT GLOB '*[^0-9]*' AND LENGTH(TRIM(NEW.edge_property_definition_default_value)) > 0)
+        OR
+        (substr(TRIM(NEW.edge_property_definition_default_value), 1, 1) = '-'
+         AND LENGTH(TRIM(NEW.edge_property_definition_default_value)) > 1
+         AND substr(TRIM(NEW.edge_property_definition_default_value), 2) NOT GLOB '*[^0-9]*')
+    );
+
+    SELECT RAISE(ABORT, 'Default value does not match expected type (float)')
+    WHERE NEW.edge_property_definition_type = 'float'
+    AND typeof(NEW.edge_property_definition_default_value) NOT IN ('integer', 'real')
+    AND NOT (CAST(NEW.edge_property_definition_default_value AS REAL) IS NOT NULL
+             AND CAST(NEW.edge_property_definition_default_value AS REAL) != 0.0
+             OR NEW.edge_property_definition_default_value = '0'
+             OR NEW.edge_property_definition_default_value = '0.0');
+
+    SELECT RAISE(ABORT, 'Default value does not match expected type (boolean)')
+    WHERE NEW.edge_property_definition_type = 'boolean'
+    AND NEW.edge_property_definition_default_value NOT IN ('0', '1', 'true', 'false');
+
+    SELECT RAISE(ABORT, 'Default value does not match expected type (date - expected YYYY-MM-DD)')
+    WHERE NEW.edge_property_definition_type = 'date'
+    AND (
+        date(NEW.edge_property_definition_default_value) IS NULL
+        OR strftime('%Y-%m-%d', NEW.edge_property_definition_default_value) != NEW.edge_property_definition_default_value
+    );
+
+    SELECT RAISE(ABORT, 'Default value does not match expected type (datetime - expected YYYY-MM-DD HH:MM:SS)')
+    WHERE NEW.edge_property_definition_type = 'datetime'
+    AND (
+        datetime(NEW.edge_property_definition_default_value) IS NULL
+        OR strftime('%Y-%m-%d %H:%M:%S', NEW.edge_property_definition_default_value) != NEW.edge_property_definition_default_value
+    );
+END;
+
+-- Trigger to validate Edge Property Definition default value types (UPDATE)
+CREATE TRIGGER validate_edge_property_definition_default_value_update
+BEFORE UPDATE ON EdgePropertyDefinition
+WHEN NEW.edge_property_definition_default_value IS NOT NULL
+BEGIN
+    SELECT RAISE(ABORT, 'Default value does not match expected type (integer)')
+    WHERE NEW.edge_property_definition_type = 'integer'
+    AND NOT (
+        (TRIM(NEW.edge_property_definition_default_value) NOT GLOB '*[^0-9]*' AND LENGTH(TRIM(NEW.edge_property_definition_default_value)) > 0)
+        OR
+        (substr(TRIM(NEW.edge_property_definition_default_value), 1, 1) = '-'
+         AND LENGTH(TRIM(NEW.edge_property_definition_default_value)) > 1
+         AND substr(TRIM(NEW.edge_property_definition_default_value), 2) NOT GLOB '*[^0-9]*')
+    );
+
+    SELECT RAISE(ABORT, 'Default value does not match expected type (float)')
+    WHERE NEW.edge_property_definition_type = 'float'
+    AND typeof(NEW.edge_property_definition_default_value) NOT IN ('integer', 'real')
+    AND NOT (CAST(NEW.edge_property_definition_default_value AS REAL) IS NOT NULL
+             AND CAST(NEW.edge_property_definition_default_value AS REAL) != 0.0
+             OR NEW.edge_property_definition_default_value = '0'
+             OR NEW.edge_property_definition_default_value = '0.0');
+
+    SELECT RAISE(ABORT, 'Default value does not match expected type (boolean)')
+    WHERE NEW.edge_property_definition_type = 'boolean'
+    AND NEW.edge_property_definition_default_value NOT IN ('0', '1', 'true', 'false');
+
+    SELECT RAISE(ABORT, 'Default value does not match expected type (date - expected YYYY-MM-DD)')
+    WHERE NEW.edge_property_definition_type = 'date'
+    AND (
+        date(NEW.edge_property_definition_default_value) IS NULL
+        OR strftime('%Y-%m-%d', NEW.edge_property_definition_default_value) != NEW.edge_property_definition_default_value
+    );
+
+    SELECT RAISE(ABORT, 'Default value does not match expected type (datetime - expected YYYY-MM-DD HH:MM:SS)')
+    WHERE NEW.edge_property_definition_type = 'datetime'
+    AND (
+        datetime(NEW.edge_property_definition_default_value) IS NULL
+        OR strftime('%Y-%m-%d %H:%M:%S', NEW.edge_property_definition_default_value) != NEW.edge_property_definition_default_value
+    );
+END;
+
 -- ============================================================================
 -- INSTANCE LAYER: Define Nodes and Edges
 -- ============================================================================
@@ -186,8 +354,13 @@ BEGIN
         SELECT node_property_definition_type FROM NodePropertyDefinition
         WHERE id = NEW.node_property_definition_id_fk
     ) = 'integer'
-    AND typeof(NEW.node_property_value) != 'integer'
-    AND CAST(NEW.node_property_value AS INTEGER) != NEW.node_property_value;
+    AND NOT (
+        (TRIM(NEW.node_property_value) NOT GLOB '*[^0-9]*' AND LENGTH(TRIM(NEW.node_property_value)) > 0)
+        OR
+        (substr(TRIM(NEW.node_property_value), 1, 1) = '-'
+         AND LENGTH(TRIM(NEW.node_property_value)) > 1
+         AND substr(TRIM(NEW.node_property_value), 2) NOT GLOB '*[^0-9]*')
+    );
 
     SELECT RAISE(ABORT, 'Property value does not match expected type (float)')
     WHERE (
@@ -212,14 +385,20 @@ BEGIN
         SELECT node_property_definition_type FROM NodePropertyDefinition
         WHERE id = NEW.node_property_definition_id_fk
     ) = 'date'
-    AND NEW.node_property_value NOT GLOB '[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]';
+    AND (
+        date(NEW.node_property_value) IS NULL
+        OR strftime('%Y-%m-%d', NEW.node_property_value) != NEW.node_property_value
+    );
 
     SELECT RAISE(ABORT, 'Property value does not match expected type (datetime - expected YYYY-MM-DD HH:MM:SS)')
     WHERE (
         SELECT node_property_definition_type FROM NodePropertyDefinition
         WHERE id = NEW.node_property_definition_id_fk
     ) = 'datetime'
-    AND NEW.node_property_value NOT GLOB '[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9]';
+    AND (
+        datetime(NEW.node_property_value) IS NULL
+        OR strftime('%Y-%m-%d %H:%M:%S', NEW.node_property_value) != NEW.node_property_value
+    );
 END;
 
 -- Trigger to validate Node Property Value Types against Definitions (UPDATE)
@@ -232,8 +411,13 @@ BEGIN
         SELECT node_property_definition_type FROM NodePropertyDefinition
         WHERE id = NEW.node_property_definition_id_fk
     ) = 'integer'
-    AND typeof(NEW.node_property_value) != 'integer'
-    AND CAST(NEW.node_property_value AS INTEGER) != NEW.node_property_value;
+    AND NOT (
+        (TRIM(NEW.node_property_value) NOT GLOB '*[^0-9]*' AND LENGTH(TRIM(NEW.node_property_value)) > 0)
+        OR
+        (substr(TRIM(NEW.node_property_value), 1, 1) = '-'
+         AND LENGTH(TRIM(NEW.node_property_value)) > 1
+         AND substr(TRIM(NEW.node_property_value), 2) NOT GLOB '*[^0-9]*')
+    );
 
     SELECT RAISE(ABORT, 'Property value does not match expected type (float)')
     WHERE (
@@ -258,14 +442,20 @@ BEGIN
         SELECT node_property_definition_type FROM NodePropertyDefinition
         WHERE id = NEW.node_property_definition_id_fk
     ) = 'date'
-    AND NEW.node_property_value NOT GLOB '[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]';
+    AND (
+        date(NEW.node_property_value) IS NULL
+        OR strftime('%Y-%m-%d', NEW.node_property_value) != NEW.node_property_value
+    );
 
     SELECT RAISE(ABORT, 'Property value does not match expected type (datetime - expected YYYY-MM-DD HH:MM:SS)')
     WHERE (
         SELECT node_property_definition_type FROM NodePropertyDefinition
         WHERE id = NEW.node_property_definition_id_fk
     ) = 'datetime'
-    AND NEW.node_property_value NOT GLOB '[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9]';
+    AND (
+        datetime(NEW.node_property_value) IS NULL
+        OR strftime('%Y-%m-%d %H:%M:%S', NEW.node_property_value) != NEW.node_property_value
+    );
 END;
 
 CREATE TABLE EdgePropertyValue (
@@ -323,8 +513,13 @@ BEGIN
         SELECT edge_property_definition_type FROM EdgePropertyDefinition
         WHERE id = NEW.edge_property_definition_id_fk
     ) = 'integer'
-    AND typeof(NEW.edge_property_value) != 'integer'
-    AND CAST(NEW.edge_property_value AS INTEGER) != NEW.edge_property_value;
+    AND NOT (
+        (TRIM(NEW.edge_property_value) NOT GLOB '*[^0-9]*' AND LENGTH(TRIM(NEW.edge_property_value)) > 0)
+        OR
+        (substr(TRIM(NEW.edge_property_value), 1, 1) = '-'
+         AND LENGTH(TRIM(NEW.edge_property_value)) > 1
+         AND substr(TRIM(NEW.edge_property_value), 2) NOT GLOB '*[^0-9]*')
+    );
 
     SELECT RAISE(ABORT, 'Property value does not match expected type (float)')
     WHERE (
@@ -349,14 +544,20 @@ BEGIN
         SELECT edge_property_definition_type FROM EdgePropertyDefinition
         WHERE id = NEW.edge_property_definition_id_fk
     ) = 'date'
-    AND NEW.edge_property_value NOT GLOB '[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]';
+    AND (
+        date(NEW.edge_property_value) IS NULL
+        OR strftime('%Y-%m-%d', NEW.edge_property_value) != NEW.edge_property_value
+    );
 
     SELECT RAISE(ABORT, 'Property value does not match expected type (datetime - expected YYYY-MM-DD HH:MM:SS)')
     WHERE (
         SELECT edge_property_definition_type FROM EdgePropertyDefinition
         WHERE id = NEW.edge_property_definition_id_fk
     ) = 'datetime'
-    AND NEW.edge_property_value NOT GLOB '[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9]';
+    AND (
+        datetime(NEW.edge_property_value) IS NULL
+        OR strftime('%Y-%m-%d %H:%M:%S', NEW.edge_property_value) != NEW.edge_property_value
+    );
 END;
 
 CREATE TRIGGER validate_edge_property_value_type_update
@@ -368,8 +569,13 @@ BEGIN
         SELECT edge_property_definition_type FROM EdgePropertyDefinition
         WHERE id = NEW.edge_property_definition_id_fk
     ) = 'integer'
-    AND typeof(NEW.edge_property_value) != 'integer'
-    AND CAST(NEW.edge_property_value AS INTEGER) != NEW.edge_property_value;
+    AND NOT (
+        (TRIM(NEW.edge_property_value) NOT GLOB '*[^0-9]*' AND LENGTH(TRIM(NEW.edge_property_value)) > 0)
+        OR
+        (substr(TRIM(NEW.edge_property_value), 1, 1) = '-'
+         AND LENGTH(TRIM(NEW.edge_property_value)) > 1
+         AND substr(TRIM(NEW.edge_property_value), 2) NOT GLOB '*[^0-9]*')
+    );
 
     SELECT RAISE(ABORT, 'Property value does not match expected type (float)')
     WHERE (
@@ -394,14 +600,20 @@ BEGIN
         SELECT edge_property_definition_type FROM EdgePropertyDefinition
         WHERE id = NEW.edge_property_definition_id_fk
     ) = 'date'
-    AND NEW.edge_property_value NOT GLOB '[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9]';
+    AND (
+        date(NEW.edge_property_value) IS NULL
+        OR strftime('%Y-%m-%d', NEW.edge_property_value) != NEW.edge_property_value
+    );
 
     SELECT RAISE(ABORT, 'Property value does not match expected type (datetime - expected YYYY-MM-DD HH:MM:SS)')
     WHERE (
         SELECT edge_property_definition_type FROM EdgePropertyDefinition
         WHERE id = NEW.edge_property_definition_id_fk
     ) = 'datetime'
-    AND NEW.edge_property_value NOT GLOB '[0-9][0-9][0-9][0-9]-[0-1][0-9]-[0-3][0-9] [0-2][0-9]:[0-5][0-9]:[0-5][0-9]';
+    AND (
+        datetime(NEW.edge_property_value) IS NULL
+        OR strftime('%Y-%m-%d %H:%M:%S', NEW.edge_property_value) != NEW.edge_property_value
+    );
 END;
 
 -- ============================================================================
