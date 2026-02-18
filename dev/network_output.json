@@ -1,0 +1,242 @@
+﻿{
+  "summary": {
+    "node_count": 15,
+    "edge_count": 14,
+    "edge_type_count": 2
+  },
+  "nodes": [
+    {
+      "id": "9e8f8d17-6df8-4ff3-b9be-a0fca252ad69",
+      "identifier": "G0",
+      "name": "The System is...",
+      "description": null,
+      "node_type_id": "d9e50ae3-aac1-4992-8030-8d2ce049ccf5"
+    },
+    {
+      "id": "f33d23e1-68d4-43f3-b8fd-d69d7134ed70",
+      "identifier": "G1",
+      "name": "System Definition",
+      "description": null,
+      "node_type_id": "d9e50ae3-aac1-4992-8030-8d2ce049ccf5"
+    },
+    {
+      "id": "72d6031f-5eb1-4143-b7dd-fccead58b0f2",
+      "identifier": "G2",
+      "name": "Quality Management",
+      "description": null,
+      "node_type_id": "d9e50ae3-aac1-4992-8030-8d2ce049ccf5"
+    },
+    {
+      "id": "bb5143ce-4f7c-4df2-89b5-1bb5a8bece10",
+      "identifier": "G3",
+      "name": "Safety Management",
+      "description": null,
+      "node_type_id": "d9e50ae3-aac1-4992-8030-8d2ce049ccf5"
+    },
+    {
+      "id": "34e55443-64d2-4998-8dce-bf4d1526648e",
+      "identifier": "G4",
+      "name": "System Integration",
+      "description": null,
+      "node_type_id": "d9e50ae3-aac1-4992-8030-8d2ce049ccf5"
+    },
+    {
+      "id": "2835dede-fe77-45db-9a53-e4e5b32b0cee",
+      "identifier": "G5",
+      "name": "Technical Assurance",
+      "description": null,
+      "node_type_id": "d9e50ae3-aac1-4992-8030-8d2ce049ccf5"
+    },
+    {
+      "id": "2fb302eb-5025-4e47-b6d3-249d7a45557a",
+      "identifier": "G6",
+      "name": "Issues Management",
+      "description": null,
+      "node_type_id": "d9e50ae3-aac1-4992-8030-8d2ce049ccf5"
+    },
+    {
+      "id": "d1e2f3a4-b5c6-7890-abcd-ef1234567890",
+      "identifier": "G7",
+      "name": "Operational Readiness",
+      "description": null,
+      "node_type_id": "d9e50ae3-aac1-4992-8030-8d2ce049ccf5"
+    },
+    {
+      "id": "e1f2a3b4-c5d6-7890-abcd-ef1234567890",
+      "identifier": "G1.1",
+      "name": "Goal G1.1",
+      "description": null,
+      "node_type_id": "d9e50ae3-aac1-4992-8030-8d2ce049ccf5"
+    },
+    {
+      "id": "f1e2d3c4-b5a6-7890-abcd-ef1234567890",
+      "identifier": "G2.1",
+      "name": "Goal G2.1",
+      "description": null,
+      "node_type_id": "d9e50ae3-aac1-4992-8030-8d2ce049ccf5"
+    },
+    {
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "identifier": "G3.1",
+      "name": "Goal G3.1",
+      "description": null,
+      "node_type_id": "d9e50ae3-aac1-4992-8030-8d2ce049ccf5"
+    },
+    {
+      "id": "b1c2d3e4-f5a6-7890-abcd-ef1234567890",
+      "identifier": "G4.1",
+      "name": "Goal G4.1",
+      "description": null,
+      "node_type_id": "d9e50ae3-aac1-4992-8030-8d2ce049ccf5"
+    },
+    {
+      "id": "c1d2e3f4-a5b6-7890-abcd-ef1234567890",
+      "identifier": "G5.1",
+      "name": "Goal G5.1",
+      "description": null,
+      "node_type_id": "d9e50ae3-aac1-4992-8030-8d2ce049ccf5"
+    },
+    {
+      "id": "f4a1b2c3-d4e5-4f67-89ab-cdef01234567",
+      "identifier": "G6.1",
+      "name": "Goal G6.1",
+      "description": null,
+      "node_type_id": "d9e50ae3-aac1-4992-8030-8d2ce049ccf5"
+    },
+    {
+      "id": "a9b8c7d6-e5f4-4123-89ab-0fedcba98765",
+      "identifier": "G7.1",
+      "name": "Goal G7.1",
+      "description": null,
+      "node_type_id": "d9e50ae3-aac1-4992-8030-8d2ce049ccf5"
+    }
+  ],
+  "edges": [
+    {
+      "id": "1a2b3c4d-5e6f-7890-abcd-ef1234567890",
+      "source_node_id": "9e8f8d17-6df8-4ff3-b9be-a0fca252ad69",
+      "target_node_id": "f33d23e1-68d4-43f3-b8fd-d69d7134ed70",
+      "edge_type_id": "eb66eeca-ef0e-468d-aa08-cfbfa6014c4f",
+      "edge_type_name": "SupportedBy",
+      "description": null
+    },
+    {
+      "id": "2b3c4d5e-6f78-90ab-cdef-1234567890ab",
+      "source_node_id": "9e8f8d17-6df8-4ff3-b9be-a0fca252ad69",
+      "target_node_id": "72d6031f-5eb1-4143-b7dd-fccead58b0f2",
+      "edge_type_id": "eb66eeca-ef0e-468d-aa08-cfbfa6014c4f",
+      "edge_type_name": "SupportedBy",
+      "description": null
+    },
+    {
+      "id": "3c4d5e6f-7890-abcd-ef12-34567890abcd",
+      "source_node_id": "9e8f8d17-6df8-4ff3-b9be-a0fca252ad69",
+      "target_node_id": "bb5143ce-4f7c-4df2-89b5-1bb5a8bece10",
+      "edge_type_id": "eb66eeca-ef0e-468d-aa08-cfbfa6014c4f",
+      "edge_type_name": "SupportedBy",
+      "description": null
+    },
+    {
+      "id": "4d5e6f78-90ab-cdef-1234-567890abcdef",
+      "source_node_id": "9e8f8d17-6df8-4ff3-b9be-a0fca252ad69",
+      "target_node_id": "34e55443-64d2-4998-8dce-bf4d1526648e",
+      "edge_type_id": "eb66eeca-ef0e-468d-aa08-cfbfa6014c4f",
+      "edge_type_name": "SupportedBy",
+      "description": null
+    },
+    {
+      "id": "5e6f7890-abcd-ef12-3456-7890abcdef12",
+      "source_node_id": "9e8f8d17-6df8-4ff3-b9be-a0fca252ad69",
+      "target_node_id": "2835dede-fe77-45db-9a53-e4e5b32b0cee",
+      "edge_type_id": "eb66eeca-ef0e-468d-aa08-cfbfa6014c4f",
+      "edge_type_name": "SupportedBy",
+      "description": null
+    },
+    {
+      "id": "6f7890ab-cdef-1234-5678-90abcdef1234",
+      "source_node_id": "9e8f8d17-6df8-4ff3-b9be-a0fca252ad69",
+      "target_node_id": "2fb302eb-5025-4e47-b6d3-249d7a45557a",
+      "edge_type_id": "eb66eeca-ef0e-468d-aa08-cfbfa6014c4f",
+      "edge_type_name": "SupportedBy",
+      "description": null
+    },
+    {
+      "id": "7a8b9c0d-1e2f-3456-7890-abcd12345678",
+      "source_node_id": "9e8f8d17-6df8-4ff3-b9be-a0fca252ad69",
+      "target_node_id": "d1e2f3a4-b5c6-7890-abcd-ef1234567890",
+      "edge_type_id": "eb66eeca-ef0e-468d-aa08-cfbfa6014c4f",
+      "edge_type_name": "SupportedBy",
+      "description": null
+    },
+    {
+      "id": "c1d2e3f4-a5b6-7890-abcd-ef1234567890",
+      "source_node_id": "f33d23e1-68d4-43f3-b8fd-d69d7134ed70",
+      "target_node_id": "e1f2a3b4-c5d6-7890-abcd-ef1234567890",
+      "edge_type_id": "eb66eeca-ef0e-468d-aa08-cfbfa6014c4f",
+      "edge_type_name": "SupportedBy",
+      "description": null
+    },
+    {
+      "id": "d1c2b3a4-e5f6-7890-abcd-ef1234567890",
+      "source_node_id": "72d6031f-5eb1-4143-b7dd-fccead58b0f2",
+      "target_node_id": "f1e2d3c4-b5a6-7890-abcd-ef1234567890",
+      "edge_type_id": "eb66eeca-ef0e-468d-aa08-cfbfa6014c4f",
+      "edge_type_name": "SupportedBy",
+      "description": null
+    },
+    {
+      "id": "b1c2d3e4-f5a6-7890-abcd-ef1234567890",
+      "source_node_id": "bb5143ce-4f7c-4df2-89b5-1bb5a8bece10",
+      "target_node_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "edge_type_id": "eb66eeca-ef0e-468d-aa08-cfbfa6014c4f",
+      "edge_type_name": "SupportedBy",
+      "description": null
+    },
+    {
+      "id": "e1f2a3b4-c5d6-7890-abcd-ef1234567890",
+      "source_node_id": "34e55443-64d2-4998-8dce-bf4d1526648e",
+      "target_node_id": "b1c2d3e4-f5a6-7890-abcd-ef1234567890",
+      "edge_type_id": "eb66eeca-ef0e-468d-aa08-cfbfa6014c4f",
+      "edge_type_name": "SupportedBy",
+      "description": null
+    },
+    {
+      "id": "d1e2f3a4-b5c6-7890-abcd-ef1234567890",
+      "source_node_id": "2835dede-fe77-45db-9a53-e4e5b32b0cee",
+      "target_node_id": "c1d2e3f4-a5b6-7890-abcd-ef1234567890",
+      "edge_type_id": "eb66eeca-ef0e-468d-aa08-cfbfa6014c4f",
+      "edge_type_name": "SupportedBy",
+      "description": null
+    },
+    {
+      "id": "6bb28f31-8f9e-4d1d-8c51-2e5fa6b1d903",
+      "source_node_id": "2fb302eb-5025-4e47-b6d3-249d7a45557a",
+      "target_node_id": "f4a1b2c3-d4e5-4f67-89ab-cdef01234567",
+      "edge_type_id": "eb66eeca-ef0e-468d-aa08-cfbfa6014c4f",
+      "edge_type_name": "SupportedBy",
+      "description": null
+    },
+    {
+      "id": "2ac96f9a-6f4f-4f45-9d84-1b4e7e2c6a55",
+      "source_node_id": "d1e2f3a4-b5c6-7890-abcd-ef1234567890",
+      "target_node_id": "a9b8c7d6-e5f4-4123-89ab-0fedcba98765",
+      "edge_type_id": "eb66eeca-ef0e-468d-aa08-cfbfa6014c4f",
+      "edge_type_name": "SupportedBy",
+      "description": null
+    }
+  ],
+  "edge_types": [
+    {
+      "id": "eb66eeca-ef0e-468d-aa08-cfbfa6014c4f",
+      "identifier": "",
+      "name": "SupportedBy",
+      "description": "Target supports the Source (AssertedInference)"
+    },
+    {
+      "id": "dd7e00a2-2d25-46d8-bbc2-e427e9d87380",
+      "identifier": "",
+      "name": "InContextOf",
+      "description": "Provides the Context (AssertedContext)"
+    }
+  ]
+}

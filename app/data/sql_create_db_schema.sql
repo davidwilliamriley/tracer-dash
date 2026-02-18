@@ -25,7 +25,7 @@ CREATE INDEX idx_nodetype_name ON NodeType(node_type_name);
 
 CREATE TABLE EdgeType (
     id TEXT PRIMARY KEY,
-    edge_type_identifier TEXT NOT NULL UNIQUE,
+    edge_type_identifier TEXT,
     edge_type_name TEXT NOT NULL,
     edge_type_description TEXT,
     created_by TEXT,

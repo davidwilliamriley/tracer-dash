@@ -15,11 +15,10 @@
 # Imports
 import os
 import logging
-import uuid
 from pathlib import Path
 from sqlalchemy import create_engine, Column, Integer, String, Text, ForeignKey, DateTime, Boolean, Index
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, relationship, object_session
+from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.sql import func
 from typing import Optional, List, Dict, Any, Union
 from datetime import datetime
@@ -38,308 +37,36 @@ Base = declarative_base()
 
 # ==================== SQLAlchemy Models ====================
 
-class NodeType(Base):
-    __tablename__ = 'NodeType'
-
-    id = Column(String, primary_key=True)
-    identifier = Column('node_type_identifier', String, nullable=False, unique=True)
-    name = Column('node_type_name', String, nullable=False)
-    description = Column('node_type_description', Text, nullable=True)
-
-    nodes = relationship("Node", back_populates="node_type")
-
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            'ID': self.id,
-            'Identifier': self.identifier,
-            'Name': self.name,
-            'Description': self.description
-        }
-
-
-class EdgeType(Base):
-    __tablename__ = 'EdgeType'
-
-    id = Column(String, primary_key=True)
-    identifier = Column('edge_type_identifier', String, nullable=True)
-    name = Column('edge_type_name', String, nullable=False, default='Default')
-    description = Column('edge_type_description', Text, nullable=True, default=None)
-
-    edges = relationship("Edge", back_populates="edge_type")
-
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            'ID': self.id,
-            'Identifier': self.identifier or '',
-            'Name': self.name,
-            'Description': self.description
-        }
-
-
-class NodePropertyDefinition(Base):
-    __tablename__ = 'NodePropertyDefinition'
-
-    id = Column(String, primary_key=True)
-    node_type_id_fk = Column(String, ForeignKey('NodeType.id'), nullable=False)
-    name = Column('node_property_definition_name', String, nullable=False)
-    value_type = Column('node_property_definition_type', String, nullable=False)
-
-
-class NodePropertyValue(Base):
-    __tablename__ = 'NodePropertyValue'
-
-    id = Column(String, primary_key=True)
-    node_id_fk = Column(String, ForeignKey('Node.id'), nullable=False)
-    node_property_definition_id_fk = Column(String, ForeignKey('NodePropertyDefinition.id'), nullable=False)
-    value = Column('node_property_value', Text, nullable=True)
-
-
-class EdgePropertyDefinition(Base):
-    __tablename__ = 'EdgePropertyDefinition'
-
-    id = Column(String, primary_key=True)
-    edge_type_id_fk = Column(String, ForeignKey('EdgeType.id'), nullable=False)
-    name = Column('edge_property_definition_name', String, nullable=False)
-    value_type = Column('edge_property_definition_type', String, nullable=False)
-
-
-class EdgePropertyValue(Base):
-    __tablename__ = 'EdgePropertyValue'
-
-    id = Column(String, primary_key=True)
-    edge_id_fk = Column(String, ForeignKey('Edge.id'), nullable=False)
-    edge_property_definition_id_fk = Column(String, ForeignKey('EdgePropertyDefinition.id'), nullable=False)
-    value = Column('edge_property_value', Text, nullable=True)
-
-
-class Node(Base):
-    __tablename__ = 'Node'
-
-    id = Column(String, primary_key=True)
-    node_type_id_fk = Column(String, ForeignKey('NodeType.id'), nullable=False)
-    identifier = Column('node_identifier', String, nullable=False)
-    name = Column('node_name', String, nullable=False, default='Default')
-
-    __table_args__ = (
-        Index('idx_node_type', 'node_type_id_fk'),
-        Index('idx_node_name', 'node_name'),
-    )
-
-    node_type = relationship("NodeType", back_populates="nodes")
-    source_edges = relationship("Edge", foreign_keys="[Edge.source_node_id_fk]", back_populates="source_node")  # type: ignore
-    target_edges = relationship("Edge", foreign_keys="[Edge.target_node_id_fk]", back_populates="target_node")  # type: ignore
-
-    @property
-    def description(self) -> Optional[str]:
-        if hasattr(self, '_description_cache'):
-            return self._description_cache
-
-        session = object_session(self)
-        if not session:
-            return None
-
-        property_definition = session.query(NodePropertyDefinition).filter(
-            NodePropertyDefinition.node_type_id_fk == self.node_type_id_fk,
-            NodePropertyDefinition.name.in_(['content', 'description'])
-        ).order_by(NodePropertyDefinition.name.asc()).first()
-
-        if not property_definition:
-            return None
-
-        property_value = session.query(NodePropertyValue).filter(
-            NodePropertyValue.node_id_fk == self.id,
-            NodePropertyValue.node_property_definition_id_fk == property_definition.id
-        ).first()
-
-        resolved_description = str(property_value.value) if property_value and property_value.value is not None else None
-        self._description_cache = resolved_description
-        return resolved_description
-
-    @description.setter
-    def description(self, value: Optional[str]) -> None:
-        self._description_cache = value
-
-        session = object_session(self)
-        if not session:
-            return
-
-        property_definition = session.query(NodePropertyDefinition).filter(
-            NodePropertyDefinition.node_type_id_fk == self.node_type_id_fk,
-            NodePropertyDefinition.name.in_(['content', 'description'])
-        ).order_by(NodePropertyDefinition.name.asc()).first()
-
-        if not property_definition:
-            property_definition = NodePropertyDefinition(
-                id=str(uuid.uuid4()),
-                node_type_id_fk=self.node_type_id_fk,
-                name='description',
-                value_type='text'
-            )
-            session.add(property_definition)
-            session.flush()
-
-        existing_value = session.query(NodePropertyValue).filter(
-            NodePropertyValue.node_id_fk == self.id,
-            NodePropertyValue.node_property_definition_id_fk == property_definition.id
-        ).first()
-
-        normalized_value = value if value is not None else None
-        if normalized_value == '':
-            normalized_value = None
-
-        if existing_value:
-            existing_value.value = normalized_value  # type: ignore[assignment]
-        elif normalized_value is not None:
-            session.add(NodePropertyValue(
-                id=str(uuid.uuid4()),
-                node_id_fk=self.id,
-                node_property_definition_id_fk=property_definition.id,
-                value=normalized_value
-            ))
-
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            'ID': self.id,
-            'Identifier': self.identifier or '',
-            'Name': self.name,
-            'Description': self.description
-        }
-
-
 class Edge(Base):
-    __tablename__ = 'Edge'
-
+    __tablename__ = 'edges'
+    
     id = Column(String, primary_key=True)
-    edge_type_id_fk = Column(String, ForeignKey('EdgeType.id'), nullable=False)
-    source_node_id_fk = Column(String, ForeignKey('Node.id'), nullable=False)
-    target_node_id_fk = Column(String, ForeignKey('Node.id'), nullable=False)
+    identifier = Column(String, nullable=True)
+    source_node_id = Column(String, ForeignKey('nodes.id'), nullable=False)
+    edge_type_id = Column(String, ForeignKey('edge_types.id'), nullable=False)
+    weight = Column(Integer, default=1)
+    target_node_id = Column(String, ForeignKey('nodes.id'), nullable=False)
+    description = Column(String, nullable=True, default=None)
 
+    # Indexes for Performance
     __table_args__ = (
-        Index('idx_edge_source', 'source_node_id_fk'),
-        Index('idx_edge_target', 'target_node_id_fk'),
-        Index('idx_edge_type', 'edge_type_id_fk'),
+        Index('idx_edge_source', 'source_node_id'),
+        Index('idx_edge_target', 'target_node_id'),
+        Index('idx_edge_type', 'edge_type_id'),
     )
-
-    source_node = relationship("Node", foreign_keys=[source_node_id_fk], back_populates="source_edges")  # type: ignore
-    target_node = relationship("Node", foreign_keys=[target_node_id_fk], back_populates="target_edges")  # type: ignore
+    
+    source_node = relationship("Node", foreign_keys=[source_node_id], back_populates="source_edges")  # type: ignore
+    target_node = relationship("Node", foreign_keys=[target_node_id], back_populates="target_edges")  # type: ignore
     edge_type = relationship("EdgeType", back_populates="edges")
-
-    @property
-    def source_node_id(self) -> str:
-        return str(self.source_node_id_fk)
-
-    @source_node_id.setter
-    def source_node_id(self, value: str) -> None:
-        self.source_node_id_fk = value
-
-    @property
-    def target_node_id(self) -> str:
-        return str(self.target_node_id_fk)
-
-    @target_node_id.setter
-    def target_node_id(self, value: str) -> None:
-        self.target_node_id_fk = value
-
-    @property
-    def edge_type_id(self) -> str:
-        return str(self.edge_type_id_fk)
-
-    @edge_type_id.setter
-    def edge_type_id(self, value: str) -> None:
-        self.edge_type_id_fk = value
-
-    @property
-    def identifier(self) -> str:
-        return ''
-
-    @identifier.setter
-    def identifier(self, value: Optional[str]) -> None:
-        return
-
-    @property
-    def description(self) -> Optional[str]:
-        if hasattr(self, '_description_cache'):
-            return self._description_cache
-
-        session = object_session(self)
-        if not session:
-            return None
-
-        property_definition = session.query(EdgePropertyDefinition).filter(
-            EdgePropertyDefinition.edge_type_id_fk == self.edge_type_id_fk,
-            EdgePropertyDefinition.name.in_(['content', 'description'])
-        ).order_by(EdgePropertyDefinition.name.asc()).first()
-
-        if not property_definition:
-            return None
-
-        property_value = session.query(EdgePropertyValue).filter(
-            EdgePropertyValue.edge_id_fk == self.id,
-            EdgePropertyValue.edge_property_definition_id_fk == property_definition.id
-        ).first()
-
-        resolved_description = str(property_value.value) if property_value and property_value.value is not None else None
-        self._description_cache = resolved_description
-        return resolved_description
-
-    @description.setter
-    def description(self, value: Optional[str]) -> None:
-        self._description_cache = value
-
-        session = object_session(self)
-        if not session:
-            return
-
-        property_definition = session.query(EdgePropertyDefinition).filter(
-            EdgePropertyDefinition.edge_type_id_fk == self.edge_type_id_fk,
-            EdgePropertyDefinition.name.in_(['content', 'description'])
-        ).order_by(EdgePropertyDefinition.name.asc()).first()
-
-        if not property_definition:
-            property_definition = EdgePropertyDefinition(
-                id=str(uuid.uuid4()),
-                edge_type_id_fk=self.edge_type_id_fk,
-                name='description',
-                value_type='text'
-            )
-            session.add(property_definition)
-            session.flush()
-
-        existing_value = session.query(EdgePropertyValue).filter(
-            EdgePropertyValue.edge_id_fk == self.id,
-            EdgePropertyValue.edge_property_definition_id_fk == property_definition.id
-        ).first()
-
-        normalized_value = value if value is not None else None
-        if normalized_value == '':
-            normalized_value = None
-
-        if existing_value:
-            existing_value.value = normalized_value  # type: ignore[assignment]
-        elif normalized_value is not None:
-            session.add(EdgePropertyValue(
-                id=str(uuid.uuid4()),
-                edge_id_fk=self.id,
-                edge_property_definition_id_fk=property_definition.id,
-                value=normalized_value
-            ))
-
-    @property
-    def weight(self) -> int:
-        return 1
-
-    @weight.setter
-    def weight(self, value: int) -> None:
-        return
-
+    
     @property
     def source(self) -> str:
         return self.source_node.name if self.source_node else 'Unknown'
-
+    
     @property
     def target(self) -> str:
         return self.target_node.name if self.target_node else 'Unknown'
-
+    
     def to_dict(self) -> Dict[str, Any]:
         return {
             'ID': self.id,
@@ -348,6 +75,48 @@ class Edge(Base):
             'Edge Type': self.edge_type.name if self.edge_type else 'Unknown',
             'Weight': self.weight,
             'Target': self.target,
+            'Description': self.description
+        }
+
+class Node(Base):
+    __tablename__ = 'nodes'
+    
+    id = Column(String, primary_key=True)
+    identifier = Column(String, nullable=True)
+    name = Column(String, default='Default')
+    description = Column(String, nullable=True, default=None)
+
+    __table_args__ = (
+        Index('idx_node_identifier', 'identifier'),
+        Index('idx_node_name', 'name'),
+    )
+    
+    source_edges = relationship("Edge", foreign_keys="[Edge.source_node_id]", back_populates="source_node") # type: ignore
+    target_edges = relationship("Edge", foreign_keys="[Edge.target_node_id]", back_populates="target_node") # type: ignore
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            'ID': self.id,
+            'Identifier': self.identifier or '',
+            'Name': self.name,
+            'Description': self.description
+        }
+
+class EdgeType(Base):
+    __tablename__ = 'edge_types'
+    
+    id = Column(String, primary_key=True)
+    identifier = Column(String, nullable=True)
+    name = Column(String, nullable=False, default='Default')
+    description = Column(String, nullable=True, default=None)
+    
+    edges = relationship("Edge", back_populates="edge_type")
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            'ID': self.id,
+            'Identifier': self.identifier or '',
+            'Name': self.name,
             'Description': self.description
         }
 
@@ -375,143 +144,6 @@ class Model:
 
     def _get_session(self):
         return self.SessionLocal()
-
-    def close(self):
-        """Dispose SQLAlchemy engine resources."""
-        try:
-            if hasattr(self, 'engine') and self.engine:
-                self.engine.dispose()
-        except Exception as e:
-            logger.warning(f"Error disposing database engine: {str(e)}")
-
-    def _resolve_node_type_id(self, session, node_identifier: Optional[str]) -> Optional[str]:
-        inferred_type = None
-        if node_identifier:
-            prefix = ''
-            for char in node_identifier:
-                if char.isalpha():
-                    prefix += char
-                else:
-                    break
-            inferred_type = prefix or None
-
-        if inferred_type:
-            node_type = session.query(NodeType).filter(NodeType.identifier == inferred_type).first()
-            if node_type:
-                return node_type.id
-
-        default_goal_type = session.query(NodeType).filter(NodeType.identifier == 'G').first()
-        if default_goal_type:
-            return default_goal_type.id
-
-        first_node_type = session.query(NodeType).order_by(NodeType.name.asc()).first()
-        return first_node_type.id if first_node_type else None
-
-    def _hydrate_node_description_cache(self, session, nodes: List[Node]) -> None:
-        if not nodes:
-            return
-
-        node_type_ids = list({str(node.node_type_id_fk) for node in nodes})
-        node_ids = list({str(node.id) for node in nodes})
-
-        if not node_type_ids or not node_ids:
-            for node in nodes:
-                node._description_cache = None
-            return
-
-        property_definitions = session.query(NodePropertyDefinition).filter(
-            NodePropertyDefinition.node_type_id_fk.in_(node_type_ids),
-            NodePropertyDefinition.name.in_(['content', 'description'])
-        ).order_by(
-            NodePropertyDefinition.node_type_id_fk.asc(),
-            NodePropertyDefinition.name.asc()
-        ).all()
-
-        preferred_definition_by_type: Dict[str, str] = {}
-        for definition in property_definitions:
-            type_id = str(definition.node_type_id_fk)
-            if type_id not in preferred_definition_by_type:
-                preferred_definition_by_type[type_id] = str(definition.id)
-
-        if not preferred_definition_by_type:
-            for node in nodes:
-                node._description_cache = None
-            return
-
-        definition_ids = list(preferred_definition_by_type.values())
-
-        property_values = session.query(NodePropertyValue).filter(
-            NodePropertyValue.node_id_fk.in_(node_ids),
-            NodePropertyValue.node_property_definition_id_fk.in_(definition_ids)
-        ).all()
-
-        value_by_node_and_definition: Dict[tuple[str, str], Optional[str]] = {}
-        for property_value in property_values:
-            key = (str(property_value.node_id_fk), str(property_value.node_property_definition_id_fk))
-            resolved_value = str(property_value.value) if property_value.value is not None else None
-            value_by_node_and_definition[key] = resolved_value
-
-        for node in nodes:
-            type_id = str(node.node_type_id_fk)
-            definition_id = preferred_definition_by_type.get(type_id)
-            if not definition_id:
-                node._description_cache = None
-                continue
-
-            node._description_cache = value_by_node_and_definition.get((str(node.id), definition_id))
-
-    def _hydrate_edge_description_cache(self, session, edges: List[Edge]) -> None:
-        if not edges:
-            return
-
-        edge_type_ids = list({str(edge.edge_type_id_fk) for edge in edges})
-        edge_ids = list({str(edge.id) for edge in edges})
-
-        if not edge_type_ids or not edge_ids:
-            for edge in edges:
-                edge._description_cache = None
-            return
-
-        property_definitions = session.query(EdgePropertyDefinition).filter(
-            EdgePropertyDefinition.edge_type_id_fk.in_(edge_type_ids),
-            EdgePropertyDefinition.name.in_(['content', 'description'])
-        ).order_by(
-            EdgePropertyDefinition.edge_type_id_fk.asc(),
-            EdgePropertyDefinition.name.asc()
-        ).all()
-
-        preferred_definition_by_type: Dict[str, str] = {}
-        for definition in property_definitions:
-            type_id = str(definition.edge_type_id_fk)
-            if type_id not in preferred_definition_by_type:
-                preferred_definition_by_type[type_id] = str(definition.id)
-
-        if not preferred_definition_by_type:
-            for edge in edges:
-                edge._description_cache = None
-            return
-
-        definition_ids = list(preferred_definition_by_type.values())
-
-        property_values = session.query(EdgePropertyValue).filter(
-            EdgePropertyValue.edge_id_fk.in_(edge_ids),
-            EdgePropertyValue.edge_property_definition_id_fk.in_(definition_ids)
-        ).all()
-
-        value_by_edge_and_definition: Dict[tuple[str, str], Optional[str]] = {}
-        for property_value in property_values:
-            key = (str(property_value.edge_id_fk), str(property_value.edge_property_definition_id_fk))
-            resolved_value = str(property_value.value) if property_value.value is not None else None
-            value_by_edge_and_definition[key] = resolved_value
-
-        for edge in edges:
-            type_id = str(edge.edge_type_id_fk)
-            definition_id = preferred_definition_by_type.get(type_id)
-            if not definition_id:
-                edge._description_cache = None
-                continue
-
-            edge._description_cache = value_by_edge_and_definition.get((str(edge.id), definition_id))
 
     # ==================== CREATE EDGE, NODE & EDGE_TYPE OPERATIONS ====================
 
@@ -559,10 +191,10 @@ class Model:
                     'data': None
                 }
 
-            duplicate = session.query(Edge).filter_by(
-                source_node_id_fk=source_node_id,
-                target_node_id_fk=target_node_id,
-                edge_type_id_fk=edge_type_id
+            duplicate = session.query(Edge).filter(
+                Edge.source_node_id == source_node_id,
+                Edge.target_node_id == target_node_id,
+                Edge.edge_type_id == edge_type_id
             ).first()
             
             if duplicate:
@@ -575,17 +207,13 @@ class Model:
             new_edge = Edge(
                 id=edge_id,
                 identifier=identifier,
-                source_node_id_fk=source_node_id,
-                edge_type_id_fk=edge_type_id,
-                target_node_id_fk=target_node_id
+                source_node_id=source_node_id,
+                edge_type_id=edge_type_id,
+                target_node_id=target_node_id,
+                description=description
             )
 
             session.add(new_edge)
-            session.flush()
-
-            if description is not None:
-                new_edge.description = description
-
             session.commit()
 
             return {
@@ -624,26 +252,8 @@ class Model:
                     'data': None
                 }
 
-            node_type_id = self._resolve_node_type_id(session, identifier)
-            if not node_type_id:
-                return {
-                    'success': False,
-                    'message': "Unable to find any NodeType. Seed NodeType data before creating Nodes.",
-                    'data': None
-                }
-
-            new_node = Node(
-                id=node_id,
-                node_type_id_fk=node_type_id,
-                identifier=identifier,
-                name=name
-            )
+            new_node = Node(id=node_id, identifier=identifier, name=name, description=description)
             session.add(new_node)
-            session.flush()
-
-            if description is not None:
-                new_node.description = description
-
             session.commit()
             
             return {
@@ -706,9 +316,7 @@ class Model:
         """Get all Edges from the Database"""
         session = self._get_session()
         try:
-            edges = session.query(Edge).all()
-            self._hydrate_edge_description_cache(session, edges)
-            return edges
+            return session.query(Edge).all()
         finally:
             session.close()
 
@@ -716,29 +324,21 @@ class Model:
         """Get a specific Edge by ID"""
         session = self._get_session()
         try:
-            edge = session.query(Edge).filter(Edge.id == edge_id).first()
-            if edge:
-                self._hydrate_edge_description_cache(session, [edge])
-            return edge
+            return session.query(Edge).filter(Edge.id == edge_id).first()
         finally:
             session.close()
     
     def get_nodes(self):
         session = self._get_session()
         try:
-            nodes = session.query(Node).all()
-            self._hydrate_node_description_cache(session, nodes)
-            return nodes
+            return session.query(Node).all()
         finally:
             session.close()
 
     def get_node_by_id(self, node_id: str):
         session = self._get_session()
         try:
-            node = session.query(Node).filter(Node.id == node_id).first()
-            if node:
-                self._hydrate_node_description_cache(session, [node])
-            return node
+            return session.query(Node).filter(Node.id == node_id).first()
         finally:
             session.close()
 
@@ -763,7 +363,6 @@ class Model:
         session = self._get_session()
         try:
             nodes = session.query(Node).all()
-            self._hydrate_node_description_cache(session, nodes)
             result = []
             for node in nodes:
                 result.append({
@@ -781,7 +380,6 @@ class Model:
         session = self._get_session()
         try:
             edges = session.query(Edge).all()
-            self._hydrate_edge_description_cache(session, edges)
             result = []
             for edge in edges:
                 result.append({
@@ -874,7 +472,7 @@ class Model:
                         'data': None
                     }
 
-                edge.source_node_id_fk = source_node_id  # type: ignore
+                edge.source_node_id = source_node_id  # type: ignore
             
             if edge_type_id is not None:
                 edge_type = session.query(EdgeType).filter(EdgeType.id == edge_type_id).first()
@@ -884,7 +482,7 @@ class Model:
                         'message': f"Unable to find Edge Type '{edge_type_id}'.",
                         'data': None
                     }
-                edge.edge_type_id_fk = edge_type_id  # type: ignore
+                edge.edge_type_id = edge_type_id  # type: ignore
 
             if target_node_id is not None:
                 target_node = session.query(Node).filter(Node.id == target_node_id).first()
@@ -894,7 +492,7 @@ class Model:
                         'message': f"Unable to find Target Node '{target_node_id}'.",
                         'data': None
                     }
-                edge.target_node_id_fk = target_node_id  # type: ignore
+                edge.target_node_id = target_node_id  # type: ignore
             
             if identifier is not None:
                 edge.identifier = identifier  # type: ignore
@@ -1062,9 +660,9 @@ class Model:
                     'data': None
                 }
             
-            source_references = session.query(Edge).filter_by(source_node_id_fk=node_id).count()
-            target_references = session.query(Edge).filter_by(target_node_id_fk=node_id).count()
-            referencing_edges = source_references + target_references
+            referencing_edges = session.query(Edge).filter(
+                (Edge.source_node_id == node_id) | (Edge.target_node_id == node_id)
+            ).count()
             
             if referencing_edges > 0:
                 return {
@@ -1103,7 +701,7 @@ class Model:
                     'data': None
                 }
             
-            referencing_edges = session.query(Edge).filter_by(edge_type_id_fk=edge_type_id).count()
+            referencing_edges = session.query(Edge).filter(Edge.edge_type_id == edge_type_id).count()
             
             if referencing_edges > 0:
                 return {
@@ -1170,11 +768,11 @@ class Model:
                     
                     if valid_update:
                         if 'source_node_id' in update:
-                            edge.source_node_id_fk = update['source_node_id']
+                            edge.source_node_id = update['source_node_id']
                         if 'target_node_id' in update:
-                            edge.target_node_id_fk = update['target_node_id']
+                            edge.target_node_id = update['target_node_id']
                         if 'edge_type_id' in update:
-                            edge.edge_type_id_fk = update['edge_type_id']
+                            edge.edge_type_id = update['edge_type_id']
                         if 'description' in update:
                             edge.description = update['description']
                         updated_count += 1
@@ -1345,12 +943,8 @@ class Model:
     # ==================== UTILITY METHODS ====================
 
     def get_node_types(self):
-        """Return Node Types from the database."""
-        session = self.SessionLocal()
-        try:
-            return session.query(NodeType).all()
-        finally:
-            session.close()
+        """Placeholder method for compatibility - returns empty list since NodeType table doesn't exist"""
+        return []
 
     def validate_database_integrity(self) -> Dict[str, Any]:
         """Validate all foreign key relationships in the database"""
@@ -1361,16 +955,16 @@ class Model:
             
             edges = session.query(Edge).all()
             for edge in edges:
-                source_exists = session.query(Node).filter(Node.id == edge.source_node_id_fk).first()
-                target_exists = session.query(Node).filter(Node.id == edge.target_node_id_fk).first()
-                edge_type_exists = session.query(EdgeType).filter(EdgeType.id == edge.edge_type_id_fk).first()
+                source_exists = session.query(Node).filter(Node.id == edge.source_node_id).first()
+                target_exists = session.query(Node).filter(Node.id == edge.target_node_id).first()
+                edge_type_exists = session.query(EdgeType).filter(EdgeType.id == edge.edge_type_id).first()
                 
                 if not source_exists:
-                    issues.append(f"Edge '{edge.id}' references non-existent source node '{edge.source_node_id_fk}'")
+                    issues.append(f"Edge '{edge.id}' references non-existent source node '{edge.source_node_id}'")
                 if not target_exists:
-                    issues.append(f"Edge '{edge.id}' references non-existent target node '{edge.target_node_id_fk}'")
+                    issues.append(f"Edge '{edge.id}' references non-existent target node '{edge.target_node_id}'")
                 if not edge_type_exists:
-                    issues.append(f"Edge '{edge.id}' references non-existent edge type '{edge.edge_type_id_fk}'")
+                    issues.append(f"Edge '{edge.id}' references non-existent edge type '{edge.edge_type_id}'")
             
             if len(issues) == 0:
                 return {
