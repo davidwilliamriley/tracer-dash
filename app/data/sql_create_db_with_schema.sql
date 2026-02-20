@@ -13,7 +13,7 @@ PRAGMA foreign_keys = ON;
 
 CREATE TABLE NodeType (
     id TEXT PRIMARY KEY,
-    node_type_identifier TEXT NOT NULL UNIQUE,
+    node_type_identifier TEXT UNIQUE,
     node_type_name TEXT NOT NULL,
     node_type_description TEXT,
     created_by TEXT,
@@ -22,12 +22,12 @@ CREATE TABLE NodeType (
     modified_on TEXT DEFAULT (datetime('now'))
 );
 
-CREATE INDEX idx_nodetype_identifier ON NodeType(node_type_identifier);
+-- idx_nodetype_identifier omitted: covered by the UNIQUE constraint on node_type_identifier
 CREATE INDEX idx_nodetype_name ON NodeType(node_type_name);
 
 CREATE TABLE EdgeType (
     id TEXT PRIMARY KEY,
-    edge_type_identifier TEXT,
+    edge_type_identifier TEXT UNIQUE,
     edge_type_name TEXT NOT NULL,
     edge_type_description TEXT,
     created_by TEXT,
@@ -36,7 +36,7 @@ CREATE TABLE EdgeType (
     modified_on TEXT DEFAULT (datetime('now'))
 );
 
-CREATE INDEX idx_edgetype_identifier ON EdgeType(edge_type_identifier);
+-- idx_edgetype_identifier omitted: covered by the UNIQUE constraint on edge_type_identifier
 CREATE INDEX idx_edgetype_name ON EdgeType(edge_type_name);
 
 -- ============================================================================
@@ -100,11 +100,19 @@ BEGIN
 
     SELECT RAISE(ABORT, 'Default value does not match expected type (float)')
     WHERE NEW.node_property_definition_type = 'float'
-    AND typeof(NEW.node_property_definition_default_value) NOT IN ('integer', 'real')
-    AND NOT (CAST(NEW.node_property_definition_default_value AS REAL) IS NOT NULL
-             AND CAST(NEW.node_property_definition_default_value AS REAL) != 0.0
-             OR NEW.node_property_definition_default_value = '0'
-             OR NEW.node_property_definition_default_value = '0.0');
+    AND NOT (
+        (
+            NEW.node_property_definition_default_value NOT GLOB '*[^0-9.]*'
+            AND NEW.node_property_definition_default_value GLOB '[0-9]*'
+            AND (LENGTH(NEW.node_property_definition_default_value) - LENGTH(REPLACE(NEW.node_property_definition_default_value, '.', ''))) <= 1
+        )
+        OR
+        (
+            NEW.node_property_definition_default_value GLOB '-[0-9]*'
+            AND SUBSTR(NEW.node_property_definition_default_value, 2) NOT GLOB '*[^0-9.]*'
+            AND (LENGTH(NEW.node_property_definition_default_value) - LENGTH(REPLACE(NEW.node_property_definition_default_value, '.', ''))) <= 1
+        )
+    );
 
     SELECT RAISE(ABORT, 'Default value does not match expected type (boolean)')
     WHERE NEW.node_property_definition_type = 'boolean'
@@ -142,11 +150,19 @@ BEGIN
 
     SELECT RAISE(ABORT, 'Default value does not match expected type (float)')
     WHERE NEW.node_property_definition_type = 'float'
-    AND typeof(NEW.node_property_definition_default_value) NOT IN ('integer', 'real')
-    AND NOT (CAST(NEW.node_property_definition_default_value AS REAL) IS NOT NULL
-             AND CAST(NEW.node_property_definition_default_value AS REAL) != 0.0
-             OR NEW.node_property_definition_default_value = '0'
-             OR NEW.node_property_definition_default_value = '0.0');
+    AND NOT (
+        (
+            NEW.node_property_definition_default_value NOT GLOB '*[^0-9.]*'
+            AND NEW.node_property_definition_default_value GLOB '[0-9]*'
+            AND (LENGTH(NEW.node_property_definition_default_value) - LENGTH(REPLACE(NEW.node_property_definition_default_value, '.', ''))) <= 1
+        )
+        OR
+        (
+            NEW.node_property_definition_default_value GLOB '-[0-9]*'
+            AND SUBSTR(NEW.node_property_definition_default_value, 2) NOT GLOB '*[^0-9.]*'
+            AND (LENGTH(NEW.node_property_definition_default_value) - LENGTH(REPLACE(NEW.node_property_definition_default_value, '.', ''))) <= 1
+        )
+    );
 
     SELECT RAISE(ABORT, 'Default value does not match expected type (boolean)')
     WHERE NEW.node_property_definition_type = 'boolean'
@@ -184,11 +200,19 @@ BEGIN
 
     SELECT RAISE(ABORT, 'Default value does not match expected type (float)')
     WHERE NEW.edge_property_definition_type = 'float'
-    AND typeof(NEW.edge_property_definition_default_value) NOT IN ('integer', 'real')
-    AND NOT (CAST(NEW.edge_property_definition_default_value AS REAL) IS NOT NULL
-             AND CAST(NEW.edge_property_definition_default_value AS REAL) != 0.0
-             OR NEW.edge_property_definition_default_value = '0'
-             OR NEW.edge_property_definition_default_value = '0.0');
+    AND NOT (
+        (
+            NEW.edge_property_definition_default_value NOT GLOB '*[^0-9.]*'
+            AND NEW.edge_property_definition_default_value GLOB '[0-9]*'
+            AND (LENGTH(NEW.edge_property_definition_default_value) - LENGTH(REPLACE(NEW.edge_property_definition_default_value, '.', ''))) <= 1
+        )
+        OR
+        (
+            NEW.edge_property_definition_default_value GLOB '-[0-9]*'
+            AND SUBSTR(NEW.edge_property_definition_default_value, 2) NOT GLOB '*[^0-9.]*'
+            AND (LENGTH(NEW.edge_property_definition_default_value) - LENGTH(REPLACE(NEW.edge_property_definition_default_value, '.', ''))) <= 1
+        )
+    );
 
     SELECT RAISE(ABORT, 'Default value does not match expected type (boolean)')
     WHERE NEW.edge_property_definition_type = 'boolean'
@@ -226,11 +250,19 @@ BEGIN
 
     SELECT RAISE(ABORT, 'Default value does not match expected type (float)')
     WHERE NEW.edge_property_definition_type = 'float'
-    AND typeof(NEW.edge_property_definition_default_value) NOT IN ('integer', 'real')
-    AND NOT (CAST(NEW.edge_property_definition_default_value AS REAL) IS NOT NULL
-             AND CAST(NEW.edge_property_definition_default_value AS REAL) != 0.0
-             OR NEW.edge_property_definition_default_value = '0'
-             OR NEW.edge_property_definition_default_value = '0.0');
+    AND NOT (
+        (
+            NEW.edge_property_definition_default_value NOT GLOB '*[^0-9.]*'
+            AND NEW.edge_property_definition_default_value GLOB '[0-9]*'
+            AND (LENGTH(NEW.edge_property_definition_default_value) - LENGTH(REPLACE(NEW.edge_property_definition_default_value, '.', ''))) <= 1
+        )
+        OR
+        (
+            NEW.edge_property_definition_default_value GLOB '-[0-9]*'
+            AND SUBSTR(NEW.edge_property_definition_default_value, 2) NOT GLOB '*[^0-9.]*'
+            AND (LENGTH(NEW.edge_property_definition_default_value) - LENGTH(REPLACE(NEW.edge_property_definition_default_value, '.', ''))) <= 1
+        )
+    );
 
     SELECT RAISE(ABORT, 'Default value does not match expected type (boolean)')
     WHERE NEW.edge_property_definition_type = 'boolean'
@@ -258,7 +290,7 @@ END;
 CREATE TABLE Node (
     id TEXT PRIMARY KEY,
     node_type_id_fk TEXT NOT NULL,
-    node_identifier TEXT NOT NULL UNIQUE,
+    node_identifier TEXT UNIQUE,
     node_name TEXT NOT NULL,
     created_by TEXT,
     created_on TEXT DEFAULT (datetime('now')),
@@ -275,6 +307,7 @@ CREATE INDEX idx_node_name ON Node(node_name);
 CREATE TABLE Edge (
     id TEXT PRIMARY KEY,
     edge_type_id_fk TEXT NOT NULL,
+    edge_identifier TEXT UNIQUE,
     source_node_id_fk TEXT NOT NULL,
     target_node_id_fk TEXT NOT NULL,
     created_by TEXT,
@@ -369,11 +402,19 @@ BEGIN
         SELECT node_property_definition_type FROM NodePropertyDefinition
         WHERE id = NEW.node_property_definition_id_fk
     ) = 'float'
-    AND typeof(NEW.node_property_value) NOT IN ('integer', 'real')
-    AND NOT (CAST(NEW.node_property_value AS REAL) IS NOT NULL
-             AND CAST(NEW.node_property_value AS REAL) != 0.0
-             OR NEW.node_property_value = '0'
-             OR NEW.node_property_value = '0.0');
+    AND NOT (
+        (
+            NEW.node_property_value NOT GLOB '*[^0-9.]*'
+            AND NEW.node_property_value GLOB '[0-9]*'
+            AND (LENGTH(NEW.node_property_value) - LENGTH(REPLACE(NEW.node_property_value, '.', ''))) <= 1
+        )
+        OR
+        (
+            NEW.node_property_value GLOB '-[0-9]*'
+            AND SUBSTR(NEW.node_property_value, 2) NOT GLOB '*[^0-9.]*'
+            AND (LENGTH(NEW.node_property_value) - LENGTH(REPLACE(NEW.node_property_value, '.', ''))) <= 1
+        )
+    );
 
     SELECT RAISE(ABORT, 'Property value does not match expected type (boolean)')
     WHERE (
@@ -426,11 +467,19 @@ BEGIN
         SELECT node_property_definition_type FROM NodePropertyDefinition
         WHERE id = NEW.node_property_definition_id_fk
     ) = 'float'
-    AND typeof(NEW.node_property_value) NOT IN ('integer', 'real')
-    AND NOT (CAST(NEW.node_property_value AS REAL) IS NOT NULL
-             AND CAST(NEW.node_property_value AS REAL) != 0.0
-             OR NEW.node_property_value = '0'
-             OR NEW.node_property_value = '0.0');
+    AND NOT (
+        (
+            NEW.node_property_value NOT GLOB '*[^0-9.]*'
+            AND NEW.node_property_value GLOB '[0-9]*'
+            AND (LENGTH(NEW.node_property_value) - LENGTH(REPLACE(NEW.node_property_value, '.', ''))) <= 1
+        )
+        OR
+        (
+            NEW.node_property_value GLOB '-[0-9]*'
+            AND SUBSTR(NEW.node_property_value, 2) NOT GLOB '*[^0-9.]*'
+            AND (LENGTH(NEW.node_property_value) - LENGTH(REPLACE(NEW.node_property_value, '.', ''))) <= 1
+        )
+    );
 
     SELECT RAISE(ABORT, 'Property value does not match expected type (boolean)')
     WHERE (
@@ -493,6 +542,7 @@ BEGIN
     );
 END;
 
+-- Trigger to ensure Property Definition matches Edge Type (UPDATE)
 CREATE TRIGGER validate_edge_property_type_update
 BEFORE UPDATE ON EdgePropertyValue
 BEGIN
@@ -528,11 +578,19 @@ BEGIN
         SELECT edge_property_definition_type FROM EdgePropertyDefinition
         WHERE id = NEW.edge_property_definition_id_fk
     ) = 'float'
-    AND typeof(NEW.edge_property_value) NOT IN ('integer', 'real')
-    AND NOT (CAST(NEW.edge_property_value AS REAL) IS NOT NULL
-             AND CAST(NEW.edge_property_value AS REAL) != 0.0
-             OR NEW.edge_property_value = '0'
-             OR NEW.edge_property_value = '0.0');
+    AND NOT (
+        (
+            NEW.edge_property_value NOT GLOB '*[^0-9.]*'
+            AND NEW.edge_property_value GLOB '[0-9]*'
+            AND (LENGTH(NEW.edge_property_value) - LENGTH(REPLACE(NEW.edge_property_value, '.', ''))) <= 1
+        )
+        OR
+        (
+            NEW.edge_property_value GLOB '-[0-9]*'
+            AND SUBSTR(NEW.edge_property_value, 2) NOT GLOB '*[^0-9.]*'
+            AND (LENGTH(NEW.edge_property_value) - LENGTH(REPLACE(NEW.edge_property_value, '.', ''))) <= 1
+        )
+    );
 
     SELECT RAISE(ABORT, 'Property value does not match expected type (boolean)')
     WHERE (
@@ -584,11 +642,19 @@ BEGIN
         SELECT edge_property_definition_type FROM EdgePropertyDefinition
         WHERE id = NEW.edge_property_definition_id_fk
     ) = 'float'
-    AND typeof(NEW.edge_property_value) NOT IN ('integer', 'real')
-    AND NOT (CAST(NEW.edge_property_value AS REAL) IS NOT NULL
-             AND CAST(NEW.edge_property_value AS REAL) != 0.0
-             OR NEW.edge_property_value = '0'
-             OR NEW.edge_property_value = '0.0');
+    AND NOT (
+        (
+            NEW.edge_property_value NOT GLOB '*[^0-9.]*'
+            AND NEW.edge_property_value GLOB '[0-9]*'
+            AND (LENGTH(NEW.edge_property_value) - LENGTH(REPLACE(NEW.edge_property_value, '.', ''))) <= 1
+        )
+        OR
+        (
+            NEW.edge_property_value GLOB '-[0-9]*'
+            AND SUBSTR(NEW.edge_property_value, 2) NOT GLOB '*[^0-9.]*'
+            AND (LENGTH(NEW.edge_property_value) - LENGTH(REPLACE(NEW.edge_property_value, '.', ''))) <= 1
+        )
+    );
 
     SELECT RAISE(ABORT, 'Property value does not match expected type (boolean)')
     WHERE (
@@ -616,6 +682,136 @@ BEGIN
         datetime(NEW.edge_property_value) IS NULL
         OR strftime('%Y-%m-%d %H:%M:%S', NEW.edge_property_value) != NEW.edge_property_value
     );
+END;
+
+-- ============================================================================
+-- REQUIRED PROPERTY PROTECTION TRIGGERS: Prevent NULL or deletion of required property values
+-- NOTE: Enforces is_required at the DB level by rejecting NULL inserts/updates and DELETE
+--       on required property values. Insertion completeness (all required properties present)
+--       remains an application responsibility, as SQLite does not support deferred triggers
+--       to check after a full insert batch.
+-- ============================================================================
+
+CREATE TRIGGER protect_required_node_property_value_null_insert
+BEFORE INSERT ON NodePropertyValue
+WHEN NEW.node_property_value IS NULL
+BEGIN
+    SELECT RAISE(ABORT, 'Cannot insert NULL for a required property value')
+    WHERE (
+        SELECT node_property_definition_is_required FROM NodePropertyDefinition
+        WHERE id = NEW.node_property_definition_id_fk
+    ) = 1;
+END;
+
+CREATE TRIGGER protect_required_node_property_value_null_update
+BEFORE UPDATE ON NodePropertyValue
+WHEN NEW.node_property_value IS NULL
+BEGIN
+    SELECT RAISE(ABORT, 'Cannot set a required property value to NULL')
+    WHERE (
+        SELECT node_property_definition_is_required FROM NodePropertyDefinition
+        WHERE id = NEW.node_property_definition_id_fk
+    ) = 1;
+END;
+
+CREATE TRIGGER protect_required_edge_property_value_null_insert
+BEFORE INSERT ON EdgePropertyValue
+WHEN NEW.edge_property_value IS NULL
+BEGIN
+    SELECT RAISE(ABORT, 'Cannot insert NULL for a required property value')
+    WHERE (
+        SELECT edge_property_definition_is_required FROM EdgePropertyDefinition
+        WHERE id = NEW.edge_property_definition_id_fk
+    ) = 1;
+END;
+
+CREATE TRIGGER protect_required_edge_property_value_null_update
+BEFORE UPDATE ON EdgePropertyValue
+WHEN NEW.edge_property_value IS NULL
+BEGIN
+    SELECT RAISE(ABORT, 'Cannot set a required property value to NULL')
+    WHERE (
+        SELECT edge_property_definition_is_required FROM EdgePropertyDefinition
+        WHERE id = NEW.edge_property_definition_id_fk
+    ) = 1;
+END;
+
+CREATE TRIGGER protect_required_node_property_value_delete
+BEFORE DELETE ON NodePropertyValue
+BEGIN
+    SELECT RAISE(ABORT, 'Cannot delete a required property value')
+    WHERE (
+        SELECT node_property_definition_is_required FROM NodePropertyDefinition
+        WHERE id = OLD.node_property_definition_id_fk
+    ) = 1;
+END;
+
+CREATE TRIGGER protect_required_edge_property_value_delete
+BEFORE DELETE ON EdgePropertyValue
+BEGIN
+    SELECT RAISE(ABORT, 'Cannot delete a required property value')
+    WHERE (
+        SELECT edge_property_definition_is_required FROM EdgePropertyDefinition
+        WHERE id = OLD.edge_property_definition_id_fk
+    ) = 1;
+END;
+
+-- ============================================================================
+-- BOOLEAN NORMALISATION TRIGGERS: Normalise boolean values to '1'/'0' on INSERT/UPDATE
+-- NOTE: Accepts '1', '0', 'true', 'false' (validated upstream) and stores as '1' or '0'
+--       to ensure consistent querying. Without this, filtering on '1' would miss 'true'.
+-- ============================================================================
+
+CREATE TRIGGER normalise_node_property_value_boolean_insert
+AFTER INSERT ON NodePropertyValue
+WHEN NEW.node_property_value IN ('true', 'false')
+  AND (
+    SELECT node_property_definition_type FROM NodePropertyDefinition
+    WHERE id = NEW.node_property_definition_id_fk
+  ) = 'boolean'
+BEGIN
+    UPDATE NodePropertyValue
+    SET node_property_value = CASE NEW.node_property_value WHEN 'true' THEN '1' ELSE '0' END
+    WHERE id = NEW.id;
+END;
+
+CREATE TRIGGER normalise_node_property_value_boolean_update
+AFTER UPDATE ON NodePropertyValue
+WHEN NEW.node_property_value IN ('true', 'false')
+  AND (
+    SELECT node_property_definition_type FROM NodePropertyDefinition
+    WHERE id = NEW.node_property_definition_id_fk
+  ) = 'boolean'
+BEGIN
+    UPDATE NodePropertyValue
+    SET node_property_value = CASE NEW.node_property_value WHEN 'true' THEN '1' ELSE '0' END
+    WHERE id = NEW.id;
+END;
+
+CREATE TRIGGER normalise_edge_property_value_boolean_insert
+AFTER INSERT ON EdgePropertyValue
+WHEN NEW.edge_property_value IN ('true', 'false')
+  AND (
+    SELECT edge_property_definition_type FROM EdgePropertyDefinition
+    WHERE id = NEW.edge_property_definition_id_fk
+  ) = 'boolean'
+BEGIN
+    UPDATE EdgePropertyValue
+    SET edge_property_value = CASE NEW.edge_property_value WHEN 'true' THEN '1' ELSE '0' END
+    WHERE id = NEW.id;
+END;
+
+CREATE TRIGGER normalise_edge_property_value_boolean_update
+AFTER UPDATE ON EdgePropertyValue
+WHEN NEW.edge_property_value IN ('true', 'false')
+  AND (
+    SELECT edge_property_definition_type FROM EdgePropertyDefinition
+    WHERE id = NEW.edge_property_definition_id_fk
+  ) = 'boolean'
+BEGIN
+    UPDATE EdgePropertyValue
+    SET edge_property_value = CASE NEW.edge_property_value WHEN 'true' THEN '1' ELSE '0' END
+    WHERE id = NEW.id;
 END;
 
 -- ============================================================================
