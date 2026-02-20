@@ -17,7 +17,7 @@ import os
 import logging
 import uuid
 from pathlib import Path
-from sqlalchemy import create_engine, Column, Integer, String, Text, ForeignKey, DateTime, Boolean, Index
+from sqlalchemy import create_engine, Column, Integer, String, Text, ForeignKey, DateTime, Boolean, Index, UniqueConstraint, CheckConstraint, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship, object_session
 from sqlalchemy.sql import func
@@ -42,9 +42,13 @@ class NodeType(Base):
     __tablename__ = 'NodeType'
 
     id = Column(String, primary_key=True)
-    identifier = Column('node_type_identifier', String, nullable=False, unique=True)
+    identifier = Column('node_type_identifier', String, nullable=True, unique=True)
     name = Column('node_type_name', String, nullable=False)
     description = Column('node_type_description', Text, nullable=True)
+    created_by = Column('created_by', String, nullable=True)
+    created_on = Column('created_on', String, server_default=text("(datetime('now'))"), nullable=True)
+    modified_by = Column('modified_by', String, nullable=True)
+    modified_on = Column('modified_on', String, server_default=text("(datetime('now'))"), nullable=True)
 
     nodes = relationship("Node", back_populates="node_type")
 
@@ -61,9 +65,13 @@ class EdgeType(Base):
     __tablename__ = 'EdgeType'
 
     id = Column(String, primary_key=True)
-    identifier = Column('edge_type_identifier', String, nullable=True)
+    identifier = Column('edge_type_identifier', String, nullable=True, unique=True)
     name = Column('edge_type_name', String, nullable=False, default='Default')
     description = Column('edge_type_description', Text, nullable=True, default=None)
+    created_by = Column('created_by', String, nullable=True)
+    created_on = Column('created_on', String, server_default=text("(datetime('now'))"), nullable=True)
+    modified_by = Column('modified_by', String, nullable=True)
+    modified_on = Column('modified_on', String, server_default=text("(datetime('now'))"), nullable=True)
 
     edges = relationship("Edge", back_populates="edge_type")
 
@@ -80,49 +88,92 @@ class NodePropertyDefinition(Base):
     __tablename__ = 'NodePropertyDefinition'
 
     id = Column(String, primary_key=True)
-    node_type_id_fk = Column(String, ForeignKey('NodeType.id'), nullable=False)
+    node_type_id_fk = Column(String, ForeignKey('NodeType.id', ondelete='CASCADE'), nullable=False)
     name = Column('node_property_definition_name', String, nullable=False)
     value_type = Column('node_property_definition_type', String, nullable=False)
+    is_required = Column('node_property_definition_is_required', Boolean, default=False, nullable=False)
+    default_value = Column('node_property_definition_default_value', Text, nullable=True)
+    description = Column('node_property_definition_description', Text, nullable=True)
+    created_by = Column('created_by', String, nullable=True)
+    created_on = Column('created_on', String, server_default=text("(datetime('now'))"), nullable=True)
+    modified_by = Column('modified_by', String, nullable=True)
+    modified_on = Column('modified_on', String, server_default=text("(datetime('now'))"), nullable=True)
+
+    __table_args__ = (
+        UniqueConstraint('node_type_id_fk', 'node_property_definition_name', name='uq_node_property_definition_type_name'),
+    )
 
 
 class NodePropertyValue(Base):
     __tablename__ = 'NodePropertyValue'
 
     id = Column(String, primary_key=True)
-    node_id_fk = Column(String, ForeignKey('Node.id'), nullable=False)
-    node_property_definition_id_fk = Column(String, ForeignKey('NodePropertyDefinition.id'), nullable=False)
+    node_id_fk = Column(String, ForeignKey('Node.id', ondelete='CASCADE'), nullable=False)
+    node_property_definition_id_fk = Column(String, ForeignKey('NodePropertyDefinition.id', ondelete='CASCADE'), nullable=False)
     value = Column('node_property_value', Text, nullable=True)
+    created_by = Column('created_by', String, nullable=True)
+    created_on = Column('created_on', String, server_default=text("(datetime('now'))"), nullable=True)
+    modified_by = Column('modified_by', String, nullable=True)
+    modified_on = Column('modified_on', String, server_default=text("(datetime('now'))"), nullable=True)
+
+    __table_args__ = (
+        UniqueConstraint('node_id_fk', 'node_property_definition_id_fk', name='uq_node_property_value_node_definition'),
+    )
 
 
 class EdgePropertyDefinition(Base):
     __tablename__ = 'EdgePropertyDefinition'
 
     id = Column(String, primary_key=True)
-    edge_type_id_fk = Column(String, ForeignKey('EdgeType.id'), nullable=False)
+    edge_type_id_fk = Column(String, ForeignKey('EdgeType.id', ondelete='CASCADE'), nullable=False)
     name = Column('edge_property_definition_name', String, nullable=False)
     value_type = Column('edge_property_definition_type', String, nullable=False)
+    is_required = Column('edge_property_definition_is_required', Boolean, default=False, nullable=False)
+    default_value = Column('edge_property_definition_default_value', Text, nullable=True)
+    description = Column('edge_property_definition_description', Text, nullable=True)
+    created_by = Column('created_by', String, nullable=True)
+    created_on = Column('created_on', String, server_default=text("(datetime('now'))"), nullable=True)
+    modified_by = Column('modified_by', String, nullable=True)
+    modified_on = Column('modified_on', String, server_default=text("(datetime('now'))"), nullable=True)
+
+    __table_args__ = (
+        UniqueConstraint('edge_type_id_fk', 'edge_property_definition_name', name='uq_edge_property_definition_type_name'),
+    )
 
 
 class EdgePropertyValue(Base):
     __tablename__ = 'EdgePropertyValue'
 
     id = Column(String, primary_key=True)
-    edge_id_fk = Column(String, ForeignKey('Edge.id'), nullable=False)
-    edge_property_definition_id_fk = Column(String, ForeignKey('EdgePropertyDefinition.id'), nullable=False)
+    edge_id_fk = Column(String, ForeignKey('Edge.id', ondelete='CASCADE'), nullable=False)
+    edge_property_definition_id_fk = Column(String, ForeignKey('EdgePropertyDefinition.id', ondelete='CASCADE'), nullable=False)
     value = Column('edge_property_value', Text, nullable=True)
+    created_by = Column('created_by', String, nullable=True)
+    created_on = Column('created_on', String, server_default=text("(datetime('now'))"), nullable=True)
+    modified_by = Column('modified_by', String, nullable=True)
+    modified_on = Column('modified_on', String, server_default=text("(datetime('now'))"), nullable=True)
+
+    __table_args__ = (
+        UniqueConstraint('edge_id_fk', 'edge_property_definition_id_fk', name='uq_edge_property_value_edge_definition'),
+    )
 
 
 class Node(Base):
     __tablename__ = 'Node'
 
     id = Column(String, primary_key=True)
-    node_type_id_fk = Column(String, ForeignKey('NodeType.id'), nullable=False)
-    identifier = Column('node_identifier', String, nullable=False)
+    node_type_id_fk = Column(String, ForeignKey('NodeType.id', ondelete='RESTRICT'), nullable=False)
+    identifier = Column('node_identifier', String, nullable=True, unique=True)
     name = Column('node_name', String, nullable=False, default='Default')
+    created_by = Column('created_by', String, nullable=True)
+    created_on = Column('created_on', String, server_default=text("(datetime('now'))"), nullable=True)
+    modified_by = Column('modified_by', String, nullable=True)
+    modified_on = Column('modified_on', String, server_default=text("(datetime('now'))"), nullable=True)
 
     __table_args__ = (
         Index('idx_node_type', 'node_type_id_fk'),
         Index('idx_node_name', 'node_name'),
+        UniqueConstraint('node_type_id_fk', 'node_name', name='uq_node_type_name'),
     )
 
     node_type = relationship("NodeType", back_populates="nodes")
@@ -210,14 +261,22 @@ class Edge(Base):
     __tablename__ = 'Edge'
 
     id = Column(String, primary_key=True)
-    edge_type_id_fk = Column(String, ForeignKey('EdgeType.id'), nullable=False)
-    source_node_id_fk = Column(String, ForeignKey('Node.id'), nullable=False)
-    target_node_id_fk = Column(String, ForeignKey('Node.id'), nullable=False)
+    edge_type_id_fk = Column(String, ForeignKey('EdgeType.id', ondelete='RESTRICT'), nullable=False)
+    identifier = Column('edge_identifier', String, nullable=True, unique=True)
+    source_node_id_fk = Column(String, ForeignKey('Node.id', ondelete='CASCADE'), nullable=False)
+    target_node_id_fk = Column(String, ForeignKey('Node.id', ondelete='CASCADE'), nullable=False)
+    created_by = Column('created_by', String, nullable=True)
+    created_on = Column('created_on', String, server_default=text("(datetime('now'))"), nullable=True)
+    modified_by = Column('modified_by', String, nullable=True)
+    modified_on = Column('modified_on', String, server_default=text("(datetime('now'))"), nullable=True)
 
     __table_args__ = (
         Index('idx_edge_source', 'source_node_id_fk'),
         Index('idx_edge_target', 'target_node_id_fk'),
         Index('idx_edge_type', 'edge_type_id_fk'),
+        Index('idx_edge_source_target', 'source_node_id_fk', 'target_node_id_fk'),
+        UniqueConstraint('edge_type_id_fk', 'source_node_id_fk', 'target_node_id_fk', name='uq_edge_type_source_target'),
+        CheckConstraint('source_node_id_fk != target_node_id_fk', name='ck_edge_no_self_loop'),
     )
 
     source_node = relationship("Node", foreign_keys=[source_node_id_fk], back_populates="source_edges")  # type: ignore
@@ -247,14 +306,6 @@ class Edge(Base):
     @edge_type_id.setter
     def edge_type_id(self, value: str) -> None:
         self.edge_type_id_fk = value
-
-    @property
-    def identifier(self) -> str:
-        return ''
-
-    @identifier.setter
-    def identifier(self, value: Optional[str]) -> None:
-        return
 
     @property
     def description(self) -> Optional[str]:
