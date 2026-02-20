@@ -14,8 +14,8 @@ INSERT INTO NodeType (id, node_type_identifier, node_type_name, node_type_descri
 
 -- SACM Edge Types
 INSERT INTO EdgeType (id, edge_type_identifier, edge_type_name, edge_type_description, created_by) VALUES
-('eb66eeca-ef0e-468d-aa08-cfbfa6014c4f', '', 'SupportedBy', 'Target supports the Source (AssertedInference)', 'Seed'),
-('dd7e00a2-2d25-46d8-bbc2-e427e9d87380', '', 'InContextOf', 'Provides the Context (AssertedContext)', 'Seed');
+('eb66eeca-ef0e-468d-aa08-cfbfa6014c4f', '', 'SupportedBy', 'Target supports the Source', 'Seed'),
+('dd7e00a2-2d25-46d8-bbc2-e427e9d87380', '', 'InContextOf', 'Provides the Context', 'Seed');
 
 -- SACM Node Properties
 
