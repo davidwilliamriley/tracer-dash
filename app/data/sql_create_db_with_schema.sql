@@ -46,6 +46,7 @@ CREATE INDEX idx_edgetype_name ON EdgeType(edge_type_name);
 CREATE TABLE NodePropertyDefinition (
     id TEXT PRIMARY KEY,
     node_type_id_fk TEXT NOT NULL,
+    node_property_definition_identifier TEXT UNIQUE,
     node_property_definition_name TEXT NOT NULL,
     node_property_definition_type TEXT NOT NULL CHECK(node_property_definition_type IN ('string', 'integer', 'float', 'boolean', 'text', 'date', 'datetime')),
     node_property_definition_is_required BOOLEAN DEFAULT 0,
@@ -66,6 +67,7 @@ CREATE INDEX idx_node_property_definition_name ON NodePropertyDefinition(node_pr
 CREATE TABLE EdgePropertyDefinition (
     id TEXT PRIMARY KEY,
     edge_type_id_fk TEXT NOT NULL,
+    edge_property_definition_identifier TEXT UNIQUE,
     edge_property_definition_name TEXT NOT NULL,
     edge_property_definition_type TEXT NOT NULL CHECK(edge_property_definition_type IN ('string', 'integer', 'float', 'boolean', 'text', 'date', 'datetime')),
     edge_property_definition_is_required BOOLEAN DEFAULT 0,
@@ -233,7 +235,7 @@ BEGIN
     );
 END;
 
--- Trigger to validate Edge Property Definition default value types (UPDATE)
+-- Trigger to validate Edge Property Definition default value Types (UPDATE)
 CREATE TRIGGER validate_edge_property_definition_default_value_update
 BEFORE UPDATE ON EdgePropertyDefinition
 WHEN NEW.edge_property_definition_default_value IS NOT NULL
