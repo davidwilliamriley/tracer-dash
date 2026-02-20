@@ -1,6 +1,8 @@
 -- ============================================================================
 -- TRACER: Graph Database Schema
--- SQLite Implementation of SACM Graph Data Model
+
+-- SQLite Implementation of a Flexible Graph Database with support 
+-- for Dynamic Node and Edge Types, Property Definitions, and Values.
 -- ============================================================================
 
 PRAGMA foreign_keys = ON;
