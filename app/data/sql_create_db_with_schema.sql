@@ -1,8 +1,15 @@
 -- ============================================================================
--- TRACER: Graph Database Schema
-
+-- TRACER: Graph Database Schema v2
+--
 -- SQLite Implementation of a Flexible Graph Database with support 
--- for Dynamic Node and Edge Types, Property Definitions, and Values.
+-- for Dynamic Node and Edge Types, Reusable Property Definitions 
+-- assigned via Junction Tables, and Property Values.
+--
+-- CHANGES FROM v1:
+--   - NodePropertyDefinition / EdgePropertyDefinition decoupled from types
+--   - New NodeTypePropertyAssignment / EdgeTypePropertyAssignment junction tables
+--   - node_description removed from Node (define as a property instead)
+--   - edge_description removed from Edge (define as a property instead)
 -- ============================================================================
 
 PRAGMA foreign_keys = ON;
@@ -22,7 +29,6 @@ CREATE TABLE NodeType (
     modified_on TEXT DEFAULT (datetime('now'))
 );
 
--- idx_nodetype_identifier omitted: covered by the UNIQUE constraint on node_type_identifier
 CREATE INDEX idx_nodetype_name ON NodeType(node_type_name);
 
 CREATE TABLE EdgeType (
@@ -36,54 +42,89 @@ CREATE TABLE EdgeType (
     modified_on TEXT DEFAULT (datetime('now'))
 );
 
--- idx_edgetype_identifier omitted: covered by the UNIQUE constraint on edge_type_identifier
 CREATE INDEX idx_edgetype_name ON EdgeType(edge_type_name);
 
 -- ============================================================================
--- PROPERTY DEFINITION LAYER: Define NodePropertyDefinitions and EdgePropertyDefinitions
+-- PROPERTY DEFINITION LAYER: Reusable Property Definitions (type-independent)
 -- ============================================================================
 
 CREATE TABLE NodePropertyDefinition (
     id TEXT PRIMARY KEY,
-    node_type_id_fk TEXT NOT NULL,
     node_property_definition_identifier TEXT UNIQUE,
-    node_property_definition_name TEXT NOT NULL,
+    node_property_definition_name TEXT NOT NULL UNIQUE,
     node_property_definition_description TEXT,
     node_property_definition_type TEXT NOT NULL CHECK(node_property_definition_type IN ('text', 'integer', 'float', 'boolean', 'date', 'datetime')),
-    node_property_definition_is_required BOOLEAN DEFAULT 0,
     node_property_definition_default_value TEXT,
     created_by TEXT,
     created_on TEXT DEFAULT (datetime('now')),
     modified_by TEXT,
-    modified_on TEXT DEFAULT (datetime('now')),
-    
-    FOREIGN KEY (node_type_id_fk) REFERENCES NodeType(id) ON DELETE CASCADE,
-    UNIQUE(node_type_id_fk, node_property_definition_name)
+    modified_on TEXT DEFAULT (datetime('now'))
 );
 
-CREATE INDEX idx_node_property_definition_node_type ON NodePropertyDefinition(node_type_id_fk);
 CREATE INDEX idx_node_property_definition_name ON NodePropertyDefinition(node_property_definition_name);
 
 CREATE TABLE EdgePropertyDefinition (
     id TEXT PRIMARY KEY,
-    edge_type_id_fk TEXT NOT NULL,
     edge_property_definition_identifier TEXT UNIQUE,
-    edge_property_definition_name TEXT NOT NULL,
+    edge_property_definition_name TEXT NOT NULL UNIQUE,
     edge_property_definition_description TEXT,
     edge_property_definition_type TEXT NOT NULL CHECK(edge_property_definition_type IN ('text','integer', 'float', 'boolean', 'date', 'datetime')),
-    edge_property_definition_is_required BOOLEAN DEFAULT 0,
     edge_property_definition_default_value TEXT,
     created_by TEXT,
     created_on TEXT DEFAULT (datetime('now')),
     modified_by TEXT,
-    modified_on TEXT DEFAULT (datetime('now')),
-    
-    FOREIGN KEY (edge_type_id_fk) REFERENCES EdgeType(id) ON DELETE CASCADE,
-    UNIQUE(edge_type_id_fk, edge_property_definition_name)
+    modified_on TEXT DEFAULT (datetime('now'))
 );
 
-CREATE INDEX idx_edge_property_definition_edge_type ON EdgePropertyDefinition(edge_type_id_fk);
 CREATE INDEX idx_edge_property_definition_name ON EdgePropertyDefinition(edge_property_definition_name);
+
+-- ============================================================================
+-- PROPERTY ASSIGNMENT LAYER: Assign Property Definitions to Types
+-- ============================================================================
+
+CREATE TABLE NodeTypePropertyAssignment (
+    id TEXT PRIMARY KEY,
+    node_type_id_fk TEXT NOT NULL,
+    node_property_definition_id_fk TEXT NOT NULL,
+    is_required BOOLEAN DEFAULT 0,
+    default_value TEXT,
+    sort_order INTEGER DEFAULT 0,
+    created_by TEXT,
+    created_on TEXT DEFAULT (datetime('now')),
+    modified_by TEXT,
+    modified_on TEXT DEFAULT (datetime('now')),
+
+    FOREIGN KEY (node_type_id_fk) REFERENCES NodeType(id) ON DELETE CASCADE,
+    FOREIGN KEY (node_property_definition_id_fk) REFERENCES NodePropertyDefinition(id) ON DELETE CASCADE,
+    UNIQUE(node_type_id_fk, node_property_definition_id_fk)
+);
+
+CREATE INDEX idx_ntpa_node_type ON NodeTypePropertyAssignment(node_type_id_fk);
+CREATE INDEX idx_ntpa_property_def ON NodeTypePropertyAssignment(node_property_definition_id_fk);
+
+CREATE TABLE EdgeTypePropertyAssignment (
+    id TEXT PRIMARY KEY,
+    edge_type_id_fk TEXT NOT NULL,
+    edge_property_definition_id_fk TEXT NOT NULL,
+    is_required BOOLEAN DEFAULT 0,
+    default_value TEXT,
+    sort_order INTEGER DEFAULT 0,
+    created_by TEXT,
+    created_on TEXT DEFAULT (datetime('now')),
+    modified_by TEXT,
+    modified_on TEXT DEFAULT (datetime('now')),
+
+    FOREIGN KEY (edge_type_id_fk) REFERENCES EdgeType(id) ON DELETE CASCADE,
+    FOREIGN KEY (edge_property_definition_id_fk) REFERENCES EdgePropertyDefinition(id) ON DELETE CASCADE,
+    UNIQUE(edge_type_id_fk, edge_property_definition_id_fk)
+);
+
+CREATE INDEX idx_etpa_edge_type ON EdgeTypePropertyAssignment(edge_type_id_fk);
+CREATE INDEX idx_etpa_property_def ON EdgeTypePropertyAssignment(edge_property_definition_id_fk);
+
+-- ============================================================================
+-- PROPERTY DEFINITION DEFAULT VALUE VALIDATION TRIGGERS
+-- ============================================================================
 
 -- Trigger to validate Node Property Definition default value types (INSERT)
 CREATE TRIGGER validate_node_property_definition_default_value_insert
@@ -190,7 +231,7 @@ CREATE TRIGGER validate_edge_property_definition_default_value_insert
 BEFORE INSERT ON EdgePropertyDefinition
 WHEN NEW.edge_property_definition_default_value IS NOT NULL
 BEGIN
-    SELECT RAISE(ABORT, 'Default value does not match expected Type (integer)')
+    SELECT RAISE(ABORT, 'Default value does not match expected type (integer)')
     WHERE NEW.edge_property_definition_type = 'integer'
     AND NOT (
         (TRIM(NEW.edge_property_definition_default_value) NOT GLOB '*[^0-9]*' AND LENGTH(TRIM(NEW.edge_property_definition_default_value)) > 0)
@@ -286,6 +327,155 @@ BEGIN
 END;
 
 -- ============================================================================
+-- ASSIGNMENT DEFAULT VALUE VALIDATION TRIGGERS
+-- Validate that default_value on assignment matches the property definition type
+-- ============================================================================
+
+CREATE TRIGGER validate_ntpa_default_value_insert
+BEFORE INSERT ON NodeTypePropertyAssignment
+WHEN NEW.default_value IS NOT NULL
+BEGIN
+    SELECT RAISE(ABORT, 'Assignment default value does not match property type (integer)')
+    WHERE (SELECT node_property_definition_type FROM NodePropertyDefinition WHERE id = NEW.node_property_definition_id_fk) = 'integer'
+    AND NOT (
+        (TRIM(NEW.default_value) NOT GLOB '*[^0-9]*' AND LENGTH(TRIM(NEW.default_value)) > 0)
+        OR
+        (substr(TRIM(NEW.default_value), 1, 1) = '-' AND LENGTH(TRIM(NEW.default_value)) > 1
+         AND substr(TRIM(NEW.default_value), 2) NOT GLOB '*[^0-9]*')
+    );
+
+    SELECT RAISE(ABORT, 'Assignment default value does not match property type (float)')
+    WHERE (SELECT node_property_definition_type FROM NodePropertyDefinition WHERE id = NEW.node_property_definition_id_fk) = 'float'
+    AND NOT (
+        (NEW.default_value NOT GLOB '*[^0-9.]*' AND NEW.default_value GLOB '[0-9]*'
+         AND (LENGTH(NEW.default_value) - LENGTH(REPLACE(NEW.default_value, '.', ''))) <= 1)
+        OR
+        (NEW.default_value GLOB '-[0-9]*' AND SUBSTR(NEW.default_value, 2) NOT GLOB '*[^0-9.]*'
+         AND (LENGTH(NEW.default_value) - LENGTH(REPLACE(NEW.default_value, '.', ''))) <= 1)
+    );
+
+    SELECT RAISE(ABORT, 'Assignment default value does not match property type (boolean)')
+    WHERE (SELECT node_property_definition_type FROM NodePropertyDefinition WHERE id = NEW.node_property_definition_id_fk) = 'boolean'
+    AND NEW.default_value NOT IN ('0', '1', 'true', 'false');
+
+    SELECT RAISE(ABORT, 'Assignment default value does not match property type (date)')
+    WHERE (SELECT node_property_definition_type FROM NodePropertyDefinition WHERE id = NEW.node_property_definition_id_fk) = 'date'
+    AND (date(NEW.default_value) IS NULL OR strftime('%Y-%m-%d', NEW.default_value) != NEW.default_value);
+
+    SELECT RAISE(ABORT, 'Assignment default value does not match property type (datetime)')
+    WHERE (SELECT node_property_definition_type FROM NodePropertyDefinition WHERE id = NEW.node_property_definition_id_fk) = 'datetime'
+    AND (datetime(NEW.default_value) IS NULL OR strftime('%Y-%m-%d %H:%M:%S', NEW.default_value) != NEW.default_value);
+END;
+
+CREATE TRIGGER validate_ntpa_default_value_update
+BEFORE UPDATE ON NodeTypePropertyAssignment
+WHEN NEW.default_value IS NOT NULL
+BEGIN
+    SELECT RAISE(ABORT, 'Assignment default value does not match property type (integer)')
+    WHERE (SELECT node_property_definition_type FROM NodePropertyDefinition WHERE id = NEW.node_property_definition_id_fk) = 'integer'
+    AND NOT (
+        (TRIM(NEW.default_value) NOT GLOB '*[^0-9]*' AND LENGTH(TRIM(NEW.default_value)) > 0)
+        OR
+        (substr(TRIM(NEW.default_value), 1, 1) = '-' AND LENGTH(TRIM(NEW.default_value)) > 1
+         AND substr(TRIM(NEW.default_value), 2) NOT GLOB '*[^0-9]*')
+    );
+
+    SELECT RAISE(ABORT, 'Assignment default value does not match property type (float)')
+    WHERE (SELECT node_property_definition_type FROM NodePropertyDefinition WHERE id = NEW.node_property_definition_id_fk) = 'float'
+    AND NOT (
+        (NEW.default_value NOT GLOB '*[^0-9.]*' AND NEW.default_value GLOB '[0-9]*'
+         AND (LENGTH(NEW.default_value) - LENGTH(REPLACE(NEW.default_value, '.', ''))) <= 1)
+        OR
+        (NEW.default_value GLOB '-[0-9]*' AND SUBSTR(NEW.default_value, 2) NOT GLOB '*[^0-9.]*'
+         AND (LENGTH(NEW.default_value) - LENGTH(REPLACE(NEW.default_value, '.', ''))) <= 1)
+    );
+
+    SELECT RAISE(ABORT, 'Assignment default value does not match property type (boolean)')
+    WHERE (SELECT node_property_definition_type FROM NodePropertyDefinition WHERE id = NEW.node_property_definition_id_fk) = 'boolean'
+    AND NEW.default_value NOT IN ('0', '1', 'true', 'false');
+
+    SELECT RAISE(ABORT, 'Assignment default value does not match property type (date)')
+    WHERE (SELECT node_property_definition_type FROM NodePropertyDefinition WHERE id = NEW.node_property_definition_id_fk) = 'date'
+    AND (date(NEW.default_value) IS NULL OR strftime('%Y-%m-%d', NEW.default_value) != NEW.default_value);
+
+    SELECT RAISE(ABORT, 'Assignment default value does not match property type (datetime)')
+    WHERE (SELECT node_property_definition_type FROM NodePropertyDefinition WHERE id = NEW.node_property_definition_id_fk) = 'datetime'
+    AND (datetime(NEW.default_value) IS NULL OR strftime('%Y-%m-%d %H:%M:%S', NEW.default_value) != NEW.default_value);
+END;
+
+CREATE TRIGGER validate_etpa_default_value_insert
+BEFORE INSERT ON EdgeTypePropertyAssignment
+WHEN NEW.default_value IS NOT NULL
+BEGIN
+    SELECT RAISE(ABORT, 'Assignment default value does not match property type (integer)')
+    WHERE (SELECT edge_property_definition_type FROM EdgePropertyDefinition WHERE id = NEW.edge_property_definition_id_fk) = 'integer'
+    AND NOT (
+        (TRIM(NEW.default_value) NOT GLOB '*[^0-9]*' AND LENGTH(TRIM(NEW.default_value)) > 0)
+        OR
+        (substr(TRIM(NEW.default_value), 1, 1) = '-' AND LENGTH(TRIM(NEW.default_value)) > 1
+         AND substr(TRIM(NEW.default_value), 2) NOT GLOB '*[^0-9]*')
+    );
+
+    SELECT RAISE(ABORT, 'Assignment default value does not match property type (float)')
+    WHERE (SELECT edge_property_definition_type FROM EdgePropertyDefinition WHERE id = NEW.edge_property_definition_id_fk) = 'float'
+    AND NOT (
+        (NEW.default_value NOT GLOB '*[^0-9.]*' AND NEW.default_value GLOB '[0-9]*'
+         AND (LENGTH(NEW.default_value) - LENGTH(REPLACE(NEW.default_value, '.', ''))) <= 1)
+        OR
+        (NEW.default_value GLOB '-[0-9]*' AND SUBSTR(NEW.default_value, 2) NOT GLOB '*[^0-9.]*'
+         AND (LENGTH(NEW.default_value) - LENGTH(REPLACE(NEW.default_value, '.', ''))) <= 1)
+    );
+
+    SELECT RAISE(ABORT, 'Assignment default value does not match property type (boolean)')
+    WHERE (SELECT edge_property_definition_type FROM EdgePropertyDefinition WHERE id = NEW.edge_property_definition_id_fk) = 'boolean'
+    AND NEW.default_value NOT IN ('0', '1', 'true', 'false');
+
+    SELECT RAISE(ABORT, 'Assignment default value does not match property type (date)')
+    WHERE (SELECT edge_property_definition_type FROM EdgePropertyDefinition WHERE id = NEW.edge_property_definition_id_fk) = 'date'
+    AND (date(NEW.default_value) IS NULL OR strftime('%Y-%m-%d', NEW.default_value) != NEW.default_value);
+
+    SELECT RAISE(ABORT, 'Assignment default value does not match property type (datetime)')
+    WHERE (SELECT edge_property_definition_type FROM EdgePropertyDefinition WHERE id = NEW.edge_property_definition_id_fk) = 'datetime'
+    AND (datetime(NEW.default_value) IS NULL OR strftime('%Y-%m-%d %H:%M:%S', NEW.default_value) != NEW.default_value);
+END;
+
+CREATE TRIGGER validate_etpa_default_value_update
+BEFORE UPDATE ON EdgeTypePropertyAssignment
+WHEN NEW.default_value IS NOT NULL
+BEGIN
+    SELECT RAISE(ABORT, 'Assignment default value does not match property type (integer)')
+    WHERE (SELECT edge_property_definition_type FROM EdgePropertyDefinition WHERE id = NEW.edge_property_definition_id_fk) = 'integer'
+    AND NOT (
+        (TRIM(NEW.default_value) NOT GLOB '*[^0-9]*' AND LENGTH(TRIM(NEW.default_value)) > 0)
+        OR
+        (substr(TRIM(NEW.default_value), 1, 1) = '-' AND LENGTH(TRIM(NEW.default_value)) > 1
+         AND substr(TRIM(NEW.default_value), 2) NOT GLOB '*[^0-9]*')
+    );
+
+    SELECT RAISE(ABORT, 'Assignment default value does not match property type (float)')
+    WHERE (SELECT edge_property_definition_type FROM EdgePropertyDefinition WHERE id = NEW.edge_property_definition_id_fk) = 'float'
+    AND NOT (
+        (NEW.default_value NOT GLOB '*[^0-9.]*' AND NEW.default_value GLOB '[0-9]*'
+         AND (LENGTH(NEW.default_value) - LENGTH(REPLACE(NEW.default_value, '.', ''))) <= 1)
+        OR
+        (NEW.default_value GLOB '-[0-9]*' AND SUBSTR(NEW.default_value, 2) NOT GLOB '*[^0-9.]*'
+         AND (LENGTH(NEW.default_value) - LENGTH(REPLACE(NEW.default_value, '.', ''))) <= 1)
+    );
+
+    SELECT RAISE(ABORT, 'Assignment default value does not match property type (boolean)')
+    WHERE (SELECT edge_property_definition_type FROM EdgePropertyDefinition WHERE id = NEW.edge_property_definition_id_fk) = 'boolean'
+    AND NEW.default_value NOT IN ('0', '1', 'true', 'false');
+
+    SELECT RAISE(ABORT, 'Assignment default value does not match property type (date)')
+    WHERE (SELECT edge_property_definition_type FROM EdgePropertyDefinition WHERE id = NEW.edge_property_definition_id_fk) = 'date'
+    AND (date(NEW.default_value) IS NULL OR strftime('%Y-%m-%d', NEW.default_value) != NEW.default_value);
+
+    SELECT RAISE(ABORT, 'Assignment default value does not match property type (datetime)')
+    WHERE (SELECT edge_property_definition_type FROM EdgePropertyDefinition WHERE id = NEW.edge_property_definition_id_fk) = 'datetime'
+    AND (datetime(NEW.default_value) IS NULL OR strftime('%Y-%m-%d %H:%M:%S', NEW.default_value) != NEW.default_value);
+END;
+
+-- ============================================================================
 -- INSTANCE LAYER: Define Nodes and Edges
 -- ============================================================================
 
@@ -310,6 +500,7 @@ CREATE TABLE Edge (
     id TEXT PRIMARY KEY,
     edge_type_id_fk TEXT NOT NULL,
     edge_identifier TEXT UNIQUE,
+    edge_name TEXT NOT NULL,
     source_node_id_fk TEXT NOT NULL,
     target_node_id_fk TEXT NOT NULL,
     created_by TEXT,
@@ -353,31 +544,31 @@ CREATE TABLE NodePropertyValue (
 CREATE INDEX idx_node_property_value_node ON NodePropertyValue(node_id_fk);
 CREATE INDEX idx_node_property_value_definition ON NodePropertyValue(node_property_definition_id_fk);
 
--- Trigger to ensure Property Definition matches Node Type (INSERT)
+-- Trigger to ensure Property Definition is assigned to the Node's Type (INSERT)
 CREATE TRIGGER validate_node_property_type_insert
 BEFORE INSERT ON NodePropertyValue
 BEGIN
-    SELECT RAISE(ABORT, 'Property Definition does not match NodeType')
+    SELECT RAISE(ABORT, 'Property Definition is not assigned to this NodeType')
     WHERE NOT EXISTS (
         SELECT 1
         FROM Node
-        JOIN NodePropertyDefinition ON NodePropertyDefinition.id = NEW.node_property_definition_id_fk
+        JOIN NodeTypePropertyAssignment ON NodeTypePropertyAssignment.node_type_id_fk = Node.node_type_id_fk
         WHERE Node.id = NEW.node_id_fk
-          AND Node.node_type_id_fk = NodePropertyDefinition.node_type_id_fk
+          AND NodeTypePropertyAssignment.node_property_definition_id_fk = NEW.node_property_definition_id_fk
     );
 END;
 
--- Trigger to ensure Property Definition matches Node Type (UPDATE)
+-- Trigger to ensure Property Definition is assigned to the Node's Type (UPDATE)
 CREATE TRIGGER validate_node_property_type_update
 BEFORE UPDATE ON NodePropertyValue
 BEGIN
-    SELECT RAISE(ABORT, 'Property Definition does not match NodeType')
+    SELECT RAISE(ABORT, 'Property Definition is not assigned to this NodeType')
     WHERE NOT EXISTS (
         SELECT 1
         FROM Node
-        JOIN NodePropertyDefinition ON NodePropertyDefinition.id = NEW.node_property_definition_id_fk
+        JOIN NodeTypePropertyAssignment ON NodeTypePropertyAssignment.node_type_id_fk = Node.node_type_id_fk
         WHERE Node.id = NEW.node_id_fk
-          AND Node.node_type_id_fk = NodePropertyDefinition.node_type_id_fk
+          AND NodeTypePropertyAssignment.node_property_definition_id_fk = NEW.node_property_definition_id_fk
     );
 END;
 
@@ -530,34 +721,35 @@ CREATE TABLE EdgePropertyValue (
 CREATE INDEX idx_edge_property_value_edge ON EdgePropertyValue(edge_id_fk);
 CREATE INDEX idx_edge_property_value_definition ON EdgePropertyValue(edge_property_definition_id_fk);
 
--- Trigger to ensure Property Definition matches Edge Type (INSERT)
+-- Trigger to ensure Property Definition is assigned to the Edge's Type (INSERT)
 CREATE TRIGGER validate_edge_property_type_insert
 BEFORE INSERT ON EdgePropertyValue
 BEGIN
-    SELECT RAISE(ABORT, 'Property Definition does not match EdgeType')
+    SELECT RAISE(ABORT, 'Property Definition is not assigned to this EdgeType')
     WHERE NOT EXISTS (
         SELECT 1
         FROM Edge
-        JOIN EdgePropertyDefinition ON EdgePropertyDefinition.id = NEW.edge_property_definition_id_fk
+        JOIN EdgeTypePropertyAssignment ON EdgeTypePropertyAssignment.edge_type_id_fk = Edge.edge_type_id_fk
         WHERE Edge.id = NEW.edge_id_fk
-          AND Edge.edge_type_id_fk = EdgePropertyDefinition.edge_type_id_fk
+          AND EdgeTypePropertyAssignment.edge_property_definition_id_fk = NEW.edge_property_definition_id_fk
     );
 END;
 
--- Trigger to ensure Property Definition matches Edge Type (UPDATE)
+-- Trigger to ensure Property Definition is assigned to the Edge's Type (UPDATE)
 CREATE TRIGGER validate_edge_property_type_update
 BEFORE UPDATE ON EdgePropertyValue
 BEGIN
-    SELECT RAISE(ABORT, 'Property Definition does not match EdgeType')
+    SELECT RAISE(ABORT, 'Property Definition is not assigned to this EdgeType')
     WHERE NOT EXISTS (
         SELECT 1
         FROM Edge
-        JOIN EdgePropertyDefinition ON EdgePropertyDefinition.id = NEW.edge_property_definition_id_fk
+        JOIN EdgeTypePropertyAssignment ON EdgeTypePropertyAssignment.edge_type_id_fk = Edge.edge_type_id_fk
         WHERE Edge.id = NEW.edge_id_fk
-          AND Edge.edge_type_id_fk = EdgePropertyDefinition.edge_type_id_fk
+          AND EdgeTypePropertyAssignment.edge_property_definition_id_fk = NEW.edge_property_definition_id_fk
     );
 END;
 
+-- Trigger to validate Edge Property Value Types against Definitions (INSERT)
 CREATE TRIGGER validate_edge_property_value_type_insert
 BEFORE INSERT ON EdgePropertyValue
 WHEN NEW.edge_property_value IS NOT NULL
@@ -622,6 +814,7 @@ BEGIN
     );
 END;
 
+-- Trigger to validate Edge Property Value Types against Definitions (UPDATE)
 CREATE TRIGGER validate_edge_property_value_type_update
 BEFORE UPDATE ON EdgePropertyValue
 WHEN NEW.edge_property_value IS NOT NULL
@@ -688,10 +881,7 @@ END;
 
 -- ============================================================================
 -- REQUIRED PROPERTY PROTECTION TRIGGERS: Prevent NULL or deletion of required property values
--- NOTE: Enforces is_required at the DB level by rejecting NULL inserts/updates and DELETE
---       on required property values. Insertion completeness (all required properties present)
---       remains an application responsibility, as SQLite does not support deferred triggers
---       to check after a full insert batch.
+-- NOTE: is_required now lives on the Assignment table, so lookups join through it.
 -- ============================================================================
 
 CREATE TRIGGER protect_required_node_property_value_null_insert
@@ -699,10 +889,12 @@ BEFORE INSERT ON NodePropertyValue
 WHEN NEW.node_property_value IS NULL
 BEGIN
     SELECT RAISE(ABORT, 'Cannot insert NULL for a required property value')
-    WHERE (
-        SELECT node_property_definition_is_required FROM NodePropertyDefinition
-        WHERE id = NEW.node_property_definition_id_fk
-    ) = 1;
+    WHERE EXISTS (
+        SELECT 1 FROM NodeTypePropertyAssignment ntpa
+        JOIN Node n ON n.node_type_id_fk = ntpa.node_type_id_fk AND n.id = NEW.node_id_fk
+        WHERE ntpa.node_property_definition_id_fk = NEW.node_property_definition_id_fk
+          AND ntpa.is_required = 1
+    );
 END;
 
 CREATE TRIGGER protect_required_node_property_value_null_update
@@ -710,10 +902,12 @@ BEFORE UPDATE ON NodePropertyValue
 WHEN NEW.node_property_value IS NULL
 BEGIN
     SELECT RAISE(ABORT, 'Cannot set a required property value to NULL')
-    WHERE (
-        SELECT node_property_definition_is_required FROM NodePropertyDefinition
-        WHERE id = NEW.node_property_definition_id_fk
-    ) = 1;
+    WHERE EXISTS (
+        SELECT 1 FROM NodeTypePropertyAssignment ntpa
+        JOIN Node n ON n.node_type_id_fk = ntpa.node_type_id_fk AND n.id = NEW.node_id_fk
+        WHERE ntpa.node_property_definition_id_fk = NEW.node_property_definition_id_fk
+          AND ntpa.is_required = 1
+    );
 END;
 
 CREATE TRIGGER protect_required_edge_property_value_null_insert
@@ -721,10 +915,12 @@ BEFORE INSERT ON EdgePropertyValue
 WHEN NEW.edge_property_value IS NULL
 BEGIN
     SELECT RAISE(ABORT, 'Cannot insert NULL for a required property value')
-    WHERE (
-        SELECT edge_property_definition_is_required FROM EdgePropertyDefinition
-        WHERE id = NEW.edge_property_definition_id_fk
-    ) = 1;
+    WHERE EXISTS (
+        SELECT 1 FROM EdgeTypePropertyAssignment etpa
+        JOIN Edge e ON e.edge_type_id_fk = etpa.edge_type_id_fk AND e.id = NEW.edge_id_fk
+        WHERE etpa.edge_property_definition_id_fk = NEW.edge_property_definition_id_fk
+          AND etpa.is_required = 1
+    );
 END;
 
 CREATE TRIGGER protect_required_edge_property_value_null_update
@@ -732,36 +928,40 @@ BEFORE UPDATE ON EdgePropertyValue
 WHEN NEW.edge_property_value IS NULL
 BEGIN
     SELECT RAISE(ABORT, 'Cannot set a required property value to NULL')
-    WHERE (
-        SELECT edge_property_definition_is_required FROM EdgePropertyDefinition
-        WHERE id = NEW.edge_property_definition_id_fk
-    ) = 1;
+    WHERE EXISTS (
+        SELECT 1 FROM EdgeTypePropertyAssignment etpa
+        JOIN Edge e ON e.edge_type_id_fk = etpa.edge_type_id_fk AND e.id = NEW.edge_id_fk
+        WHERE etpa.edge_property_definition_id_fk = NEW.edge_property_definition_id_fk
+          AND etpa.is_required = 1
+    );
 END;
 
 CREATE TRIGGER protect_required_node_property_value_delete
 BEFORE DELETE ON NodePropertyValue
 BEGIN
     SELECT RAISE(ABORT, 'Cannot delete a required property value')
-    WHERE (
-        SELECT node_property_definition_is_required FROM NodePropertyDefinition
-        WHERE id = OLD.node_property_definition_id_fk
-    ) = 1;
+    WHERE EXISTS (
+        SELECT 1 FROM NodeTypePropertyAssignment ntpa
+        JOIN Node n ON n.node_type_id_fk = ntpa.node_type_id_fk AND n.id = OLD.node_id_fk
+        WHERE ntpa.node_property_definition_id_fk = OLD.node_property_definition_id_fk
+          AND ntpa.is_required = 1
+    );
 END;
 
 CREATE TRIGGER protect_required_edge_property_value_delete
 BEFORE DELETE ON EdgePropertyValue
 BEGIN
     SELECT RAISE(ABORT, 'Cannot delete a required property value')
-    WHERE (
-        SELECT edge_property_definition_is_required FROM EdgePropertyDefinition
-        WHERE id = OLD.edge_property_definition_id_fk
-    ) = 1;
+    WHERE EXISTS (
+        SELECT 1 FROM EdgeTypePropertyAssignment etpa
+        JOIN Edge e ON e.edge_type_id_fk = etpa.edge_type_id_fk AND e.id = OLD.edge_id_fk
+        WHERE etpa.edge_property_definition_id_fk = OLD.edge_property_definition_id_fk
+          AND etpa.is_required = 1
+    );
 END;
 
 -- ============================================================================
 -- BOOLEAN NORMALISATION TRIGGERS: Normalise boolean values to '1'/'0' on INSERT/UPDATE
--- NOTE: Accepts '1', '0', 'true', 'false' (validated upstream) and stores as '1' or '0'
---       to ensure consistent querying. Without this, filtering on '1' would miss 'true'.
 -- ============================================================================
 
 CREATE TRIGGER normalise_node_property_value_boolean_insert
@@ -846,6 +1046,20 @@ AFTER UPDATE ON EdgePropertyDefinition
 WHEN NEW.modified_on = OLD.modified_on
 BEGIN
     UPDATE EdgePropertyDefinition SET modified_on = datetime('now') WHERE id = NEW.id;
+END;
+
+CREATE TRIGGER update_ntpa_modified_on
+AFTER UPDATE ON NodeTypePropertyAssignment
+WHEN NEW.modified_on = OLD.modified_on
+BEGIN
+    UPDATE NodeTypePropertyAssignment SET modified_on = datetime('now') WHERE id = NEW.id;
+END;
+
+CREATE TRIGGER update_etpa_modified_on
+AFTER UPDATE ON EdgeTypePropertyAssignment
+WHEN NEW.modified_on = OLD.modified_on
+BEGIN
+    UPDATE EdgeTypePropertyAssignment SET modified_on = datetime('now') WHERE id = NEW.id;
 END;
 
 CREATE TRIGGER update_node_modified_on
