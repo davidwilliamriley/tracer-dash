@@ -1,4 +1,4 @@
-# Prism
+# Tracer
 
 **A Plotly Dash-based Systems Life Cycle Process Management Application**
 
@@ -12,28 +12,40 @@ https://github.com/users/davidwilliamriley/projects/1
 Clone this Respository 
 
 ## Usage Examples
+[Placeholder]
 
-### NodesTypes
-
-### EdgeTypes
+### General
+[Placeholder]
 
 ### Nodes
+[Placeholder]
 
-### Edges
+### NodesTypes
+[Placeholder]
 
 ### NodePropertyDefinition
+[Placeholder]
 
 ### NodePropertyValue
 [Placeholder]
 
 ### NodePropertyAssignments
+[Placeholder]
 
-### EdgePropertyAssignments
+### Edges
+[Placeholder]
+
+### EdgeTypes
 [Placeholder]
 
 ### EdgePropertyDefinition
+[Placeholder]
 
-### EdgePropertyAssignment
+### NodePropertyValue
+[Placeholder]
+
+### EdgePropertyAssignments
+[Placeholder]
 
 ## Contributing Guidelines
 Email the Owner
