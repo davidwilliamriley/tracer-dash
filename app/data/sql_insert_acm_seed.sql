@@ -2,6 +2,8 @@
 -- SEED DATA: SACM Types to support SACM-based Goal Structuring Notation (GSN)
 -- ============================================================================
 
+-- To Do 
+
 -- SACM Node Types
 INSERT INTO NodeType (id, node_type_identifier, node_type_name, node_type_description, created_by) VALUES
 ('d9e50ae3-aac1-4992-8030-8d2ce049ccf5', 'G', 'Goal', 'An assertion about system properties that must be supported', 'Seed'),
