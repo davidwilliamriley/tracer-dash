@@ -47,46 +47,55 @@ INSERT INTO NodeTypePropertyAssignment (
 	created_by
 )
 SELECT
-	'ntpa-desc-' || nt.node_type_identifier,
+	CASE nt.node_type_identifier
+		WHEN 'G' THEN '8fbfbc23-53fb-401f-a5f6-3c188f9af053'
+		WHEN 'S' THEN 'b7c2021b-0c90-420f-8f89-35274b2de57f'
+		WHEN 'Sn' THEN '96d185b3-4add-445c-b3ac-3999d41218eb'
+		WHEN 'C' THEN 'aab3e3c1-b244-4e72-9472-320ac35f2a7f'
+		WHEN 'A' THEN 'dc8b520d-a5e0-4b39-a17c-144cccf57d66'
+		WHEN 'J' THEN '227719d3-7cad-41f6-bd87-5847acdcfd96'
+		WHEN 'E' THEN '2863898d-14ea-4c6d-8da2-aa6f30d3f8b9'
+	END,
 	nt.id,
 	npd.id,
 	0,
 	10,
 	'Seed'
-FROM NodeType nt
-JOIN NodePropertyDefinition npd
-	ON npd.node_property_definition_name = 'description'
-WHERE nt.node_type_identifier IN ('G', 'S', 'Sn', 'C', 'A', 'J', 'E');
+FROM NodeType
+JOIN NodePropertyDefinition
+	ON NodePropertyDefinition.node_property_definition_name = 'description'
+WHERE NodeType.node_type_identifier IN ('G', 'S', 'Sn', 'C', 'A', 'J', 'E');
 
 INSERT INTO NodeTypePropertyAssignment (id, node_type_id_fk, node_property_definition_id_fk, is_required, sort_order, created_by)
-SELECT 'ntpa-reference-E', nt.id, npd.id, 1, 20, 'Seed'
-FROM NodeType nt
+SELECT '47b7c5e4-fc5b-40f8-b03f-eb099ca78250', NodeType.id, NodePropertyDefinition.id, 1, 20, 'Seed'
+FROM NodeType
+
 JOIN NodePropertyDefinition npd ON npd.node_property_definition_name = 'reference'
-WHERE nt.node_type_identifier = 'E';
+WHERE NodeType.node_type_identifier = 'E';
 
 INSERT INTO NodeTypePropertyAssignment (id, node_type_id_fk, node_property_definition_id_fk, is_required, sort_order, created_by)
-SELECT 'ntpa-rev-E', nt.id, npd.id, 0, 30, 'Seed'
-FROM NodeType nt
-JOIN NodePropertyDefinition npd ON npd.node_property_definition_name = 'revision'
-WHERE nt.node_type_identifier = 'E';
+SELECT '279de906-cf8b-4750-bf44-51f2c60628c6', NodeType.id, NodePropertyDefinition.id, 0, 30, 'Seed'
+FROM NodeType
+JOIN NodePropertyDefinition ON NodePropertyDefinition.node_property_definition_name = 'revision'
+WHERE NodeType.node_type_identifier = 'E';
 
 INSERT INTO NodeTypePropertyAssignment (id, node_type_id_fk, node_property_definition_id_fk, is_required, sort_order, created_by)
-SELECT 'ntpa-status-E', nt.id, npd.id, 0, 40, 'Seed'
-FROM NodeType nt
-JOIN NodePropertyDefinition npd ON npd.node_property_definition_name = 'status'
-WHERE nt.node_type_identifier = 'E';
+SELECT '53af46f7-13f5-4de0-9b59-61b2fd954f89', NodeType.id, NodePropertyDefinition.id, 0, 40, 'Seed'
+FROM NodeType
+JOIN NodePropertyDefinition ON NodePropertyDefinition.node_property_definition_name = 'status'
+WHERE NodeType.node_type_identifier = 'E';
 
 INSERT INTO NodeTypePropertyAssignment (id, node_type_id_fk, node_property_definition_id_fk, is_required, sort_order, created_by)
-SELECT 'ntpa-title-E', nt.id, npd.id, 0, 50, 'Seed'
-FROM NodeType nt
-JOIN NodePropertyDefinition npd ON npd.node_property_definition_name = 'title'
-WHERE nt.node_type_identifier = 'E';
+SELECT '3d009ced-c190-40e0-afaf-da861ab90397', NodeType.id, NodePropertyDefinition.id, 0, 50, 'Seed'
+FROM NodeType
+JOIN NodePropertyDefinition ON NodePropertyDefinition.node_property_definition_name = 'title'
+WHERE NodeType.node_type_identifier = 'E';
 
 INSERT INTO NodeTypePropertyAssignment (id, node_type_id_fk, node_property_definition_id_fk, is_required, sort_order, created_by)
-SELECT 'ntpa-location-E', nt.id, npd.id, 0, 60, 'Seed'
-FROM NodeType nt
-JOIN NodePropertyDefinition npd ON npd.node_property_definition_name = 'location'
-WHERE nt.node_type_identifier = 'E';
+SELECT '71758ce9-026c-4f01-a609-c9df9bd3f6a5', NodeType.id, NodePropertyDefinition.id, 0, 60, 'Seed'
+FROM NodeType
+JOIN NodePropertyDefinition ON NodePropertyDefinition.node_property_definition_name = 'location'
+WHERE NodeType.node_type_identifier = 'E';
 
 -- SACM Nodes G0 and Sub-goals to set out the top-level of the GSN Argument
 INSERT INTO Node (id, node_type_id_fk, node_identifier, node_name, created_by) VALUES
@@ -127,7 +136,7 @@ INSERT INTO Edge (id, edge_type_id_fk, edge_name, source_node_id_fk, target_node
 
 -- SACM Nodes for G3 Sub-goals
 INSERT INTO Node (id, node_type_id_fk, node_identifier, node_name, created_by) VALUES
-('a1b2c3d4-e5f6-7890-abcd-ef1234567890', (SELECT id FROM NodeType WHERE node_type_identifier = 'G'), 'G3.1', 'Goal G3.1', 'Seed');
+('0d6ce9dd-30f6-4fe5-af8f-6a9e61f77756', (SELECT id FROM NodeType WHERE node_type_identifier = 'G'), 'G3.1', 'Goal G3.1', 'Seed');
 
 -- SACM Edges for G3 to Sub-goals
 INSERT INTO Edge (id, edge_type_id_fk, edge_name, source_node_id_fk, target_node_id_fk, created_by) VALUES
@@ -135,19 +144,19 @@ INSERT INTO Edge (id, edge_type_id_fk, edge_name, source_node_id_fk, target_node
 
 -- SACM Nodes for G4 Sub-goals
 INSERT INTO Node (id, node_type_id_fk, node_identifier, node_name, created_by) VALUES
-('b1c2d3e4-f5a6-7890-abcd-ef1234567890', (SELECT id FROM NodeType WHERE node_type_identifier = 'G'), 'G4.1', 'Goal G4.1', 'Seed');
+('f8f8441d-f7f7-49f7-b30f-ccf35b96f5a3', (SELECT id FROM NodeType WHERE node_type_identifier = 'G'), 'G4.1', 'Goal G4.1', 'Seed');
 
 -- SACM Edges for G4 to Sub-goals
 INSERT INTO Edge (id, edge_type_id_fk, edge_name, source_node_id_fk, target_node_id_fk, created_by) VALUES
-('e1f2a3b4-c5d6-7890-abcd-ef1234567890', (SELECT id FROM EdgeType WHERE edge_type_name = 'SupportedBy'), 'SupportedBy', (SELECT id FROM Node WHERE node_identifier = 'G4'), (SELECT id FROM Node WHERE node_identifier = 'G4.1'), 'Seed');
+('f6f3e4fa-3818-48d2-b2cc-31fc4346b4bb', (SELECT id FROM EdgeType WHERE edge_type_name = 'SupportedBy'), 'SupportedBy', (SELECT id FROM Node WHERE node_identifier = 'G4'), (SELECT id FROM Node WHERE node_identifier = 'G4.1'), 'Seed');
 
 -- SACM Nodes for G5 Sub-goals
 INSERT INTO Node (id, node_type_id_fk, node_identifier, node_name, created_by) VALUES
-('c1d2e3f4-a5b6-7890-abcd-ef1234567890', (SELECT id FROM NodeType WHERE node_type_identifier = 'G'), 'G5.1', 'Goal G5.1', 'Seed');
+('4b65f5d7-7612-4ec2-b456-5fce5905c2e1', (SELECT id FROM NodeType WHERE node_type_identifier = 'G'), 'G5.1', 'Goal G5.1', 'Seed');
 
 -- SACM Edges for G5 to Sub-goals
 INSERT INTO Edge (id, edge_type_id_fk, edge_name, source_node_id_fk, target_node_id_fk, created_by) VALUES
-('d1e2f3a4-b5c6-7890-abcd-ef1234567890', (SELECT id FROM EdgeType WHERE edge_type_name = 'SupportedBy'), 'SupportedBy', (SELECT id FROM Node WHERE node_identifier = 'G5'), (SELECT id FROM Node WHERE node_identifier = 'G5.1'), 'Seed');
+('245950b9-67e6-4e09-a68a-f60f4f8ac587', (SELECT id FROM EdgeType WHERE edge_type_name = 'SupportedBy'), 'SupportedBy', (SELECT id FROM Node WHERE node_identifier = 'G5'), (SELECT id FROM Node WHERE node_identifier = 'G5.1'), 'Seed');
 
 -- SACM Nodes for G6 Sub-goals
 INSERT INTO Node (id, node_type_id_fk, node_identifier, node_name, created_by) VALUES
