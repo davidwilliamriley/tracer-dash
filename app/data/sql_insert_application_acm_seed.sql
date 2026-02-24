@@ -1,10 +1,10 @@
 -- ============================================================================
--- SEED DATA: SACM Types to support SACM-based Goal Structuring Notation (GSN)
+-- SEED DATA: Types to support SACM-based Goal Structuring Notation (GSN)
 -- ============================================================================
 
 -- To Do 
 
--- SACM Node Types
+-- Node Types
 INSERT INTO NodeType (id, node_type_identifier, node_type_name, node_type_description, created_by) VALUES
 ('d9e50ae3-aac1-4992-8030-8d2ce049ccf5', 'G', 'Goal', 'An assertion about system properties that must be supported', 'Seed'),
 ('d8e6d310-92a9-433f-a95c-4f6b6bbee05b', 'S', 'Strategy', 'Reasoning approach connecting claims (ArgumentReasoning)', 'Seed'),
@@ -14,14 +14,14 @@ INSERT INTO NodeType (id, node_type_identifier, node_type_name, node_type_descri
 ('a1b2c3d4-e5f6-7890-abcd-ef1234567890', 'J', 'Justification', 'Justification for an element of the Argument', 'Seed'),
 ('f1c9e5b8-9c3a-4d2e-8b0a-5e7c6f1a2b4d', 'E', 'Evidence', 'A Specific Evidence Artifact or Deliverable that supports a Solution', 'Seed');
 
--- SACM Edge Types
+-- Edge Types
 INSERT INTO EdgeType (id, edge_type_identifier, edge_type_name, edge_type_description, created_by) VALUES
 ('eb66eeca-ef0e-468d-aa08-cfbfa6014c4f', '', 'SupportedBy', 'Target supports the Source', 'Seed'),
 ('dd7e00a2-2d25-46d8-bbc2-e427e9d87380', '', 'InContextOf', 'Provides the Context', 'Seed');
 
--- SACM Node Properties
+-- Node Properties
 
--- Reusable Property Definitions (Schema v2)
+-- Reusable Property Definitions
 INSERT INTO NodePropertyDefinition (
 	id,
 	node_property_definition_identifier,
@@ -37,7 +37,7 @@ INSERT INTO NodePropertyDefinition (
 ('08a7b12f-fb1b-440c-8bee-ab454f50aa5f', '', 'title', 'text', 'Name of the Evidence', 'Seed'),
 ('888a2f1f-c159-4f0c-b7ff-908e0b07144b', '', 'location', 'text', 'Location of the Evidence (SharePoint Path, DMS Reference or URL)', 'Seed');
 
--- Assign reusable definitions to NodeTypes
+-- Assign reusable Definitions to NodeTypes
 INSERT INTO NodeTypePropertyAssignment (
 	id,
 	node_type_id_fk,
@@ -47,7 +47,7 @@ INSERT INTO NodeTypePropertyAssignment (
 	created_by
 )
 SELECT
-	CASE nt.node_type_identifier
+	CASE NodeType.node_type_identifier
 		WHEN 'G' THEN '8fbfbc23-53fb-401f-a5f6-3c188f9af053'
 		WHEN 'S' THEN 'b7c2021b-0c90-420f-8f89-35274b2de57f'
 		WHEN 'Sn' THEN '96d185b3-4add-445c-b3ac-3999d41218eb'
@@ -56,8 +56,8 @@ SELECT
 		WHEN 'J' THEN '227719d3-7cad-41f6-bd87-5847acdcfd96'
 		WHEN 'E' THEN '2863898d-14ea-4c6d-8da2-aa6f30d3f8b9'
 	END,
-	nt.id,
-	npd.id,
+	NodeType.id,
+	NodePropertyDefinition.id,
 	0,
 	10,
 	'Seed'
@@ -70,7 +70,7 @@ INSERT INTO NodeTypePropertyAssignment (id, node_type_id_fk, node_property_defin
 SELECT '47b7c5e4-fc5b-40f8-b03f-eb099ca78250', NodeType.id, NodePropertyDefinition.id, 1, 20, 'Seed'
 FROM NodeType
 
-JOIN NodePropertyDefinition npd ON npd.node_property_definition_name = 'reference'
+JOIN NodePropertyDefinition ON NodePropertyDefinition.node_property_definition_name = 'reference'
 WHERE NodeType.node_type_identifier = 'E';
 
 INSERT INTO NodeTypePropertyAssignment (id, node_type_id_fk, node_property_definition_id_fk, is_required, sort_order, created_by)
