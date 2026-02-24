@@ -2,8 +2,6 @@
 -- SEED DATA: Types to support SACM-based Goal Structuring Notation (GSN)
 -- ============================================================================
 
--- To Do 
-
 -- Node Types
 INSERT INTO NodeType (id, node_type_identifier, node_type_name, node_type_description, created_by) VALUES
 ('d9e50ae3-aac1-4992-8030-8d2ce049ccf5', 'G', 'Goal', 'An assertion about system properties that must be supported', 'Seed'),
@@ -67,34 +65,15 @@ JOIN NodePropertyDefinition
 WHERE NodeType.node_type_identifier IN ('G', 'S', 'Sn', 'C', 'A', 'J', 'E');
 
 INSERT INTO NodeTypePropertyAssignment (id, node_type_id_fk, node_property_definition_id_fk, is_required, sort_order, created_by)
-SELECT '47b7c5e4-fc5b-40f8-b03f-eb099ca78250', NodeType.id, NodePropertyDefinition.id, 1, 20, 'Seed'
-FROM NodeType
-
-JOIN NodePropertyDefinition ON NodePropertyDefinition.node_property_definition_name = 'reference'
-WHERE NodeType.node_type_identifier = 'E';
-
-INSERT INTO NodeTypePropertyAssignment (id, node_type_id_fk, node_property_definition_id_fk, is_required, sort_order, created_by)
-SELECT '279de906-cf8b-4750-bf44-51f2c60628c6', NodeType.id, NodePropertyDefinition.id, 0, 30, 'Seed'
+SELECT '279de906-cf8b-4750-bf44-51f2c60628c6', NodeType.id, NodePropertyDefinition.id, 0, 20, 'Seed'
 FROM NodeType
 JOIN NodePropertyDefinition ON NodePropertyDefinition.node_property_definition_name = 'revision'
 WHERE NodeType.node_type_identifier = 'E';
 
 INSERT INTO NodeTypePropertyAssignment (id, node_type_id_fk, node_property_definition_id_fk, is_required, sort_order, created_by)
-SELECT '53af46f7-13f5-4de0-9b59-61b2fd954f89', NodeType.id, NodePropertyDefinition.id, 0, 40, 'Seed'
+SELECT '53af46f7-13f5-4de0-9b59-61b2fd954f89', NodeType.id, NodePropertyDefinition.id, 0, 30, 'Seed'
 FROM NodeType
 JOIN NodePropertyDefinition ON NodePropertyDefinition.node_property_definition_name = 'status'
-WHERE NodeType.node_type_identifier = 'E';
-
-INSERT INTO NodeTypePropertyAssignment (id, node_type_id_fk, node_property_definition_id_fk, is_required, sort_order, created_by)
-SELECT '3d009ced-c190-40e0-afaf-da861ab90397', NodeType.id, NodePropertyDefinition.id, 0, 50, 'Seed'
-FROM NodeType
-JOIN NodePropertyDefinition ON NodePropertyDefinition.node_property_definition_name = 'title'
-WHERE NodeType.node_type_identifier = 'E';
-
-INSERT INTO NodeTypePropertyAssignment (id, node_type_id_fk, node_property_definition_id_fk, is_required, sort_order, created_by)
-SELECT '71758ce9-026c-4f01-a609-c9df9bd3f6a5', NodeType.id, NodePropertyDefinition.id, 0, 60, 'Seed'
-FROM NodeType
-JOIN NodePropertyDefinition ON NodePropertyDefinition.node_property_definition_name = 'location'
 WHERE NodeType.node_type_identifier = 'E';
 
 -- SACM Nodes G0 and Sub-goals to set out the top-level of the GSN Argument
