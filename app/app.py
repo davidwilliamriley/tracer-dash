@@ -1,6 +1,8 @@
 # app.py
 
 # Imports
+import importlib.util
+import pkgutil
 import dash
 from dash import html, dcc, callback, Output, Input
 import dash_bootstrap_components as dbc
@@ -12,6 +14,18 @@ import networkx as nx
 import sys
 import uuid
 import os
+
+
+if not hasattr(pkgutil, "find_loader"):
+
+    def _find_loader(name):
+        try:
+            spec = importlib.util.find_spec(name)
+        except (ModuleNotFoundError, ValueError):
+            return None
+        return spec.loader if spec else None
+
+    pkgutil.find_loader = _find_loader
 
 from utils import network_utils
 from pkg.config import LOG_DIR
@@ -37,7 +51,9 @@ external_scripts = [
     {"src": "/assets/js/cytoscape_callback.js"},
     {"src": "https://unpkg.com/tabulator-tables@6.3.1/dist/js/tabulator.min.js"},
     {"src": "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"},
-    {"src": "https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"},
+    {
+        "src": "https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"
+    },
 ]
 
 # External Stylesheets
@@ -46,7 +62,7 @@ external_stylesheets = [
     "https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css",
     "https://unpkg.com/tabulator-tables@6.3.1/dist/css/tabulator_bootstrap5.min.css",
     "/assets/css/app.css",
-    "/assets/css/tabulator.css"
+    "/assets/css/tabulator.css",
 ]
 
 
@@ -68,13 +84,16 @@ def setup_logging(app_name="TracerApp", log_level=logging.INFO):
     logger.addHandler(console_handler)
 
     log_file_path = LOG_DIR / "app.log"
-    file_handler = RotatingFileHandler(str(log_file_path), maxBytes=10 * 1024 * 1024, backupCount=5)
+    file_handler = RotatingFileHandler(
+        str(log_file_path), maxBytes=10 * 1024 * 1024, backupCount=5
+    )
 
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(detailed_formatter)
     logger.addHandler(file_handler)
 
     return logger
+
 
 logger = setup_logging()
 logger.info("Tracer Application is starting...")
@@ -91,7 +110,9 @@ app = dash.Dash(
     title="Tracer",
 )
 
-cache = Cache(app.server, config={"CACHE_TYPE": "SimpleCache", "CACHE_DEFAULT_TIMEOUT": 3600})
+cache = Cache(
+    app.server, config={"CACHE_TYPE": "SimpleCache", "CACHE_DEFAULT_TIMEOUT": 3600}
+)
 
 server.static_folder = "assets"
 
@@ -140,7 +161,10 @@ def get_header():
         dbc.Container(
             [
                 dbc.NavbarBrand(
-                    [html.I(className="bi bi-node-plus me-2"), html.Span(id="navbar-brand-text", children="Tracer")],
+                    [
+                        html.I(className="bi bi-node-plus me-2"),
+                        html.Span(id="navbar-brand-text", children="Tracer"),
+                    ],
                     href="/",
                     className="fw-light fs-2",
                 ),
@@ -212,9 +236,12 @@ def get_header():
                         ),
                         dbc.NavItem(
                             dbc.NavLink(
-                                [html.I(className="bi bi-question-circle me-2"), "Help"], 
-                                href="/help", 
-                                id="nav-help"
+                                [
+                                    html.I(className="bi bi-question-circle me-2"),
+                                    "Help",
+                                ],
+                                href="/help",
+                                id="nav-help",
                             )
                         ),
                     ],
@@ -302,9 +329,10 @@ app.layout = html.Div(
             "edges",
             "edge-types",
             "nodes",
-            "help"
+            "help",
         ]
-    ] + [Output("navbar-brand-text", "children")],
+    ]
+    + [Output("navbar-brand-text", "children")],
     Input("_pages_location", "pathname"),
 )
 def update_nav_style(pathname):
@@ -317,19 +345,19 @@ def update_nav_style(pathname):
         "/edges": "edges",
         "/edge-types": "edge-types",
         "/nodes": "nodes",
-        "/help": "help"
+        "/help": "help",
     }
-    
+
     # Page name mapping for navbar brand
     page_names = {
         "/": "Tracer",
         "/dashboard": "Tracer - Dashboard",
         "/network": "Tracer - Graphs",
-        "/breakdowns": "Tracer - Components", 
+        "/breakdowns": "Tracer - Components",
         "/edges": "Tracer - Edges",
         "/nodes": "Tracer - Nodes",
         "/edge-types": "Tracer - Edge Types",
-        "/help": "Tracer - Help"
+        "/help": "Tracer - Help",
     }
 
     active_page = nav_map.get(pathname, None)
@@ -345,10 +373,10 @@ def update_nav_style(pathname):
             "edges",
             "edge-types",
             "nodes",
-            "help"
+            "help",
         ]
     ]
-    
+
     return nav_classes + [brand_text]
 
 
