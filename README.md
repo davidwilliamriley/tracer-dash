@@ -1,6 +1,6 @@
 # Tracer
 
-**A Plotly Dash-based Systems Life Cycle Process Management Application**
+**A Plotly Dash-based Model-based Systems Assurance Application**
 
 ## Project Description
 Objective is to provide a Complete, Efficient, Robust and Resilient Network.
