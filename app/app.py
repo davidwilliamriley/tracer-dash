@@ -180,16 +180,6 @@ def get_header():
                                 id="nav-home",
                             )
                         ),
-                        dbc.NavItem(
-                            dbc.NavLink(
-                                [
-                                    html.I(className="bi bi-speedometer me-2"),
-                                    "Dashboard",
-                                ],
-                                href="/dashboard",
-                                id="nav-dashboard",
-                            )
-                        ),
                         # dbc.NavItem(dbc.NavLink([html.I(className="bi bi-file-earmark-richtext me-2"), "Reports"], href="/reports", id="nav-reports")),
                         dbc.NavItem(
                             dbc.NavLink(
@@ -219,30 +209,78 @@ def get_header():
                         ),
                         dbc.NavItem(
                             dbc.NavLink(
-                                [
-                                    html.I(className="bi bi-link-45deg me-2"),
-                                    "Edge Types",
-                                ],
-                                href="/edge-types",
-                                id="nav-edge-types",
-                            )
-                        ),
-                        dbc.NavItem(
-                            dbc.NavLink(
                                 [html.I(className="bi bi-plus-circle me-2"), "Nodes"],
                                 href="/nodes",
                                 id="nav-nodes",
                             )
                         ),
-                        dbc.NavItem(
-                            dbc.NavLink(
-                                [
-                                    html.I(className="bi bi-question-circle me-2"),
-                                    "Help",
-                                ],
-                                href="/help",
-                                id="nav-help",
-                            )
+                        dbc.DropdownMenu(
+                            label="Configuration",
+                            nav=True,
+                            in_navbar=True,
+                            id="nav-config",
+                            toggle_class_name="text-white-50",
+                            children=[
+                                dbc.DropdownMenuItem(
+                                    [
+                                        html.I(className="bi bi-diagram-3 me-2"),
+                                        "Node Types",
+                                    ],
+                                    href="/node-types",
+                                ),
+                                dbc.DropdownMenuItem(
+                                    [
+                                        html.I(className="bi bi-link-45deg me-2"),
+                                        "Edge Types",
+                                    ],
+                                    href="/edge-types",
+                                ),
+                                dbc.DropdownMenuItem(divider=True),
+                                dbc.DropdownMenuItem(
+                                    [
+                                        html.I(className="bi bi-sliders me-2"),
+                                        "Node Property Definitions",
+                                    ],
+                                    href="/node-property-definitions",
+                                ),
+                                dbc.DropdownMenuItem(
+                                    [
+                                        html.I(className="bi bi-sliders2 me-2"),
+                                        "Edge Property Definitions",
+                                    ],
+                                    href="/edge-property-definitions",
+                                ),
+                                dbc.DropdownMenuItem(
+                                    [
+                                        html.I(
+                                            className="bi bi-input-cursor-text me-2"
+                                        ),
+                                        "Node Property Values",
+                                    ],
+                                    href="/node-property-values",
+                                ),
+                                dbc.DropdownMenuItem(
+                                    [
+                                        html.I(className="bi bi-text-paragraph me-2"),
+                                        "Edge Property Values",
+                                    ],
+                                    href="/edge-property-values",
+                                ),
+                                dbc.DropdownMenuItem(
+                                    [
+                                        html.I(className="bi bi-list-check me-2"),
+                                        "Node Property Assignments",
+                                    ],
+                                    href="/node-property-assignments",
+                                ),
+                                dbc.DropdownMenuItem(
+                                    [
+                                        html.I(className="bi bi-card-checklist me-2"),
+                                        "Edge Property Assignments",
+                                    ],
+                                    href="/edge-property-assignments",
+                                ),
+                            ],
                         ),
                     ],
                     navbar=True,
@@ -321,43 +359,49 @@ app.layout = html.Div(
 @callback(
     [
         Output(f"nav-{page}", "className")
-        for page in [
-            "home",
-            "dashboard",
-            "network",
-            "breakdowns",
-            "edges",
-            "edge-types",
-            "nodes",
-            "help",
-        ]
+        for page in ["home", "network", "breakdowns", "edges", "nodes"]
     ]
+    + [Output("nav-config", "toggle_class_name")]
     + [Output("navbar-brand-text", "children")],
     Input("_pages_location", "pathname"),
 )
 def update_nav_style(pathname):
     nav_map = {
         "/": "home",
-        "/dashboard": "dashboard",
         # "/reports": "reports",
         "/network": "network",
         "/breakdowns": "breakdowns",
         "/edges": "edges",
-        "/edge-types": "edge-types",
+        "/edge-types": "config",
+        "/node-types": "config",
+        "/node-property-definitions": "config",
+        "/edge-property-definitions": "config",
+        "/node-property-values": "config",
+        "/edge-property-values": "config",
+        "/node-property-assignments": "config",
+        "/edge-property-assignments": "config",
+        "/property-definitions": "config",
+        "/property-assignments": "config",
         "/nodes": "nodes",
-        "/help": "help",
     }
 
     # Page name mapping for navbar brand
     page_names = {
         "/": "Tracer",
-        "/dashboard": "Tracer - Dashboard",
         "/network": "Tracer - Graphs",
         "/breakdowns": "Tracer - Components",
         "/edges": "Tracer - Edges",
         "/nodes": "Tracer - Nodes",
         "/edge-types": "Tracer - Edge Types",
-        "/help": "Tracer - Help",
+        "/node-types": "Tracer - Node Types",
+        "/node-property-definitions": "Tracer - Node Property Definitions",
+        "/edge-property-definitions": "Tracer - Edge Property Definitions",
+        "/node-property-values": "Tracer - Node Property Values",
+        "/edge-property-values": "Tracer - Edge Property Values",
+        "/node-property-assignments": "Tracer - Node Property Assignments",
+        "/edge-property-assignments": "Tracer - Edge Property Assignments",
+        "/property-definitions": "Tracer - Property Definitions",
+        "/property-assignments": "Tracer - Property Assignments",
     }
 
     active_page = nav_map.get(pathname, None)
@@ -365,19 +409,12 @@ def update_nav_style(pathname):
 
     nav_classes = [
         "text-white" if page == active_page else "text-white-50"
-        for page in [
-            "home",
-            "dashboard",
-            "network",
-            "breakdowns",
-            "edges",
-            "edge-types",
-            "nodes",
-            "help",
-        ]
+        for page in ["home", "network", "breakdowns", "edges", "nodes"]
     ]
 
-    return nav_classes + [brand_text]
+    config_class = "text-white" if active_page == "config" else "text-white-50"
+
+    return nav_classes + [config_class, brand_text]
 
 
 if __name__ == "__main__":

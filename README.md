@@ -6,7 +6,7 @@
 Objective is to provide a Complete, Efficient, Robust and Resilient Network.
 
 ## Outstanding Items 
-https://github.com/users/davidwilliamriley/projects/1
+https://github.com/davidwilliamriley/tracer-dash/issues
 
 ## Installation Instructions
 Clone this Respository 
